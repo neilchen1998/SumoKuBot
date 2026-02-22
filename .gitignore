@@ -1,0 +1,9 @@
+# build folder generated from CMake
+build/*
+
+# vscode
+.vscode/*
+
+# mac
+.cache/*
+.DS_Store
