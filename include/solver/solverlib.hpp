@@ -7,10 +7,10 @@
 
 namespace solver
 {
-    class Solver
+    class SudokuSolver
     {
     public:
-        Solver(std::vector<std::vector<char>>& board)
+        SudokuSolver(std::vector<std::vector<char>>& board)
         {
             Backtrack(board);
         }
