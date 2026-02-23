@@ -15,7 +15,10 @@ list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
 add_executable(solvertestlib solvertestlib.cc)
+add_executable(boardtestlib boardtestlib.cc)
 
 target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain solver_library)
+target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain solver_library)
 
 catch_discover_tests(solvertestlib)
+catch_discover_tests(boardtestlib)

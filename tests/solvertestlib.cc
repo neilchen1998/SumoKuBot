@@ -26,3 +26,32 @@ TEST_CASE( "Sukodu", "[main]" )
         }
     }
 }
+
+TEST_CASE( "Sumoku", "[main]" )
+{
+    // SECTION("Puzzle 0", "[trivial case]")
+    // {
+    //     const std::vector<std::vector<Point>> boxes {{{0, 0}, {0, 1}}, {{1, 0}, {1, 1}}};
+    //     const std::vector<int> sums {3, 3};
+
+    //     solver::SumokuSolver s {boxes, sums};
+
+    //     auto ret = s.Solve();
+    //     s.PrintBoard();
+
+    //     REQUIRE (ret == true);
+    // }
+
+    SECTION("Puzzle 1", "[trivial case]")
+    {
+        const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}}, {{0, 1}, {0, 2}}, {{1, 1}, {1, 2}}, {{2, 0}, {2, 1}}, {{2, 2}}};
+        const std::vector<int> sums {3, 5, 4, 5, 1};
+
+        solver::SumokuSolver s {boxes, sums};
+
+        auto ret = s.Solve();
+        s.PrintBoard();
+
+        REQUIRE (ret == true);
+    }
+}

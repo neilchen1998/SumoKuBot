@@ -1,9 +1,14 @@
 #ifndef INCLUDE_SOLVER_SOLVERLIB_H_
 #define INCLUDE_SOLVER_SOLVERLIB_H_
 
+#include <unordered_map>   // std::unordered_map
 #include <vector>   // std::vector
 
 #include <fmt/core.h>   // fmt::print
+
+#include "board/boardlib.hpp"   // Point
+
+#define SUMOKU_SIZE 3
 
 namespace solver
 {
@@ -107,6 +112,145 @@ namespace solver
             // If all conditions above are passed, then the element is valid
             return true;
         }
+    };
+
+    class SumokuSolver
+    {
+    public:
+        SumokuSolver(const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
+        : _board(SUMOKU_SIZE, std::vector<int>(SUMOKU_SIZE, 0))
+        {
+            // Create the adjacent list
+            for (auto& box : boxes)
+            {
+                for (size_t i = 0; i < box.size(); ++i)
+                {
+                    for (size_t j = 0; j < box.size(); ++j)
+                    {
+                        // Only add the point if the current point is not itself
+                        if (i != j)
+                        {
+                            _adj[box[i]].emplace_back(box[j]);
+                        }
+                    }
+                }
+            }
+
+            // Create the sum map
+            for (size_t i = 0; i < boxes.size(); ++i)
+            {
+                for (auto& p : boxes[i])
+                {
+                    _sums[p] = sums[i];
+                }
+            }
+        }
+
+        bool Solve()
+        {
+            return Backtrack(_board);
+        }
+
+        void PrintBoard() const
+        {
+            ::PrintBoard(_board);
+        }
+
+    private:
+        /// @brief Solves the given Sudoku using backtracking technique
+        /// @param board The Sudoku board
+        /// @param x The current row index
+        /// @param y The current column index
+        /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
+        bool Backtrack(std::vector<std::vector<int>>& board, size_t x = 0, size_t y = 0)
+        {
+            // If we reach the last column, then we start from the next row
+            if (y == SUMOKU_SIZE)
+            {
+                return Backtrack(board, x + 1, 0);
+            }
+
+            // If we reach to the end of the Sudoku board, then we have found a valid solution
+            if (x == SUMOKU_SIZE)
+            {
+                return true;
+            }
+
+            // If there is already a value on the current element, then we skip it
+            if (board[x][y] != 0)
+            {
+                return Backtrack(board, x, y + 1);
+            }
+
+            // We can put any number from 1 to SUMOKU_SIZE
+            for (int c = 1; c <= SUMOKU_SIZE; ++c)
+            {
+                // If the current guess is valid, then we write the current element with the guess
+                if (Check(board, x, y, c))
+                {
+                    board[x][y] = c;
+
+                    // Trigger another backtrack
+                    if (Backtrack(board, x, y + 1))
+                    {
+                        return true;
+                    }
+
+                    // The current guess is incorrect, we re-write it with a default value
+                    // NOTE: if the guess were correct, then we would exit early and would not reach here
+                    board[x][y] = 0;
+                }
+            }
+
+            return false;
+        }
+
+        /// @brief Checks if an element is valid
+        /// @param board The board
+        /// @param x The row index of the element
+        /// @param y The column index of the element
+        /// @param val The value of the element
+        /// @return TRUE if the element is valid
+        bool Check(const std::vector<std::vector<int>>& board, size_t x, size_t y, int val)
+        {
+            // Check if there is any duplicate row-wise
+            for (size_t i = 0; i < SUMOKU_SIZE; ++i)
+            {
+                if (board[i][y] == val)
+                {
+                    return false;
+                }
+            }
+
+            // Check if there is any duplicate column-wise
+            for (size_t j = 0; j < SUMOKU_SIZE; ++j)
+            {
+                if (board[x][j] == val)
+                {
+                    return false;
+                }
+            }
+
+            // Check if the box matches the sum
+            int curSum = val;
+            for (auto& [u, v] : _adj[{x, y}])
+            {
+                curSum += _board[u][v];
+            }
+
+            if (curSum > _sums[{x, y}])
+            {
+                return false;
+            }
+
+            // If all conditions above are passed, then the element is valid
+            return true;
+        }
+
+    private:
+        std::vector<std::vector<int>> _board;
+        std::unordered_map<Point, int, PointHasher> _sums;
+        std::unordered_map<Point, std::vector<Point>, PointHasher> _adj;
     };
 }   // solver
 
