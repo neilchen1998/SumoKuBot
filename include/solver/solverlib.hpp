@@ -1,6 +1,7 @@
 #ifndef INCLUDE_SOLVER_SOLVERLIB_H_
 #define INCLUDE_SOLVER_SOLVERLIB_H_
 
+#include <optional> // std::optional
 #include <unordered_map>   // std::unordered_map
 #include <vector>   // std::vector
 
@@ -117,8 +118,10 @@ namespace solver
     class SumokuSolver
     {
     public:
-        SumokuSolver(const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
-        : _board(SUMOKU_SIZE, std::vector<int>(SUMOKU_SIZE, 0))
+        SumokuSolver(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
+        : _board(N, std::vector<int>(N, 0)),
+        _N(N),
+        _solved(false)
         {
             // Create the adjacent list
             for (auto& box : boxes)
@@ -144,11 +147,18 @@ namespace solver
                     _sums[p] = sums[i];
                 }
             }
+
+            Solve();
         }
 
-        bool Solve()
+        void Solve()
         {
-            return Backtrack(_board);
+            _solved = Backtrack(_board);
+        }
+
+        std::optional<std::vector<std::vector<int>>> GetSolution() const
+        {
+            return _solved ? std::optional<std::vector<std::vector<int>>>{_board} : std::nullopt;
         }
 
         void PrintBoard() const
@@ -165,13 +175,13 @@ namespace solver
         bool Backtrack(std::vector<std::vector<int>>& board, size_t x = 0, size_t y = 0)
         {
             // If we reach the last column, then we start from the next row
-            if (y == SUMOKU_SIZE)
+            if (y == _N)
             {
                 return Backtrack(board, x + 1, 0);
             }
 
             // If we reach to the end of the Sudoku board, then we have found a valid solution
-            if (x == SUMOKU_SIZE)
+            if (x == _N)
             {
                 return true;
             }
@@ -182,8 +192,8 @@ namespace solver
                 return Backtrack(board, x, y + 1);
             }
 
-            // We can put any number from 1 to SUMOKU_SIZE
-            for (int c = 1; c <= SUMOKU_SIZE; ++c)
+            // We can put any number from 1 to _N
+            for (int c = 1; c <= _N; ++c)
             {
                 // If the current guess is valid, then we write the current element with the guess
                 if (Check(board, x, y, c))
@@ -214,7 +224,7 @@ namespace solver
         bool Check(const std::vector<std::vector<int>>& board, size_t x, size_t y, int val)
         {
             // Check if there is any duplicate row-wise
-            for (size_t i = 0; i < SUMOKU_SIZE; ++i)
+            for (size_t i = 0; i < _N; ++i)
             {
                 if (board[i][y] == val)
                 {
@@ -223,7 +233,7 @@ namespace solver
             }
 
             // Check if there is any duplicate column-wise
-            for (size_t j = 0; j < SUMOKU_SIZE; ++j)
+            for (size_t j = 0; j < _N; ++j)
             {
                 if (board[x][j] == val)
                 {
@@ -248,9 +258,11 @@ namespace solver
         }
 
     private:
-        std::vector<std::vector<int>> _board;
-        std::unordered_map<Point, int, PointHasher> _sums;
         std::unordered_map<Point, std::vector<Point>, PointHasher> _adj;
+        std::vector<std::vector<int>> _board;
+        size_t _N;
+        bool _solved;
+        std::unordered_map<Point, int, PointHasher> _sums;
     };
 }   // solver
 
