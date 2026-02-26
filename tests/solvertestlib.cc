@@ -104,4 +104,22 @@ TEST_CASE( "Sumoku", "[main]" )
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
+
+    SECTION("Puzzle 1", "[4 x 4]")
+    {
+        constexpr size_t N = 4;
+        const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}}, {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}}, {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
+        const std::vector<int> sums {6, 4, 5, 5, 1, 8, 6, 5};
+
+        solver::SumokuSolver s {N, boxes, sums};
+
+        auto ret = s.GetSolution();
+        REQUIRE (ret != std::nullopt);
+
+        std::vector<std::vector<int>> solution = *ret;
+
+        REQUIRE (solution.size() == N);
+        validate_boad_is_square(solution);
+        validate_sukodu_row_column_constraints(solution);
+    }
 }
