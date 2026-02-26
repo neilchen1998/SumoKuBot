@@ -105,7 +105,7 @@ TEST_CASE( "Sumoku", "[main]" )
         validate_sukodu_row_column_constraints(solution);
     }
 
-    SECTION("Puzzle 1", "[4 x 4]")
+    SECTION("Puzzle 2", "[4 x 4]")
     {
         constexpr size_t N = 4;
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}}, {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}}, {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
