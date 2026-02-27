@@ -9,6 +9,24 @@
 
 #include "solver/solverlib.hpp"
 
+/// @brief Converts a character digit or integer to an int
+/// @tparam T Must be char or int
+/// @param v The given value to be converted
+/// @return int The result
+template <typename T>
+requires std::same_as<T, char> || std::same_as<T, int>
+int to_int(T v)
+{
+    if constexpr (std::is_same_v<T, char>)
+    {
+        return v - '0';
+    }
+    else
+    {
+        return static_cast<int>(v);
+    }
+}
+
 /// @brief Validates a given board is a square board
 /// @tparam T The element type of the board
 /// @param board The board
@@ -37,10 +55,13 @@ void validate_sukodu_row_column_constraints(const std::vector<std::vector<T>>& b
     for (size_t i = 0; i < N; ++i)
     {
         std::vector<int> row, col;
+        row.reserve(N);
+        col.reserve(N);
+
         for (size_t j = 0; j < N; ++j)
         {
-            row.emplace_back(board[i][j]);
-            col.emplace_back(board[j][i]);
+            row.emplace_back(to_int(board[i][j]));
+            col.emplace_back(to_int(board[j][i]));
         }
 
         REQUIRE_THAT(row, Catch::Matchers::UnorderedEquals(expected_vec));
