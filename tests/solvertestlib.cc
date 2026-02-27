@@ -78,13 +78,16 @@ TEST_CASE( "Sukodu", "[main]" )
 
         solver::SudokuSolver s {board};
 
-        REQUIRE (board.size() == 9);
+        s.Solve();
 
-        for (size_t row = 0; row < board.size(); ++row)
-        {
-            INFO ("Failing at row: " << row);
-            CHECK (board[row] == ans[row]);
-        }
+        auto ret = s.GetSolution();
+        REQUIRE (ret != std::nullopt);
+
+        std::vector<std::vector<char>> solution = *ret;
+
+        REQUIRE (solution.size() == 9);
+        validate_boad_is_square(solution);
+        validate_sukodu_row_column_constraints(solution);
     }
 }
 

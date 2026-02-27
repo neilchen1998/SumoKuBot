@@ -17,8 +17,20 @@ namespace solver
     {
     public:
         SudokuSolver(std::vector<std::vector<char>>& board)
+        : _board(board),
+        _isSolved(false)
         {
-            Backtrack(board);
+
+        }
+
+        void Solve()
+        {
+            _isSolved = Backtrack(_board);
+        }
+
+        std::optional<std::vector<std::vector<char>>> GetSolution() const
+        {
+            return _isSolved ? std::optional<std::vector<std::vector<char>>>{_board} : std::nullopt;
         }
 
     private:
@@ -113,6 +125,10 @@ namespace solver
             // If all conditions above are passed, then the element is valid
             return true;
         }
+
+    private:
+        std::vector<std::vector<char>> _board;
+        bool _isSolved;
     };
 
     class SumokuSolver
