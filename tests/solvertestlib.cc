@@ -1,9 +1,12 @@
 #define CATCH_CONFIG_MAIN
 
+#include <algorithm>  // std::ranges::all_of
+#include <concepts> // concept
 #include <numeric>  // std::iota
-#include <vector>    // std::vector
 #include <ranges>    // std::ranges::input_range
 #include <unordered_set>    // std::unordered_set
+#include <vector>    // std::vector
+
 #include <catch2/catch_test_macros.hpp> // TEST_CASE, SECTION, REQUIRE
 #include <catch2/matchers/catch_matchers_all.hpp>   // Catch::Matchers::Equals
 
@@ -14,7 +17,7 @@
 /// @param v The given value to be converted
 /// @return int The result
 template <typename T>
-requires std::same_as<T, char> || std::same_as<T, int>
+requires std::same_as<T, char> || std::integral<T>
 int to_int(T v)
 {
     if constexpr (std::is_same_v<T, char>)
@@ -27,24 +30,31 @@ int to_int(T v)
     }
 }
 
+template <typename T>
+concept BoardType = std::integral<T> && !std::same_as<T, bool>;
+
 /// @brief Validates a given board is a square board
 /// @tparam T The element type of the board
 /// @param board The board
-template <typename T>
+template <BoardType T>
 void validate_boad_is_square(const std::vector<std::vector<T>>& board)
 {
+    REQUIRE_FALSE(board.empty());
+
     const size_t N = board.size();
 
-    for (const auto& row : board)
+    const bool isSquare = std::ranges::all_of(board, [N](const auto& row)
     {
-        REQUIRE (row.size() == N);
-    }
+        return row.size() == N;
+    });
+
+    REQUIRE (isSquare);
 }
 
 /// @brief Validates a given Sukodu satisfy both the row and column constraints
 /// @tparam T The element type of the board
 /// @param board The Sudoku or any variations
-template <typename T>
+template <BoardType T>
 void validate_sukodu_row_column_constraints(const std::vector<std::vector<T>>& board)
 {
     const size_t N = board.size();
