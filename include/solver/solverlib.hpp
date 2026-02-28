@@ -163,8 +163,6 @@ namespace solver
                     _sums[p] = sums[i];
                 }
             }
-
-            Solve();
         }
 
         void Solve()
@@ -258,19 +256,27 @@ namespace solver
             }
 
             // Check if the box matches the sum
+            bool isFilled = true;
             int curSum = val;
             for (auto& [u, v] : _adj[{x, y}])
             {
+                // As long as there is an element that is zero, that means the cage is not filled yet
+                if (_board[u][v] == 0)
+                {
+                    isFilled = false;
+                }
                 curSum += _board[u][v];
             }
 
-            if (curSum > _sums[{x, y}])
+            // The cage restriction is met when:
+            // 1. the cage has been filled and the current sum equals to the target sum
+            // 2. the cage has not yet filled and the current sum is less than the target sum
+            if ((isFilled && curSum ==  _sums[{x, y}]) || (!isFilled && curSum <  _sums[{x, y}]))
             {
-                return false;
+                return true;
             }
 
-            // If all conditions above are passed, then the element is valid
-            return true;
+            return false;
         }
 
     private:

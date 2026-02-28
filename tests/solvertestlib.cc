@@ -111,6 +111,8 @@ TEST_CASE( "Sumoku", "[main]" )
 
         solver::SumokuSolver s {N, boxes, sums};
 
+        s.Solve();
+
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
@@ -129,6 +131,8 @@ TEST_CASE( "Sumoku", "[main]" )
 
         solver::SumokuSolver s {N, boxes, sums};
 
+        s.Solve();
+
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
@@ -146,6 +150,8 @@ TEST_CASE( "Sumoku", "[main]" )
         const std::vector<int> sums {6, 4, 5, 5, 1, 8, 6, 5};
 
         solver::SumokuSolver s {N, boxes, sums};
+
+        s.Solve();
 
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
@@ -185,10 +191,10 @@ TEST_CASE( "Sumoku", "[main]" )
 
         solver::SumokuSolver s {N, boxes, sums};
 
+        s.Solve();
+
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
-
-        s.PrintBoard();
 
         std::vector<std::vector<int>> solution = *ret;
 
