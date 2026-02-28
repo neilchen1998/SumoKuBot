@@ -9,8 +9,6 @@
 
 #include "board/boardlib.hpp"   // Point
 
-#define SUMOKU_SIZE 3
-
 namespace solver
 {
     class SudokuSolver

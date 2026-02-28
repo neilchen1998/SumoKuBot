@@ -33,3 +33,36 @@ TEST_CASE( "Unordered Map", "[main]" )
         REQUIRE (m.size() == 1);
     }
 }
+
+TEST_CASE( "Combinations", "[main]" )
+{
+    SECTION("")
+    {
+        constexpr int target = 3;
+        constexpr int k = 2;
+
+        const int ans = CountCombinations(target, k);
+
+        REQUIRE (ans == 1);
+    }
+
+    SECTION("")
+    {
+        constexpr int target = 15;
+        constexpr int k = 2;
+
+        const int ans = CountCombinations(target, k);
+
+        REQUIRE (ans == 2);
+    }
+
+    SECTION("")
+    {
+        constexpr int target = 13;
+        constexpr int k = 2;
+
+        const int ans = CountCombinations(target, k);
+
+        REQUIRE (ans == 3);
+    }
+}
