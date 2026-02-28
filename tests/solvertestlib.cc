@@ -95,7 +95,7 @@ TEST_CASE( "Sukodu", "[main]" )
 
         std::vector<std::vector<char>> solution = *ret;
 
-        REQUIRE (solution.size() == 9);
+        REQUIRE (solution.size() == ans.size());
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
