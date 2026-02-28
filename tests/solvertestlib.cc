@@ -30,9 +30,6 @@ int to_int(T v)
     }
 }
 
-template <typename T>
-concept BoardType = std::integral<T> && !std::same_as<T, bool>;
-
 /// @brief Validates a given board is a square board
 /// @tparam T The element type of the board
 /// @param board The board

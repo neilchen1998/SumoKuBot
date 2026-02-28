@@ -6,6 +6,9 @@
 #include <boost/functional/hash.hpp>    // boost::hash_combine
 #include <fmt/core.h>   // fmt::print
 
+template<typename T>
+concept BoardType = std::integral<T> && !std::same_as<T, bool>;
+
 struct Point
 {
     size_t x;
@@ -31,7 +34,7 @@ struct PointHasher
 /// @brief Print a Sudoku board
 /// @tparam T The element type of the board (must support << operator)
 /// @param board The given Sudoku board
-template <typename T>
+template <BoardType T>
 inline void PrintBoard(const std::vector<std::vector<T>>& board)
 {
     for (auto& row : board)
