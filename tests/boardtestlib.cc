@@ -127,3 +127,45 @@ TEST_CASE( "Combinations (Recursive)", "[main]" )
         fmt::println("Cache: {}", cache);
     }
 }
+
+TEST_CASE( "Combinations (Dynamic Programming)", "[main]" )
+{
+    SECTION("Two numbers sum up to a target")
+    {
+        constexpr std::array<int, 18> cache = []()
+        {
+            std::array<int, 18> arr {};
+            for (size_t i = 0; i < 18; ++i)
+            {
+                arr[i] = CalCombinations(i, 2);
+            }
+
+            return arr;
+        }();
+
+        for (size_t i = 0; i < 18; ++i)
+        {
+            REQUIRE (CountCombinations(i, 2) == cache[i]);
+        }
+    }
+
+    SECTION("Three numbers sum up to a target")
+    {
+        auto i = GENERATE(range(6, 25));
+
+        REQUIRE (CountCombinations(i, 3) == CountCombinationThreeNumbers(i));
+    }
+
+    SECTION("Four numbers sum up to a target")
+    {
+        auto i = GENERATE(range(6, 30));
+
+        int res = CountCombinations(i, 4);
+        int ans = CountCombinationFourNumbers(i);
+
+        // Print the values if the REQUIRE fails
+        CAPTURE(i, res, ans);
+
+        REQUIRE (res == ans);
+    }
+}

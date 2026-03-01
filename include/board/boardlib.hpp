@@ -84,4 +84,53 @@ consteval int CalCombinations(int target, int k, int num = 1)
     return count;
 }
 
+struct CombinationsLUT
+{
+    // data[i][j]: the number of unique combinations of i distinct digit(s) that sum up to exactly j
+    int data[10][46] {};
+
+    constexpr CombinationsLUT()
+    {
+        // The base case
+        // There is only one way to sum up to zero
+        data[0][0] = 1;
+
+        // Iterate from number 1 to 9
+        for (int digit = 1; digit <= 9; ++digit)
+        {
+            // Iterate the number of digits and target in reverse to ensure each digit is used only once
+            // NOTE: Iterating forward from k = 1 to k = 9 would allow the current digit to be added
+            // to a sum that already includes it, leading duplicated digits.
+            // Reversing the loops ensures we only build results from the previous iteration
+            for (int k = 9; k >= 1; --k)
+            {
+                for (int t = 45; t >= digit; --t)
+                {
+                    data[k][t] += data[k - 1][t - digit];
+                }
+            }
+        }
+    }
+
+    /// @brief Finds the number of unique combinations of k distinct digits that sum up to a given target from the data
+    /// @param target The target sum
+    /// @param k The number of distinct digit(s)
+    /// @return The total number of unique combinations
+    constexpr int get(int target, int k) const
+    {
+        if (target < 0 || target > 45 || k < 0 || k > 9) return 0;
+        return data[k][target];
+    }
+};
+
+/// @brief Finds the number of unique combinations of k distinct digits that sum up to a given target
+/// @param target The target sum
+/// @param k The number of distinct digit(s)
+/// @return The total number of unique combinations
+constexpr int CountCombinations(int target, int k)
+{
+    static constexpr CombinationsLUT table {};
+    return table.get(target, k);
+}
+
 #endif // INCLUDE_BOARD_BOARDLIB_H_
