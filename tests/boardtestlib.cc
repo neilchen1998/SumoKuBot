@@ -4,10 +4,47 @@
 #include <vector>    // std::vector
 #include <unordered_set>    // std::unordered_set
 
+#include <catch2/catch_all.hpp> // GENERATE
 #include <catch2/catch_test_macros.hpp> // TEST_CASE, SECTION, REQUIRE
-#include <catch2/matchers/catch_matchers_all.hpp>   // Catch::Matchers::Equals
 
 #include "board/boardlib.hpp"
+
+constexpr int CountCombinationThreeNumbers(int target)
+{
+    int count = 0;
+    for (size_t i = 1; i <= 9; ++i)
+    {
+        for (size_t j = i + 1; j <= 9; ++j)
+        {
+            for (size_t k = j + 1; k <= 9; ++k)
+            {
+                count += ((i + j + k) == target) ? 1 : 0;
+            }
+        }
+    }
+
+    return count;
+}
+
+constexpr int CountCombinationFourNumbers(int target)
+{
+    int count = 0;
+    for (size_t i = 1; i <= 9; ++i)
+    {
+        for (size_t j = i + 1; j <= 9; ++j)
+        {
+            for (size_t k = j + 1; k <= 9; ++k)
+            {
+                for (size_t u = k + 1; u <= 9; ++u)
+                {
+                    count += ((i + j + k + u) == target) ? 1 : 0;
+                }
+            }
+        }
+    }
+
+    return count;
+}
 
 TEST_CASE( "Unordered Map", "[main]" )
 {
