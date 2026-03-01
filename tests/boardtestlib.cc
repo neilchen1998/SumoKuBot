@@ -50,42 +50,42 @@ TEST_CASE( "Combinations", "[main]" )
 
     SECTION("Lower section")
     {
-        REQUIRE(cache[0] == 0);
-        REQUIRE(cache[1] == 0);
-        REQUIRE(cache[2] == 0);
+        REQUIRE (cache[0] == 0);
+        REQUIRE (cache[1] == 0);
+        REQUIRE (cache[2] == 0);
 
         // Combinations: {1, 2}
-        REQUIRE(cache[3] == 1);
+        REQUIRE (cache[3] == 1);
     }
 
     SECTION("Middle section")
     {
         // Combinations: {1, 8}, {2, 7}, {3, 6}, {4, 5}
-        REQUIRE(cache[9]  == 4);
+        REQUIRE (cache[9]  == 4);
 
         // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
-        REQUIRE(cache[10] == 4);
+        REQUIRE (cache[10] == 4);
 
         // Combinations: {2, 9}, {3, 8}, {4, 7}, {5 ,6}
-        REQUIRE(cache[11] == 4);
+        REQUIRE (cache[11] == 4);
     }
 
     SECTION("Upper section")
     {
         // Combinations: {7, 9}
-        REQUIRE(cache[16] == 1);
+        REQUIRE (cache[16] == 1);
 
         // Combinations: {8, 9}
-        REQUIRE(cache[17] == 1);
+        REQUIRE (cache[17] == 1);
     }
 
     SECTION("No duplicates (a != b)")
     {
         // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
-        REQUIRE(cache[10] == 4);
+        REQUIRE (cache[10] == 4);
 
         // Combinations: {1, 5}, {2, 4}
-        REQUIRE(cache[6] == 2);
+        REQUIRE (cache[6] == 2);
 
         fmt::println("Cache: {}", cache);
     }
