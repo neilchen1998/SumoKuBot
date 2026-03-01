@@ -54,7 +54,7 @@ inline void PrintBoard(const std::vector<std::vector<T>>& board)
 /// @param k The amount of numbers that can be used
 /// @param num The current number
 /// @return int the number of combinations
-consteval int CountCombinations(int target, int k, int num = 1)
+consteval int CalCombinations(int target, int k, int num = 1)
 {
     // If we have used all the amount of numbers
     if (k == 0)
@@ -78,7 +78,7 @@ consteval int CountCombinations(int target, int k, int num = 1)
 
     for (int i = num; i <= 9; ++i)
     {
-        count += CountCombinations(target - i, k - 1, i + 1);
+        count += CalCombinations(target - i, k - 1, i + 1);
     }
 
     return count;

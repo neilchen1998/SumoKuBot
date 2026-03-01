@@ -72,14 +72,14 @@ TEST_CASE( "Unordered Map", "[main]" )
     }
 }
 
-TEST_CASE( "Combinations", "[main]" )
+TEST_CASE( "Combinations (Recursive)", "[main]" )
 {
     constexpr std::array<int, 18> cache = []()
     {
         std::array<int, 18> arr {};
-        for (size_t i = 0; i < 18; i++)
+        for (size_t i = 0; i < 18; ++i)
         {
-            arr[i] = CountCombinations(i, 2);
+            arr[i] = CalCombinations(i, 2);
         }
 
         return arr;
