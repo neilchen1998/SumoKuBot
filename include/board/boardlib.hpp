@@ -5,6 +5,7 @@
 
 #include <boost/functional/hash.hpp>    // boost::hash_combine
 #include <fmt/core.h>   // fmt::print
+#include <fmt/ranges.h> // fmt::print for std::array
 
 template<typename T>
 concept BoardType = std::integral<T> && !std::same_as<T, bool>;
@@ -53,7 +54,7 @@ inline void PrintBoard(const std::vector<std::vector<T>>& board)
 /// @param k The amount of numbers that can be used
 /// @param num The current number
 /// @return int the number of combinations
-int CountCombinations(int target, int k, int num = 1)
+consteval int CountCombinations(int target, int k, int num = 1)
 {
     // If we have used all the amount of numbers
     if (k == 0)

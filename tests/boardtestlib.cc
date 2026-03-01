@@ -1,5 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
+#include <array>    // std::array
 #include <vector>    // std::vector
 #include <unordered_set>    // std::unordered_set
 
@@ -36,33 +37,56 @@ TEST_CASE( "Unordered Map", "[main]" )
 
 TEST_CASE( "Combinations", "[main]" )
 {
-    SECTION("")
+    constexpr std::array<int, 18> cache = []()
     {
-        constexpr int target = 3;
-        constexpr int k = 2;
+        std::array<int, 18> arr {};
+        for (size_t i = 0; i < 18; i++)
+        {
+            arr[i] = CountCombinations(i, 2);
+        }
 
-        const int ans = CountCombinations(target, k);
+        return arr;
+    }();    // () invokes the lambda immediately
 
-        REQUIRE (ans == 1);
+    SECTION("Lower section")
+    {
+        REQUIRE(cache[0] == 0);
+        REQUIRE(cache[1] == 0);
+        REQUIRE(cache[2] == 0);
+
+        // Combinations: {1, 2}
+        REQUIRE(cache[3] == 1);
     }
 
-    SECTION("")
+    SECTION("Middle section")
     {
-        constexpr int target = 15;
-        constexpr int k = 2;
+        // Combinations: {1, 8}, {2, 7}, {3, 6}, {4, 5}
+        REQUIRE(cache[9]  == 4);
 
-        const int ans = CountCombinations(target, k);
+        // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
+        REQUIRE(cache[10] == 4);
 
-        REQUIRE (ans == 2);
+        // Combinations: {2, 9}, {3, 8}, {4, 7}, {5 ,6}
+        REQUIRE(cache[11] == 4);
     }
 
-    SECTION("")
+    SECTION("Upper section")
     {
-        constexpr int target = 13;
-        constexpr int k = 2;
+        // Combinations: {7, 9}
+        REQUIRE(cache[16] == 1);
 
-        const int ans = CountCombinations(target, k);
+        // Combinations: {8, 9}
+        REQUIRE(cache[17] == 1);
+    }
 
-        REQUIRE (ans == 3);
+    SECTION("No duplicates (a != b)")
+    {
+        // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
+        REQUIRE(cache[10] == 4);
+
+        // Combinations: {1, 5}, {2, 4}
+        REQUIRE(cache[6] == 2);
+
+        fmt::println("Cache: {}", cache);
     }
 }
