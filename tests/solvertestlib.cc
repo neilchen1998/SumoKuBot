@@ -201,7 +201,7 @@ TEST_CASE( "Sumoku", "[main]" )
     }
 }
 
-TEST_CASE( "Sumdoku (SumdokuOrdering)", "[main]" )
+TEST_CASE( "Sumdoku (SumokuOrdering)", "[main]" )
 {
     SECTION("Puzzle 0", "[2 x 2]")
     {
@@ -209,7 +209,7 @@ TEST_CASE( "Sumdoku (SumdokuOrdering)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {0, 1}}, {{1, 0}, {1, 1}}};
         const std::vector<int> sums {3, 3};
 
-        solver::SumdokuOrdering s {N, boxes, sums};
+        solver::SumokuOrdering s {N, boxes, sums};
 
         s.Solve();
 
@@ -229,7 +229,7 @@ TEST_CASE( "Sumdoku (SumdokuOrdering)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}}, {{0, 1}, {0, 2}}, {{1, 1}, {1, 2}}, {{2, 0}, {2, 1}}, {{2, 2}}};
         const std::vector<int> sums {3, 5, 4, 5, 1};
 
-        solver::SumdokuOrdering s {N, boxes, sums};
+        solver::SumokuOrdering s {N, boxes, sums};
 
         s.Solve();
 
@@ -249,7 +249,7 @@ TEST_CASE( "Sumdoku (SumdokuOrdering)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}}, {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}}, {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
         const std::vector<int> sums {6, 4, 5, 5, 1, 8, 6, 5};
 
-        solver::SumdokuOrdering s {N, boxes, sums};
+        solver::SumokuOrdering s {N, boxes, sums};
 
         s.Solve();
 
@@ -289,7 +289,7 @@ TEST_CASE( "Sumdoku (SumdokuOrdering)", "[main]" )
             9, 13
         };
 
-        solver::SumdokuOrdering s {N, boxes, sums};
+        solver::SumokuOrdering s {N, boxes, sums};
 
         s.Solve();
 

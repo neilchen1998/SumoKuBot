@@ -287,10 +287,10 @@ namespace solver
         std::unordered_map<Point, int, PointHasher> _sums;
     };
 
-    class SumdokuOrdering
+    class SumokuOrdering
     {
     public:
-        SumdokuOrdering(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
+        SumokuOrdering(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
         : _board(N, std::vector<int>(N, 0)),
         _N(N),
         _boxes(boxes),
