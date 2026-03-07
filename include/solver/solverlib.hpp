@@ -2,6 +2,7 @@
 #define INCLUDE_SOLVER_SOLVERLIB_H_
 
 #include <algorithm>    // std::algorithm
+#include <cstdint>  // uint16_t
 #include <numeric>   // std::iota
 #include <optional> // std::optional
 #include <unordered_map>   // std::unordered_map
@@ -449,6 +450,178 @@ namespace solver
         std::vector<std::vector<Point>> _boxes;
         std::unordered_map<Point, std::vector<Point>, PointHasher> _boxMembers;
         size_t _N;
+        std::unordered_map<Point, int, PointHasher> _sums;
+        bool _solved;
+        std::vector<Point> _visitOrder;
+    };
+
+    class SumokuOrderingWithBitMask
+    {
+    public:
+        SumokuOrderingWithBitMask(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
+        : _board(N, std::vector<int>(N, 0)),
+        _N(N),
+        _boxes(boxes),
+        _solved(false),
+        _colMasks(N, 0),
+        _rowMasks(N, 0)
+        {
+            // Create the adjacent list
+            for (auto& box : boxes)
+            {
+                for (size_t i = 0; i < box.size(); ++i)
+                {
+                    for (size_t j = 0; j < box.size(); ++j)
+                    {
+                        // Only add the point if the current point is not itself
+                        if (i != j)
+                        {
+                            _boxMembers[box[i]].emplace_back(box[j]);
+                        }
+                    }
+                }
+            }
+
+            // Create a vector of indices
+            std::vector<size_t> indices(boxes.size());
+            std::iota(indices.begin(), indices.end(), 0);
+
+            // Sort the indices based on the size of the boxes
+            std::sort(indices.begin(), indices.end(), [&](size_t lhs, size_t rhs)
+            {
+                return _boxes[lhs].size() < _boxes[rhs].size();
+            });
+
+            // Construct the visit order based on the size of the boxes
+            for (size_t idx : indices)
+            {
+                _visitOrder.insert(_visitOrder.end(), _boxes[idx].begin(), _boxes[idx].end());
+            }
+
+            // Create the sum map
+            for (size_t i = 0; i < boxes.size(); ++i)
+            {
+                for (auto& p : boxes[i])
+                {
+                    _sums[p] = sums[i];
+                }
+            }
+        }
+
+        void Solve()
+        {
+            _solved = Backtrack();
+        }
+
+        std::optional<std::vector<std::vector<int>>> GetSolution() const
+        {
+            return _solved ? std::optional<std::vector<std::vector<int>>>{_board} : std::nullopt;
+        }
+
+        void PrintBoard() const
+        {
+            ::PrintBoard(_board);
+        }
+
+    private:
+        /// @brief Solves the given Sudoku using backtracking technique
+        /// @param x The current row index
+        /// @param y The current column index
+        /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
+        bool Backtrack(size_t idx = 0)
+        {
+            if (idx == _visitOrder.size())
+            {
+                return true;
+            }
+
+            Point p = _visitOrder[idx];
+            for (int val = 1; val <= _N; ++val)
+            {
+                uint_fast16_t bit = (1U << val);
+                if (!(_rowMasks[p.x] & bit) && !(_colMasks[p.y] & bit))
+                {
+                    if (IsValid(p.x, p.y, val))
+                    {
+                        _board[p.x][p.y] = val;
+                        _rowMasks[p.x] |= bit;
+                        _colMasks[p.y] |= bit;
+
+                        if (Backtrack(idx + 1))
+                        {
+                            return true;
+                        }
+
+                        _board[p.x][p.y] = 0;
+                        _rowMasks[p.x] &= ~bit;
+                        _colMasks[p.y] &= ~bit;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// @brief Checks if an element is valid
+        /// @param x The row index of the element
+        /// @param y The column index of the element
+        /// @param val The value of the element
+        /// @return TRUE if the element is valid
+        bool IsValid(size_t x, size_t y, int val)
+        {
+            // Check the box
+            int curSum = val;
+            bool isFull = true;
+
+            for (const auto& member : _boxMembers[{x, y}])
+            {
+                if (member.x == x && member.y == y)
+                {
+                    continue;
+                }
+
+                int ele = _board[member.x][member.y];
+
+                // Check if the element is zero, if so that means the current box is not full
+                if (ele == 0)
+                {
+                    isFull = false;
+                }
+                else if (ele == val)
+                {
+                    // there can only be one unique number in a given box
+                    return false;
+                }
+                else
+                {
+                    curSum += ele;
+                }
+            }
+
+            int target = _sums[{x, y}];
+
+            // If the current sum exceeds the target then we prune it by returning false
+            if (curSum > target)
+            {
+                return false;
+            }
+
+            // If the cage is full then the current sum must equal to the target
+            if (isFull)
+            {
+                return (curSum == target);
+            }
+
+            return true;
+        }
+
+    private:
+        std::vector<std::vector<int>> _board;
+        std::vector<std::vector<Point>> _boxes;
+        std::unordered_map<Point, std::vector<Point>, PointHasher> _boxMembers;
+        size_t _N;
+        std::vector<uint16_t> _colMasks;
+        std::vector<uint16_t> _rowMasks;
         std::unordered_map<Point, int, PointHasher> _sums;
         bool _solved;
         std::vector<Point> _visitOrder;
