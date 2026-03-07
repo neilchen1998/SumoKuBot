@@ -123,8 +123,6 @@ TEST_CASE( "Combinations (Recursive)", "[main]" )
 
         // Combinations: {1, 5}, {2, 4}
         REQUIRE (cache[6] == 2);
-
-        fmt::println("Cache: {}", cache);
     }
 }
 
