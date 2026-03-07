@@ -98,7 +98,7 @@ TEST_CASE( "Sukodu", "[main]" )
     }
 }
 
-TEST_CASE( "Sumdoku (SumokuSolver)", "[main]" )
+TEST_CASE( "Sumoku (SumokuSolver)", "[main]" )
 {
     SECTION("Puzzle 0", "[2 x 2]")
     {
