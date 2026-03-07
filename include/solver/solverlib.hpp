@@ -165,7 +165,7 @@ namespace solver
 
         void Solve()
         {
-            _solved = Backtrack(_board);
+            _solved = Backtrack();
         }
 
         std::optional<std::vector<std::vector<int>>> GetSolution() const
@@ -180,16 +180,15 @@ namespace solver
 
     private:
         /// @brief Solves the given Sudoku using backtracking technique
-        /// @param board The Sudoku board
         /// @param x The current row index
         /// @param y The current column index
         /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
-        bool Backtrack(std::vector<std::vector<int>>& board, size_t x = 0, size_t y = 0)
+        bool Backtrack(size_t x = 0, size_t y = 0)
         {
             // If we reach the last column, then we start from the next row
             if (y == _N)
             {
-                return Backtrack(board, x + 1, 0);
+                return Backtrack(x + 1, 0);
             }
 
             // If we reach to the end of the Sudoku board, then we have found a valid solution
@@ -199,28 +198,28 @@ namespace solver
             }
 
             // If there is already a value on the current element, then we skip it
-            if (board[x][y] != 0)
+            if (_board[x][y] != 0)
             {
-                return Backtrack(board, x, y + 1);
+                return Backtrack(x, y + 1);
             }
 
             // We can put any number from 1 to _N
             for (int c = 1; c <= _N; ++c)
             {
                 // If the current guess is valid, then we write the current element with the guess
-                if (Check(board, x, y, c))
+                if (Check(x, y, c))
                 {
-                    board[x][y] = c;
+                    _board[x][y] = c;
 
                     // Trigger another backtrack
-                    if (Backtrack(board, x, y + 1))
+                    if (Backtrack(x, y + 1))
                     {
                         return true;
                     }
 
                     // The current guess is incorrect, we re-write it with a default value
                     // NOTE: if the guess were correct, then we would exit early and would not reach here
-                    board[x][y] = 0;
+                    _board[x][y] = 0;
                 }
             }
 
@@ -228,17 +227,16 @@ namespace solver
         }
 
         /// @brief Checks if an element is valid
-        /// @param board The board
         /// @param x The row index of the element
         /// @param y The column index of the element
         /// @param val The value of the element
         /// @return TRUE if the element is valid
-        bool Check(const std::vector<std::vector<int>>& board, size_t x, size_t y, int val)
+        bool Check(size_t x, size_t y, int val)
         {
             // Check if there is any duplicate row-wise
             for (size_t i = 0; i < _N; ++i)
             {
-                if (board[i][y] == val)
+                if (_board[i][y] == val)
                 {
                     return false;
                 }
@@ -247,7 +245,7 @@ namespace solver
             // Check if there is any duplicate column-wise
             for (size_t j = 0; j < _N; ++j)
             {
-                if (board[x][j] == val)
+                if (_board[x][j] == val)
                 {
                     return false;
                 }
