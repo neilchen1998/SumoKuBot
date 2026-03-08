@@ -67,6 +67,13 @@ int main()
         s.Solve();
         ankerl::nanobench::doNotOptimizeAway(s);
     })
+        .run("traditional w/ bit mask", [&]
+    {
+        solver::SumokuSolverWithBitMask s {N, boxes1, sums1};
+
+        s.Solve();
+        ankerl::nanobench::doNotOptimizeAway(s);
+    })
         .run("ordering", [&]
     {
         solver::SumokuOrdering s {N, boxes1, sums1};
@@ -86,6 +93,13 @@ int main()
         .run("traditional", [&]
     {
         solver::SumokuSolver s {N, boxes2, sums2};
+
+        s.Solve();
+        ankerl::nanobench::doNotOptimizeAway(s);
+    })
+        .run("traditional with bit mask", [&]
+    {
+        solver::SumokuSolverWithBitMask s {N, boxes2, sums2};
 
         s.Solve();
         ankerl::nanobench::doNotOptimizeAway(s);

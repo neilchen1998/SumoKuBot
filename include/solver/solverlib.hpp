@@ -166,6 +166,8 @@ namespace solver
             }
         }
 
+        ~SumokuSolver() = default;
+
         void Solve()
         {
             _solved = Backtrack();
@@ -181,12 +183,12 @@ namespace solver
             ::PrintBoard(_board);
         }
 
-    private:
+    protected:
         /// @brief Solves the given Sudoku using backtracking technique
         /// @param x The current row index
         /// @param y The current column index
         /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
-        bool Backtrack(size_t x = 0, size_t y = 0)
+        virtual bool Backtrack(size_t x = 0, size_t y = 0)
         {
             // If we reach the last column, then we start from the next row
             if (y == _N)
@@ -234,7 +236,7 @@ namespace solver
         /// @param y The column index of the element
         /// @param val The value of the element
         /// @return TRUE if the element is valid
-        bool Check(size_t x, size_t y, int val)
+        virtual bool Check(size_t x, size_t y, int val)
         {
             // Check if there is any duplicate row-wise
             for (size_t i = 0; i < _N; ++i)
@@ -278,12 +280,115 @@ namespace solver
             return false;
         }
 
-    private:
+    protected:
         std::unordered_map<Point, std::vector<Point>, PointHasher> _adj;
         std::vector<std::vector<int>> _board;
         size_t _N;
         bool _solved;
         std::unordered_map<Point, int, PointHasher> _sums;
+    };
+
+    class SumokuSolverWithBitMask : public SumokuSolver
+    {
+    public:
+        SumokuSolverWithBitMask(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
+        : SumokuSolver(N, boxes, sums), // let the base class constructor handle
+        _rowMasks(N, 0),
+        _colMasks(N, 0)
+        {
+
+        }
+
+    private:
+        /// @brief Solves the given Sudoku using backtracking technique
+        /// @param x The current row index
+        /// @param y The current column index
+        /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
+        bool Backtrack(size_t x = 0, size_t y = 0) override
+        {
+            // If we reach the last column, then we start from the next row
+            if (y == _N)
+            {
+                return Backtrack(x + 1, 0);
+            }
+
+            // If we reach to the end of the Sudoku board, then we have found a valid solution
+            if (x == _N)
+            {
+                return true;
+            }
+
+            // If there is already a value on the current element, then we skip it
+            if (_board[x][y] != 0)
+            {
+                return Backtrack(x, y + 1);
+            }
+
+            // We can put any number from 1 to _N
+            for (int c = 1; c <= _N; ++c)
+            {
+                uint_fast16_t bit = (1U << c);
+                if (!(_rowMasks[x] & bit) && !(_colMasks[y] & bit))
+                {
+                    // If the current guess is valid, then we write the current element with the guess
+                    if (Check(x, y, c))
+                    {
+                        _board[x][y] = c;
+                        _rowMasks[x] |= bit;
+                        _colMasks[y] |= bit;
+
+                        // Trigger another backtrack
+                        if (Backtrack(x, y + 1))
+                        {
+                            return true;
+                        }
+
+                        // The current guess is incorrect, we re-write it with a default value
+                        // NOTE: if the guess were correct, then we would exit early and would not reach here
+                        _board[x][y] = 0;
+                        _rowMasks[x] &= ~bit;
+                        _colMasks[y] &= ~bit;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// @brief Checks if an element is valid
+        /// @param x The row index of the element
+        /// @param y The column index of the element
+        /// @param val The value of the element
+        /// @return TRUE if the element is valid
+        bool Check(size_t x, size_t y, int val) override
+        {
+            // Check if the box matches the sum
+            bool isFilled = true;
+            int curSum = val;
+            for (auto& [u, v] : _adj[{x, y}])
+            {
+                // As long as there is an element that is zero, that means the cage is not filled yet
+                if (_board[u][v] == 0)
+                {
+                    isFilled = false;
+                }
+                curSum += _board[u][v];
+            }
+
+            // The cage restriction is met when:
+            // 1. the cage has been filled and the current sum equals to the target sum
+            // 2. the cage has not yet filled and the current sum is less than the target sum
+            if ((isFilled && curSum ==  _sums[{x, y}]) || (!isFilled && curSum <  _sums[{x, y}]))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+    private:
+        std::vector<uint16_t> _colMasks;
+        std::vector<uint16_t> _rowMasks;
     };
 
     class SumokuOrdering
