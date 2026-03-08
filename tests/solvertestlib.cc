@@ -226,7 +226,7 @@ TEST_CASE( "Sumoku (SumokuSolver)", "[main]" )
             10, 11, 4
         };
 
-        solver::SumokuSolver s {N, boxes, sums};
+        solver::SumokuSolverWithBitMask s {N, boxes, sums};
 
         s.Solve();
 
