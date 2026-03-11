@@ -87,6 +87,13 @@ int main()
 
         s.Solve();
         ankerl::nanobench::doNotOptimizeAway(s);
+    })
+        .run("MRV", [&]
+    {
+        solver::SumokuMRV s {N, boxes1, sums1};
+
+        s.Solve();
+        ankerl::nanobench::doNotOptimizeAway(s);
     });
 
     bench.title("Sumoku Solver Comparison #2")
@@ -114,6 +121,13 @@ int main()
         .run("ordering w/ bit mask", [&]
     {
         solver::SumokuOrderingWithBitMask s {N, boxes2, sums2};
+
+        s.Solve();
+        ankerl::nanobench::doNotOptimizeAway(s);
+    })
+        .run("MRV", [&]
+    {
+        solver::SumokuMRV s {N, boxes1, sums1};
 
         s.Solve();
         ankerl::nanobench::doNotOptimizeAway(s);

@@ -8,6 +8,10 @@
 #include <unordered_map>   // std::unordered_map
 #include <vector>   // std::vector
 
+#ifndef __GNUC__
+#include <bit>  // std::popcount
+#endif
+
 #include <fmt/core.h>   // fmt::print
 
 #include "board/boardlib.hpp"   // Point
@@ -665,6 +669,223 @@ namespace solver
     private:
         std::vector<uint16_t> _colMasks;
         std::vector<uint16_t> _rowMasks;
+    };
+
+    class SumokuMRV
+    {
+    public:
+        SumokuMRV(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
+        : _N(N),
+        _board(N, std::vector<int>(N, 0)),
+        _rowMask(N, 0),
+        _colMask(N, 0),
+        _boxMask(boxes.size(), 0),
+        _boxID(N, std::vector<size_t>(N, 0)),
+        _boxRemainingSum(sums),
+        _boxRemainingCells(sums.size(), 0)
+        {
+            for (size_t i = 0; i < boxes.size(); ++i)
+            {
+                _boxRemainingCells[i] = boxes[i].size();
+
+                for (const Point& p : boxes[i])
+                {
+                    _boxID[p.x][p.y] = i;
+                }
+            }
+        }
+
+        void Solve()
+        {
+            _solved = Backtrack();
+        }
+
+        std::optional<std::vector<std::vector<int>>> GetSolution() const
+        {
+            return _solved ? std::make_optional(_board) : std::nullopt;
+        }
+
+    private:
+
+        /// @brief Find the possible number(s)
+        /// @param r The current row
+        /// @param c The current column
+        /// @return Possible number(s) in the mask format
+        uint16_t GetCandidates(size_t r, size_t c)
+        {
+            size_t id = _boxID[r][c];
+
+            uint16_t forbidden = _rowMask[r] | _colMask[c] | _boxMask[id];
+            uint16_t ret = 0U;
+
+            for (int v = 1; v <= _N; ++v)
+            {
+                // Check if the current number is possible
+                if (!(forbidden & (1U << v)))
+                {
+                    int remainingSum = _boxRemainingSum[id] - v;
+
+                    // If the current sum reaches to negative values,
+                    // then the current number is not a possible
+                    if (remainingSum < 0 )
+                    {
+                        continue;
+                    }
+
+                    // If there is only one cell left in the box and the remaining sum is not equal to zero,
+                    // then we know that the current number is not possible either
+                    if (_boxRemainingCells[id] == 1 && remainingSum != 0)
+                    {
+                        continue;
+                    }
+
+                    // If none of the two scenario is true, then the current nubmer is a possible candidate
+                    ret |= (1U << v);
+                }
+            }
+
+            return ret;
+        }
+
+        /// @brief The selection
+        struct Selection
+        {
+            size_t r = -1;
+            size_t c = -1;
+
+            /// @brief The candidates in the mask form
+            uint16_t mask = 0U;
+
+            /// @brief TRUE if there is no other options
+            bool deadEnd = false;
+        };
+
+        /// @brief Finds the next best cell that has the least candidates (most constrainted cell)
+        /// @return The next best cell
+        inline Selection FindNextBestCell()
+        {
+            Selection ret;
+            size_t curMinCnt = _N + 1;
+
+            // Loop through the entire board to find the next best cell
+            for (size_t r = 0; r < _N; ++r)
+            {
+                for (size_t c = 0; c < _N; ++c)
+                {
+                    // Only check the cell that is empty
+                    if (_board[r][c] == 0)
+                    {
+                        // Get the candidates and the number of candidates
+                        uint16_t candidates = GetCandidates(r, c);
+
+                        // If there is no candidate available that means we hit a dead end and this tree needs to be pruned
+                        if (candidates == 0) [[unlikely]]
+                        {
+                            return Selection {.deadEnd = true};
+                        }
+
+                        #ifdef __GNUC__
+                        int curNumOfCandidates = __builtin_popcount(candidates);
+                        #else
+                        int curNumOfCandidates = std::popcount(candidates);
+                        #endif
+
+                        // Update the return value when the current number of candidates is smaller than the previous one
+                        if (curNumOfCandidates < curMinCnt)
+                        {
+                            curMinCnt = curNumOfCandidates;
+                            ret.r = r;
+                            ret.c = c;
+                            ret.mask = candidates;
+
+                            // If there is only one candidate then we return the current value early
+                            if (curNumOfCandidates == 1)
+                            {
+                                return ret;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        /// @brief Solves the given Sumoku using backtracking technique
+        /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
+        bool Backtrack()
+        {
+            Selection next = FindNextBestCell();
+
+            // If the next best cell is illegal, that means backtracking fails
+            if (next.deadEnd)
+            {
+                return false;
+            }
+
+            // If there is no next best cell and we are not hitting a dead end that means we have finished the entire board
+            if (next.r == -1 && next.c == -1)
+            {
+                return true;
+            }
+
+            // Loop from number 1 to N
+            for (int val = 1; val <= _N; ++val)
+            {
+                if (next.mask & (1U << val))
+                {
+                    Place(next.r, next.c, val);
+                    if (Backtrack())
+                    {
+                        return true;
+                    }
+                    Undo(next.r, next.c, val);
+                }
+            }
+
+            return false;
+        }
+
+        /// @brief Places a number on the board in a given cell
+        /// @param r The row of the given cell
+        /// @param c The column of the given cell
+        /// @param val The given number
+        void Place(size_t r, size_t c, int val)
+        {
+            size_t id = _boxID[r][c];
+
+            _board[r][c] = val;
+            _rowMask[r] |= (1U << val);
+            _colMask[c] |= (1U << val);
+            _boxMask[id] |= (1U << val);
+            _boxRemainingSum[id] -= val;
+            --_boxRemainingCells[id];
+        }
+
+        /// @brief Undoes a number on the board in a given cell (the exact opposite of what Place func does)
+        /// @param r The row of the given cell
+        /// @param c The column of the given cell
+        /// @param val The given number
+        void Undo(size_t r, size_t c, int val)
+        {
+            size_t id = _boxID[r][c];
+
+            _board[r][c] = 0;
+            _rowMask[r] &= ~(1U << val);
+            _colMask[c] &= ~(1U << val);
+            _boxMask[id] &= ~(1U << val);
+            _boxRemainingSum[id] += val;
+            ++_boxRemainingCells[id];
+        }
+
+    private:
+        size_t _N;
+        bool _solved = false;
+        std::vector<std::vector<int>> _board;
+        std::vector<uint16_t> _rowMask, _colMask, _boxMask;
+        std::vector<std::vector<size_t>> _boxID;
+        std::vector<int> _boxRemainingSum;
+        std::vector<size_t> _boxRemainingCells;
     };
 }   // solver
 
