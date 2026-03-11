@@ -778,17 +778,17 @@ namespace solver
                         // Get the candidates and the number of candidates
                         uint16_t candidates = GetCandidates(r, c);
 
+                        // If there is no candidate available that means we hit a dead end and this tree needs to be pruned
+                        if (candidates == 0) [[unlikely]]
+                        {
+                            return Selection {.deadEnd = true};
+                        }
+
                         #ifdef __GNUC__
                         int curNumOfCandidates = __builtin_popcount(candidates);
                         #else
                         int curNumOfCandidates = std::popcount(candidates);
                         #endif
-
-                        // If there is no candidate available that means we hit a dead end and this tree needs to be pruned
-                        if (curNumOfCandidates == 0)
-                        {
-                            return Selection {.deadEnd = true};
-                        }
 
                         // Update the return value when the current number of candidates is smaller than the previous one
                         if (curNumOfCandidates < curMinCnt)
