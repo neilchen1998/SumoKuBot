@@ -463,8 +463,7 @@ namespace solver
 
     protected:
         /// @brief Solves the given Sudoku using backtracking technique
-        /// @param x The current row index
-        /// @param y The current column index
+        /// @param idx The current visit index of the element
         /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
         virtual bool Backtrack(size_t idx = 0)
         {

@@ -241,7 +241,7 @@ TEST_CASE( "Sumoku (SumokuSolver)", "[main]" )
     }
 }
 
-TEST_CASE( "Sumdoku (SumokuOrdering)", "[main]" )
+TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
 {
     SECTION("Puzzle 0", "[2 x 2]")
     {
@@ -384,7 +384,7 @@ TEST_CASE( "Sumdoku (SumokuOrdering)", "[main]" )
     }
 }
 
-TEST_CASE( "Sumdoku (SumokuOrderingWithBitMask)", "[main]" )
+TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
 {
     SECTION("Puzzle 0", "[2 x 2]")
     {
@@ -527,7 +527,7 @@ TEST_CASE( "Sumdoku (SumokuOrderingWithBitMask)", "[main]" )
     }
 }
 
-TEST_CASE( "Sumdoku (SumokuMRV)", "[main]" )
+TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
 {
     SECTION("Puzzle 0", "[2 x 2]")
     {
