@@ -133,4 +133,64 @@ constexpr int CountCombinations(int target, int k)
     return table.get(target, k);
 }
 
+struct PossibleNumbersTable
+{
+    static constexpr int MAX_SUM   = 45;
+    static constexpr int MAX_COUNT = 10;
+
+    // table[count][target]
+    std::array<std::array<uint16_t, MAX_SUM + 1>, MAX_COUNT + 1> table{};
+
+    // Build the whole table at compile time.
+    consteval PossibleNumbersTable() {
+        // reachable[i][j] = can we reach sum j with exactly i numbers?
+        std::array<std::array<bool, MAX_SUM + 1>, MAX_COUNT + 1> reachable{};
+
+        reachable[0][0] = true;
+
+        // dp[i][j] = mask of all numbers that can participate (final mask).
+        std::array<std::array<uint16_t, MAX_SUM + 1>, MAX_COUNT + 1> dp{};
+
+        for (int num = 1; num <= 9; ++num) {
+            for (int i = MAX_COUNT; i >= 1; --i) {
+                for (int s = MAX_SUM; s >= num; --s) {
+                    if (reachable[i - 1][s - num]) {
+                        reachable[i][s] = true;
+
+                        // Add this number.
+                        uint16_t mask_for_state = uint16_t(1u << num);
+
+                        // Also inherit all participants from the previous state.
+                        mask_for_state |= dp[i - 1][s - num];
+
+                        // Merge with anything already known for (i, s).
+                        dp[i][s] |= mask_for_state;
+                    }
+                }
+            }
+        }
+
+        // Copy to member table.
+        for (int i = 0; i <= MAX_COUNT; ++i) {
+            for (int s = 0; s <= MAX_SUM; ++s) {
+                table[i][s] = dp[i][s];
+            }
+        }
+    }
+
+    // Public API: safe lookup.
+    constexpr uint16_t get(size_t target, size_t count) const {
+        if (count > MAX_COUNT || target > MAX_SUM) {
+            return 0;
+        }
+        return table[count][target];
+    }
+};
+
+constexpr uint16_t getPossibleNumbersMask(size_t target, size_t count)
+{
+    static constexpr PossibleNumbersTable g_possibleNumbersTable{};
+    return g_possibleNumbersTable.get(target, count);
+}
+
 #endif // INCLUDE_BOARD_BOARDLIB_H_

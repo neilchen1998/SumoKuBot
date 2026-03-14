@@ -167,3 +167,46 @@ TEST_CASE( "Combinations (Dynamic Programming)", "[main]" )
         REQUIRE (res == ans);
     }
 }
+
+TEST_CASE( "Possible Candidates", "[main]" )
+{
+    SECTION("Lower section")
+    {
+        REQUIRE (getPossibleNumbersMask(0, 2) == 0);
+        REQUIRE (getPossibleNumbersMask(1, 2) == 0);
+        REQUIRE (getPossibleNumbersMask(2, 2) == 0);
+
+        // Combinations: {1, 2}
+        REQUIRE (getPossibleNumbersMask(3, 2) == 0b110);
+    }
+
+    SECTION("Middle section")
+    {
+        // Combinations: {1, 8}, {2, 7}, {3, 6}, {4, 5}
+        REQUIRE (getPossibleNumbersMask(9, 2)  == 0b0111111110);
+
+        // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
+        REQUIRE (getPossibleNumbersMask(10, 2) == 0b1111011110);
+
+        // Combinations: {2, 9}, {3, 8}, {4, 7}, {5 ,6}
+        REQUIRE (getPossibleNumbersMask(11, 2) == 0b1111111100);
+    }
+
+    SECTION("Upper section")
+    {
+        // Combinations: {7, 9}
+        REQUIRE (getPossibleNumbersMask(16, 2) == 0b1010000000);
+
+        // Combinations: {8, 9}
+        REQUIRE (getPossibleNumbersMask(17, 2) == 0b1100000000);
+    }
+
+    SECTION("No duplicates (a != b)")
+    {
+        // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
+        REQUIRE (getPossibleNumbersMask(10, 2) == 0b1111011110);
+
+        // Combinations: {1, 5}, {2, 4}
+        REQUIRE (getPossibleNumbersMask(6, 2) == 0b0000110110);
+    }
+}
