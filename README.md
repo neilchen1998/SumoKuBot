@@ -296,6 +296,111 @@ We see a whopping 120 times improvement over the old method.
 
 ### Dynamic programming
 
+Dynamic programming is a very powerful algorithm that breaks down complex problems into smaller sub-problems.
+There are multiple variations of dynamic programming, e.g., recursion, linear, or 2D.
+In our case, we need to create a 3D version.
+
+This is probably the most challenging part in this repository.
+A 2D dynamic programming method was used but failed test cases and ChatGPT came to the rescue.
+(Yes, I am not ashamed that I used ChatGPT for help.)
+
+We know that we need to find all the numbers that can sum up to a target in compile-time so that we can skip the calculations at run-time.
+The state space is { the number of digits, the target sum }.
+The value of each element represents the combinations of candidates.
+There are many combinations and can not be consolidated into one single mask (I made that mistake in the beginning).
+
+The core logic is that how to find the combinations of candidates that can sum up to 22 with three digits that includes the digit 5.
+We know that if this statement is true if and only if we can sum up to 17 ($22 - 5 = 17$) with two digits.
+
+For each element in the 2D dynamic programming grid, we need an additional dimension that stores all the possible combinations.
+
+`states[i][j][k]` means that the kth combination that can sum up to *j* by using *i* digits.
+The third dimension is essential since it represents how a specific combination of digits is constructed and two combinations of digits can not be mixed. Meaning that ${2, 3}$ and ${1, 4}$ can both sum up to 5 but does not mean that we can use the first combination to sum up to 8 with the digit 3 since 3 is already present.
+
+```cpp
+struct PossibleNumbersTable
+{
+    static constexpr int MAX_SUM   = 45;
+    static constexpr int MAX_COUNT = 9;
+
+    std::array<std::array<uint16_t, MAX_SUM + 1>, MAX_COUNT + 1> table {};
+
+    consteval PossibleNumbersTable()
+    {
+        struct State
+        {
+            /// @brief All the masks (combinations)
+            // For instance, masks[1] with a value of 1b110 means {1, 2} is a valid combination of candidates
+            uint16_t masks[1 << MAX_COUNT] {};  // there are 2^MAX_COUNT possibilities (in this case 2^9)
+
+            /// @brief The number of combinations (also used as an index)
+            size_t sz = 0;
+        };
+
+        std::array<std::array<State, MAX_SUM + 1>, MAX_COUNT + 1> states {};
+
+        // The base case
+        states[0][0].masks[states[0][0].sz++] = 0;
+
+        // Iterate from number 1 to 9
+        for (int digit = 1; digit <= MAX_COUNT; ++digit)
+        {
+            // Iterate the number of digits and target in reverse to ensure each digit is used only once
+            // NOTE: Iterating forward from k = 1 to k = 9 would allow the current digit to be added
+            // to a sum that already includes it, leading duplicated digits.
+            // Reversing the loops ensures we only build results from the previous iteration
+            for (int c = MAX_COUNT; c >= 1; --c)
+            {
+                for (int s = MAX_SUM; s >= digit; --s)
+                {
+                    // Get the previous state
+                    // The previous state has one less number of digits, therefore it's (c - 1)
+                    // and it has less sum, i.e., (s - num)
+                    State& prev = states[c - 1][s - digit];
+                    State& curr = states[c][s];
+
+                    // Propagate all candidates from previous state to the current state and
+                    // add the current digit to the mask
+                    for (int i = 0; i < prev.sz; ++i)
+                    {
+                        curr.masks[curr.sz++] = prev.masks[i] | (1u << digit);
+                    }
+                }
+            }
+        }
+
+        // Construct the final table that combine masks from all states
+        for (int c = 0; c <= MAX_COUNT; ++c)
+        {
+            for (int s = 0; s <= MAX_SUM; ++s)
+            {
+                uint16_t mask = 0;
+                const State& st = states[c][s];
+
+                // Loop through all masks
+                for (int i = 0; i < st.sz; ++i)
+                {
+                    mask |= st.masks[i];
+                }
+
+                table[c][s] = mask;
+            }
+        }
+    }
+
+    /// @brief Finds all the candidates of k distinct digits that sum up to a given target
+    /// @param target The target sum
+    /// @param k The number of distinct digit(s)
+    /// @return All the candidates in mask format
+    constexpr uint16_t get(size_t target, size_t count) const
+    {
+        if (count > MAX_COUNT || target > MAX_SUM)  return 0;
+
+        return table[count][target];
+    }
+};
+```
+
 ### Compiler flags
 
 *target_compile_options* is available in modern **CMake**.
