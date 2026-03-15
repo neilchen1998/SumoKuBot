@@ -136,61 +136,72 @@ constexpr int CountCombinations(int target, int k)
 struct PossibleNumbersTable
 {
     static constexpr int MAX_SUM   = 45;
-    static constexpr int MAX_COUNT = 10;
+    static constexpr int MAX_COUNT = 9;
 
-    // table[count][target]
     std::array<std::array<uint16_t, MAX_SUM + 1>, MAX_COUNT + 1> table{};
 
-    // Build the whole table at compile time.
-    consteval PossibleNumbersTable() {
-        // reachable[i][j] = can we reach sum j with exactly i numbers?
-        std::array<std::array<bool, MAX_SUM + 1>, MAX_COUNT + 1> reachable{};
+    consteval PossibleNumbersTable()
+    {
+        struct State
+        {
+            uint16_t masks[512]{};
+            int size = 0;
+        };
 
-        reachable[0][0] = true;
+        std::array<std::array<State, MAX_SUM + 1>, MAX_COUNT + 1> states{};
 
-        // dp[i][j] = mask of all numbers that can participate (final mask).
-        std::array<std::array<uint16_t, MAX_SUM + 1>, MAX_COUNT + 1> dp{};
+        states[0][0].masks[states[0][0].size++] = 0;
 
-        for (int num = 1; num <= 9; ++num) {
-            for (int i = MAX_COUNT; i >= 1; --i) {
-                for (int s = MAX_SUM; s >= num; --s) {
-                    if (reachable[i - 1][s - num]) {
-                        reachable[i][s] = true;
+        for (int num = 1; num <= 9; ++num)
+        {
+            for (int c = MAX_COUNT; c >= 1; --c)
+            {
+                for (int s = MAX_SUM; s >= num; --s)
+                {
+                    State& prev = states[c - 1][s - num];
+                    State& curr = states[c][s];
 
-                        // Add this number.
-                        uint16_t mask_for_state = uint16_t(1u << num);
-
-                        // Also inherit all participants from the previous state.
-                        mask_for_state |= dp[i - 1][s - num];
-
-                        // Merge with anything already known for (i, s).
-                        dp[i][s] |= mask_for_state;
+                    for (int i = 0; i < prev.size; ++i)
+                    {
+                        curr.masks[curr.size++] = prev.masks[i] | (1u << num);
                     }
                 }
             }
         }
 
-        // Copy to member table.
-        for (int i = 0; i <= MAX_COUNT; ++i) {
-            for (int s = 0; s <= MAX_SUM; ++s) {
-                table[i][s] = dp[i][s];
+        for (int c = 0; c <= MAX_COUNT; ++c)
+        {
+            for (int s = 0; s <= MAX_SUM; ++s)
+            {
+                uint16_t mask = 0;
+
+                const State& st = states[c][s];
+                for (int i = 0; i < st.size; ++i)
+                {
+                    mask |= st.masks[i];
+                }
+
+                table[c][s] = mask;
             }
         }
     }
 
-    // Public API: safe lookup.
-    constexpr uint16_t get(size_t target, size_t count) const {
-        if (count > MAX_COUNT || target > MAX_SUM) {
-            return 0;
-        }
+    constexpr uint16_t get(size_t target, size_t count) const
+    {
+        if (count > MAX_COUNT || target > MAX_SUM)  return 0;
+
         return table[count][target];
     }
 };
 
-constexpr uint16_t getPossibleNumbersMask(size_t target, size_t count)
+/// @brief Finds all the candidates of k distinct digits that sum up to a given target
+/// @param target The target sum
+/// @param k The number of distinct digit(s)
+/// @return All the candidates in mask format
+constexpr uint16_t GetPossibleNumbersMask(size_t target, size_t count)
 {
-    static constexpr PossibleNumbersTable g_possibleNumbersTable{};
-    return g_possibleNumbersTable.get(target, count);
+    static constexpr PossibleNumbersTable table{};
+    return table.get(target, count);
 }
 
 #endif // INCLUDE_BOARD_BOARDLIB_H_

@@ -691,7 +691,7 @@ namespace solver
                 for (const Point& p : boxes[i])
                 {
                     _boxID[p.x][p.y] = i;
-                    _options[p.x][p.y] = getPossibleNumbersMask(sums[i], boxes[i].size());
+                    _options[p.x][p.y] = GetPossibleNumbersMask(sums[i], boxes[i].size());
                 }
             }
         }
