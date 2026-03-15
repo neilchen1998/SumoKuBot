@@ -227,6 +227,42 @@ int curNumOfCandidates = std::popcount(candidates);
 #endif
 ```
 
+### Compiler flags
+
+*target_compile_options* is available in modern **CMake**.
+We create an interface library that only contains compiler flags and linker flags.
+
+```cmake
+# Compiler flags
+add_library(project_options INTERFACE)
+
+# Flags for all build types
+target_compile_options(project_options INTERFACE -Wall -Wextra -Wpedantic)
+
+# Flags based on the specified build type
+target_compile_options(project_options INTERFACE
+    $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Debug>:-g -O0>
+    $<$<CONFIG:Benchmark>:-O3 -march=native -DNDEBUG>
+    $<$<CONFIG:Test>:-g -O1 -fsanitize=address -fsanitize=undefined>
+)
+
+# Linker flags
+target_link_options(project_options INTERFACE
+    $<$<CONFIG:Test>:-fsanitize=address -fsanitize=undefined>
+)
+```
+
+We can then add *project_options* in *src/CMakeLists.txt*, *tests/CMakeLists.txt*, etc, like this so that the source code inside those subdirectories will be compiled with the flags defined in the main *CMakeLists.txt*:
+
+```cmake
+target_link_libraries(board_library INTERFACE  Boost::boost fmt::fmt project_options)
+```
+
+- `$<$<CONFIG:Release>:-O3`: adds *-O3* flag if the build type is set to *Release*
+- *-march=native*: uses all available instructions on the machine
+- *-DNDEBUG*: disable all standard *assert*s
+
 ## Reference
 
 - [gprof2dot](https://pypi.org/project/gprof2dot/)

@@ -17,8 +17,8 @@ include(Catch)
 add_executable(solvertestlib solvertestlib.cc)
 add_executable(boardtestlib boardtestlib.cc)
 
-target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain solver_library)
-target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain solver_library)
+target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain solver_library project_options)
+target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain solver_library project_options)
 
 catch_discover_tests(solvertestlib)
 catch_discover_tests(boardtestlib)

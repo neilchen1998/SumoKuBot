@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configure the repo
-cmake -S . -B build &&
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release &&
 
 # Build the repo
 cmake --build build &&
