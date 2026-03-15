@@ -681,7 +681,8 @@ namespace solver
         _boxMask(boxes.size(), 0),
         _boxID(N, std::vector<size_t>(N, 0)),
         _boxRemainingSum(sums),
-        _boxRemainingCells(sums.size(), 0)
+        _boxRemainingCells(sums.size(), 0),
+        _options(N, std::vector<uint16_t>(N, 0))
         {
             for (size_t i = 0; i < boxes.size(); ++i)
             {
@@ -690,6 +691,7 @@ namespace solver
                 for (const Point& p : boxes[i])
                 {
                     _boxID[p.x][p.y] = i;
+                    _options[p.x][p.y] = GetPossibleNumbersMask(sums[i], boxes[i].size());
                 }
             }
         }
@@ -720,25 +722,8 @@ namespace solver
             for (size_t v = 1; v <= _N; ++v)
             {
                 // Check if the current number is possible
-                if (!(forbidden & (1U << v)))
+                if (!(forbidden & (1U << v)) && (_options[r][c] >> v))
                 {
-                    int remainingSum = _boxRemainingSum[id] - v;
-
-                    // If the current sum reaches to negative values,
-                    // then the current number is not a possible
-                    if (remainingSum < 0 )
-                    {
-                        continue;
-                    }
-
-                    // If there is only one cell left in the box and the remaining sum is not equal to zero,
-                    // then we know that the current number is not possible either
-                    if (_boxRemainingCells[id] == 1 && remainingSum != 0)
-                    {
-                        continue;
-                    }
-
-                    // If none of the two scenario is true, then the current nubmer is a possible candidate
                     ret |= (1U << v);
                 }
             }
@@ -857,6 +842,7 @@ namespace solver
             _rowMask[r] |= (1U << digit);
             _colMask[c] |= (1U << digit);
             _boxMask[id] |= (1U << digit);
+            _options[r][c] &= ~(1U << digit);
             _boxRemainingSum[id] -= digit;
             --_boxRemainingCells[id];
         }
@@ -873,6 +859,7 @@ namespace solver
             _rowMask[r] &= ~(1U << digit);
             _colMask[c] &= ~(1U << digit);
             _boxMask[id] &= ~(1U << digit);
+            _options[r][c]|= (1U << digit);
             _boxRemainingSum[id] += digit;
             ++_boxRemainingCells[id];
         }
@@ -885,6 +872,7 @@ namespace solver
         std::vector<std::vector<size_t>> _boxID;
         std::vector<int> _boxRemainingSum;
         std::vector<size_t> _boxRemainingCells;
+        std::vector<std::vector<uint16_t>> _options;
     };
 }   // solver
 

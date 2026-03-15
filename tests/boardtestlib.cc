@@ -247,3 +247,72 @@ TEST_CASE( "Combinations (Dynamic Programming)", "[main]" )
         REQUIRE (res == ans);
     }
 }
+
+TEST_CASE( "Get Possible Numbers In Mask", "[main]" )
+{
+    SECTION("Lower section")
+    {
+        REQUIRE (GetPossibleNumbersMask(0, 2) == 0);
+        REQUIRE (GetPossibleNumbersMask(1, 2) == 0);
+        REQUIRE (GetPossibleNumbersMask(2, 2) == 0);
+
+        // Combinations: {1, 2}
+        REQUIRE (GetPossibleNumbersMask(3, 2) == GenerateCandidateMask(1, 2));
+    }
+
+    SECTION("Middle section")
+    {
+        // Combinations: {1, 8}, {2, 7}, {3, 6}, {4, 5}
+        REQUIRE (GetPossibleNumbersMask(9, 2)  == GenerateCandidateMask(1, 8, 2, 7, 3, 6, 4, 5));
+
+        // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
+        REQUIRE (GetPossibleNumbersMask(10, 2) == GenerateCandidateMask(1, 9, 2, 8, 3, 7, 4, 6));
+
+        // Combinations: {2, 9}, {3, 8}, {4, 7}, {5 ,6}
+        REQUIRE (GetPossibleNumbersMask(11, 2) == GenerateCandidateMask(2, 9, 3, 8, 4, 7, 5, 6));
+    }
+
+    SECTION("Upper section")
+    {
+        // Combinations: {7, 9}
+        REQUIRE (GetPossibleNumbersMask(16, 2) == GenerateCandidateMask(7, 9));
+
+        // Combinations: {8, 9}
+        REQUIRE (GetPossibleNumbersMask(17, 2) == GenerateCandidateMask(8, 9));
+    }
+
+    SECTION("No duplicates (a != b)")
+    {
+        // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
+        REQUIRE (GetPossibleNumbersMask(10, 2) == GenerateCandidateMask(1, 9, 2, 8, 3, 7, 4, 6));
+
+        // Combinations: {1, 5}, {2, 4}
+        REQUIRE (GetPossibleNumbersMask(6, 2) == GenerateCandidateMask(1, 5, 2, 4));
+    }
+
+    SECTION("Two numbers sum up to a target")
+    {
+        auto target = GENERATE(range(3, 45));
+
+        uint16_t res = GetPossibleNumbersMask(target, 2);
+        uint16_t ans = GetCandiateMaskWithTwoNumbers(target);
+
+        // Print the values if the REQUIRE fails
+        CAPTURE(target, res, ans);
+
+        REQUIRE (res == ans);
+    }
+
+    SECTION("Three numbers sum up to a target")
+    {
+        auto target = GENERATE(range(6, 45));
+
+        uint16_t res = GetPossibleNumbersMask(target, 3);
+        uint16_t ans = GetCandidateMaskWithThreeNumbers(target);
+
+        // Print the values if the REQUIRE fails
+        CAPTURE(target, res, ans);
+
+        REQUIRE (res == ans);
+    }
+}

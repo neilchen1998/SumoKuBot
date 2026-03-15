@@ -34,7 +34,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     target_compile_options(project_options INTERFACE
         $<$<CONFIG:Release>:-O3>
         $<$<CONFIG:Debug>:-g -O0>
-        $<$<CONFIG:Benchmark>:-O3 -march=native -DNDEBUG>
+        $<$<CONFIG:Benchmark>:-O3 -march=native -flto -ffast-math -DNDEBUG>
         $<$<CONFIG:Test>:-g -O1 -fsanitize=address -fsanitize=undefined>
     )
 
