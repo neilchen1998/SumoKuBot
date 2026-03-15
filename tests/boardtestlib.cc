@@ -9,14 +9,34 @@
 
 #include "board/boardlib.hpp"
 
+/// @brief Gets the number of candidate that can sum up to a given target with two numbers O(N^2)
+/// @param target The target
+/// @return The number of candidates
+constexpr int CountCombinationTwoNumbers(int target)
+{
+    int count = 0;
+    for (int i = 1; i <= 9; ++i)
+    {
+        for (int j = i + 1; j <= 9; ++j)
+        {
+            count += ((i + j) == target) ? 1 : 0;
+        }
+    }
+
+    return count;
+}
+
+/// @brief Gets the number of candidate that can sum up to a given target with three numbers O(N^3)
+/// @param target The target
+/// @return The number of candidates
 constexpr int CountCombinationThreeNumbers(int target)
 {
     int count = 0;
-    for (auto i = 1; i <= 9; ++i)
+    for (int i = 1; i <= 9; ++i)
     {
-        for (auto j = i + 1; j <= 9; ++j)
+        for (int j = i + 1; j <= 9; ++j)
         {
-            for (auto k = j + 1; k <= 9; ++k)
+            for (int k = j + 1; k <= 9; ++k)
             {
                 count += ((i + j + k) == target) ? 1 : 0;
             }
@@ -26,16 +46,19 @@ constexpr int CountCombinationThreeNumbers(int target)
     return count;
 }
 
+/// @brief Gets the number of candidate that can sum up to a given target with four numbers O(N^4)
+/// @param target The target
+/// @return The number of candidates
 constexpr int CountCombinationFourNumbers(int target)
 {
     int count = 0;
-    for (auto i = 1; i <= 9; ++i)
+    for (int i = 1; i <= 9; ++i)
     {
-        for (auto j = i + 1; j <= 9; ++j)
+        for (int j = i + 1; j <= 9; ++j)
         {
-            for (auto k = j + 1; k <= 9; ++k)
+            for (int k = j + 1; k <= 9; ++k)
             {
-                for (auto u = k + 1; u <= 9; ++u)
+                for (int u = k + 1; u <= 9; ++u)
                 {
                     count += ((i + j + k + u) == target) ? 1 : 0;
                 }
@@ -44,6 +67,63 @@ constexpr int CountCombinationFourNumbers(int target)
     }
 
     return count;
+}
+
+/// @brief Gets all the candidate that can sum up to a given target with two numbers O(N^2)
+/// @param target The target
+/// @return All the candidates in mask format
+constexpr uint16_t GetCandiateMaskWithTwoNumbers(int target)
+{
+    uint16_t ret = 0U;
+    for (int i = 1; i <= 9; ++i)
+    {
+        for (int j = i + 1; j <= 9; ++j)
+        {
+            if ((i + j) == target)
+            {
+                ret |= (1U << i);
+                ret |= (1U << j);
+            }
+        }
+    }
+
+    return ret;
+}
+
+/// @brief Gets all the candidate that can sum up to a given target with three numbers O(N^3)
+/// @param target The target
+/// @return All the candidates in mask format
+constexpr uint16_t GetCandidateMaskWithThreeNumbers(int target)
+{
+    uint16_t ret = 0U;
+    for (int i = 1; i <= 9; ++i)
+    {
+        for (int j = i + 1; j <= 9; ++j)
+        {
+            for (int k = j + 1; k <= 9; ++k)
+            {
+                if ((i + j + k) == target)
+                {
+                    ret |= (1U << i);
+                    ret |= (1U << j);
+                    ret |= (1U << k);
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+
+/// @brief Generates the mask that contains all candidates
+/// @tparam ...Args The type of the digit
+/// @param ...digit The digit(s)
+/// @return The candidates in mask format
+template <typename... Args>
+requires (std::same_as<Args, int>&&...)
+uint16_t GenerateCandidateMask(Args... digit)
+{
+    return ((1U << digit) | ... | 0);
 }
 
 TEST_CASE( "Unordered Map", "[main]" )
