@@ -46,6 +46,57 @@ constexpr int CountCombinationFourNumbers(int target)
     return count;
 }
 
+constexpr uint16_t GetCandiateMaskWithTwoNumbers(int target)
+{
+    uint16_t ret = 0;
+    for (size_t i = 1; i <= 9; ++i)
+    {
+        for (size_t j = i + 1; j <= 9; ++j)
+        {
+            if ((i + j) == target)
+            {
+                ret |= (1U << i);
+                ret |= (1U << j);
+            }
+        }
+    }
+
+    return ret;
+}
+
+constexpr uint16_t GetCandidateMaskWithThreeNumbers(int target)
+{
+    uint16_t ret = 0;
+    for (size_t i = 1; i <= 9; ++i)
+    {
+        for (size_t j = i + 1; j <= 9; ++j)
+        {
+            for (size_t k = j + 1; k <= 9; ++k)
+            {
+                if ((i + j + k) == target)
+                {
+                    ret |= (1U << i);
+                    ret |= (1U << j);
+                    ret |= (1U << k);
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+
+/// @brief Generates the mask that contains all candidates
+/// @tparam ...Args The type of the digit
+/// @param ...digit The digit(s)
+/// @return The candidates in mask format
+template <typename... Args>
+requires (std::same_as<Args, int>&&...)
+uint16_t GenerateCandidateMask(Args... digit)
+{
+    return ((1U << digit) | ... | 0);
+}
+
 TEST_CASE( "Unordered Map", "[main]" )
 {
     std::unordered_map<Point, int, PointHasher> m;
