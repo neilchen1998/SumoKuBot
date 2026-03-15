@@ -724,23 +724,6 @@ namespace solver
                 // Check if the current number is possible
                 if (!(forbidden & (1U << v)) && (_options[r][c] >> v))
                 {
-                    // int remainingSum = _boxRemainingSum[id] - v;
-
-                    // // If the current sum reaches to negative values,
-                    // // then the current number is not a possible
-                    // if (remainingSum < 0 )
-                    // {
-                    //     continue;
-                    // }
-
-                    // // If there is only one cell left in the box and the remaining sum is not equal to zero,
-                    // // then we know that the current number is not possible either
-                    // if (_boxRemainingCells[id] == 1 && remainingSum != 0)
-                    // {
-                    //     continue;
-                    // }
-
-                    // If none of the two scenario is true, then the current nubmer is a possible candidate
                     ret |= (1U << v);
                 }
             }
