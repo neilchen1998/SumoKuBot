@@ -24,6 +24,25 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
     endif()
 
+    # Compiler flags
+    add_library(project_options INTERFACE)
+
+    # Flags for all build types
+    target_compile_options(project_options INTERFACE -Wall -Wextra -Wpedantic)
+
+    # Flags based on the specified build type
+    target_compile_options(project_options INTERFACE
+        $<$<CONFIG:Release>:-O3>
+        $<$<CONFIG:Debug>:-g -O0>
+        $<$<CONFIG:Benchmark>:-O3 -march=native -flto -ffast-math -DNDEBUG>
+        $<$<CONFIG:Test>:-g -O1 -fsanitize=address -fsanitize=undefined>
+    )
+
+    # Linker flags
+    target_link_options(project_options INTERFACE
+        $<$<CONFIG:Test>:-fsanitize=address -fsanitize=undefined>
+    )
+
     # Use CTest
     # NOTE: this needs to be done in the main CMakeLists
     include(CTest)

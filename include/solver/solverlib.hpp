@@ -91,14 +91,14 @@ namespace solver
         /// @param board The board
         /// @param x The row index of the element
         /// @param y The column index of the element
-        /// @param val The value of the element
+        /// @param digit The digit of the element
         /// @return TRUE if the element is valid
-        bool Check(const std::vector<std::vector<char>>& board, size_t x, size_t y, char val)
+        bool Check(const std::vector<std::vector<char>>& board, size_t x, size_t y, char digit)
         {
             // Check if there is any duplicate row-wise
             for (size_t i = 0; i < 9; ++i)
             {
-                if (board[i][y] == val)
+                if (board[i][y] == digit)
                 {
                     return false;
                 }
@@ -107,7 +107,7 @@ namespace solver
             // Check if there is any duplicate column-wise
             for (size_t j = 0; j < 9; ++j)
             {
-                if (board[x][j] == val)
+                if (board[x][j] == digit)
                 {
                     return false;
                 }
@@ -120,7 +120,7 @@ namespace solver
             {
                 for (size_t j = 0; j < 3; ++j)
                 {
-                    if (board[u + i][v + j] == val)
+                    if (board[u + i][v + j] == digit)
                     {
                         return false;
                     }
@@ -213,12 +213,12 @@ namespace solver
             }
 
             // We can put any number from 1 to _N
-            for (int c = 1; c <= _N; ++c)
+            for (size_t digit = 1; digit <= _N; ++digit)
             {
                 // If the current guess is valid, then we write the current element with the guess
-                if (Check(x, y, c))
+                if (Check(x, y, digit))
                 {
-                    _board[x][y] = c;
+                    _board[x][y] = digit;
 
                     // Trigger another backtrack
                     if (Backtrack(x, y + 1))
@@ -238,14 +238,14 @@ namespace solver
         /// @brief Checks if an element is valid
         /// @param x The row index of the element
         /// @param y The column index of the element
-        /// @param val The value of the element
+        /// @param digit The digit of the element
         /// @return TRUE if the element is valid
-        virtual bool Check(size_t x, size_t y, int val)
+        virtual bool Check(size_t x, size_t y, int digit)
         {
             // Check if there is any duplicate row-wise
             for (size_t i = 0; i < _N; ++i)
             {
-                if (_board[i][y] == val)
+                if (_board[i][y] == digit)
                 {
                     return false;
                 }
@@ -254,7 +254,7 @@ namespace solver
             // Check if there is any duplicate column-wise
             for (size_t j = 0; j < _N; ++j)
             {
-                if (_board[x][j] == val)
+                if (_board[x][j] == digit)
                 {
                     return false;
                 }
@@ -262,7 +262,7 @@ namespace solver
 
             // Check if the box matches the sum
             bool isFilled = true;
-            int curSum = val;
+            int curSum = digit;
             for (auto& [u, v] : _adj[{x, y}])
             {
                 // As long as there is an element that is zero, that means the cage is not filled yet
@@ -297,8 +297,8 @@ namespace solver
     public:
         SumokuSolverWithBitMask(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
         : SumokuSolver(N, boxes, sums), // let the base class constructor handle
-        _rowMasks(N, 0),
-        _colMasks(N, 0)
+        _colMasks(N, 0),
+        _rowMasks(N, 0)
         {
 
         }
@@ -329,15 +329,15 @@ namespace solver
             }
 
             // We can put any number from 1 to _N
-            for (int c = 1; c <= _N; ++c)
+            for (size_t digit = 1; digit <= _N; ++digit)
             {
-                uint_fast16_t bit = (1U << c);
+                uint_fast16_t bit = (1U << digit);
                 if (!(_rowMasks[x] & bit) && !(_colMasks[y] & bit))
                 {
                     // If the current guess is valid, then we write the current element with the guess
-                    if (Check(x, y, c))
+                    if (Check(x, y, digit))
                     {
-                        _board[x][y] = c;
+                        _board[x][y] = digit;
                         _rowMasks[x] |= bit;
                         _colMasks[y] |= bit;
 
@@ -362,13 +362,13 @@ namespace solver
         /// @brief Checks if an element is valid
         /// @param x The row index of the element
         /// @param y The column index of the element
-        /// @param val The value of the element
+        /// @param digit The digit of the element
         /// @return TRUE if the element is valid
-        bool Check(size_t x, size_t y, int val) override
+        bool Check(size_t x, size_t y, int digit) override
         {
             // Check if the box matches the sum
             bool isFilled = true;
-            int curSum = val;
+            int curSum = digit;
             for (auto& [u, v] : _adj[{x, y}])
             {
                 // As long as there is an element that is zero, that means the cage is not filled yet
@@ -400,8 +400,8 @@ namespace solver
     public:
         SumokuOrdering(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
         : _board(N, std::vector<int>(N, 0)),
-        _N(N),
         _boxes(boxes),
+        _N(N),
         _solved(false)
         {
             // Create the adjacent list
@@ -473,11 +473,11 @@ namespace solver
             }
 
             Point p = _visitOrder[idx];
-            for (int val = 1; val <= _N; ++val)
+            for (size_t digit = 1; digit <= _N; ++digit)
             {
-                if (IsValid(p.x, p.y, val))
+                if (IsValid(p.x, p.y, digit))
                 {
-                    _board[p.x][p.y] = val;
+                    _board[p.x][p.y] = digit;
 
                     if (Backtrack(idx + 1))
                     {
@@ -494,21 +494,21 @@ namespace solver
         /// @brief Checks if an element is valid
         /// @param x The row index of the element
         /// @param y The column index of the element
-        /// @param val The value of the element
+        /// @param digit The digit of the element
         /// @return TRUE if the element is valid
-        virtual bool IsValid(size_t x, size_t y, int val)
+        virtual bool IsValid(size_t x, size_t y, int digit)
         {
             // Check the row and the column
             for (size_t i = 0; i < _N; ++i)
             {
-                if ((_board[x][i] == val) || (_board[i][y] == val))
+                if ((_board[x][i] == digit) || (_board[i][y] == digit))
                 {
                     return false;
                 }
             }
 
             // Check the box
-            int curSum = val;
+            int curSum = digit;
             bool isFull = true;
 
             for (const auto& member : _boxMembers[{x, y}])
@@ -525,7 +525,7 @@ namespace solver
                 {
                     isFull = false;
                 }
-                else if (ele == val)
+                else if (ele == digit)
                 {
                     // there can only be one unique number in a given box
                     return false;
@@ -586,14 +586,14 @@ namespace solver
             }
 
             Point p = _visitOrder[idx];
-            for (int val = 1; val <= _N; ++val)
+            for (size_t digit = 1; digit <= _N; ++digit)
             {
-                uint_fast16_t bit = (1U << val);
+                uint_fast16_t bit = (1U << digit);
                 if (!(_rowMasks[p.x] & bit) && !(_colMasks[p.y] & bit))
                 {
-                    if (IsValid(p.x, p.y, val))
+                    if (IsValid(p.x, p.y, digit))
                     {
-                        _board[p.x][p.y] = val;
+                        _board[p.x][p.y] = digit;
                         _rowMasks[p.x] |= bit;
                         _colMasks[p.y] |= bit;
 
@@ -615,12 +615,12 @@ namespace solver
         /// @brief Checks if an element is valid
         /// @param x The row index of the element
         /// @param y The column index of the element
-        /// @param val The value of the element
+        /// @param digit The digit of the element
         /// @return TRUE if the element is valid
-        bool IsValid(size_t x, size_t y, int val) override
+        bool IsValid(size_t x, size_t y, int digit) override
         {
             // Check the box
-            int curSum = val;
+            int curSum = digit;
             bool isFull = true;
 
             for (const auto& member : _boxMembers[{x, y}])
@@ -637,7 +637,7 @@ namespace solver
                 {
                     isFull = false;
                 }
-                else if (ele == val)
+                else if (ele == digit)
                 {
                     // there can only be one unique number in a given box
                     return false;
@@ -719,7 +719,7 @@ namespace solver
             uint16_t forbidden = _rowMask[r] | _colMask[c] | _boxMask[id];
             uint16_t ret = 0U;
 
-            for (int v = 1; v <= _N; ++v)
+            for (size_t v = 1; v <= _N; ++v)
             {
                 // Check if the current number is possible
                 if (!(forbidden & (1U << v)) && (_options[r][c] >> v))
@@ -734,8 +734,8 @@ namespace solver
         /// @brief The selection
         struct Selection
         {
-            size_t r = -1;
-            size_t c = -1;
+            int r = -1;
+            int c = -1;
 
             /// @brief The candidates in the mask form
             uint16_t mask = 0U;
@@ -769,9 +769,9 @@ namespace solver
                         }
 
                         #ifdef __GNUC__
-                        int curNumOfCandidates = __builtin_popcount(candidates);
+                        size_t curNumOfCandidates = static_cast<size_t>(__builtin_popcount(candidates));
                         #else
-                        int curNumOfCandidates = std::popcount(candidates);
+                        size_t curNumOfCandidates = static_cast<size_t>(std::popcount(candidates));
                         #endif
 
                         // Update the return value when the current number of candidates is smaller than the previous one
@@ -814,16 +814,16 @@ namespace solver
             }
 
             // Loop from number 1 to N
-            for (int val = 1; val <= _N; ++val)
+            for (size_t digit = 1; digit <= _N; ++digit)
             {
-                if (next.mask & (1U << val))
+                if (next.mask & (1U << digit))
                 {
-                    Place(next.r, next.c, val);
+                    Place(next.r, next.c, digit);
                     if (Backtrack())
                     {
                         return true;
                     }
-                    Undo(next.r, next.c, val);
+                    Undo(next.r, next.c, digit);
                 }
             }
 
@@ -833,34 +833,34 @@ namespace solver
         /// @brief Places a number on the board in a given cell
         /// @param r The row of the given cell
         /// @param c The column of the given cell
-        /// @param val The given number
-        void Place(size_t r, size_t c, int val)
+        /// @param digit The given number
+        void Place(size_t r, size_t c, int digit)
         {
             size_t id = _boxID[r][c];
 
-            _board[r][c] = val;
-            _rowMask[r] |= (1U << val);
-            _colMask[c] |= (1U << val);
-            _boxMask[id] |= (1U << val);
-            _options[r][c] &= ~(1U << val);
-            _boxRemainingSum[id] -= val;
+            _board[r][c] = digit;
+            _rowMask[r] |= (1U << digit);
+            _colMask[c] |= (1U << digit);
+            _boxMask[id] |= (1U << digit);
+            _options[r][c] &= ~(1U << digit);
+            _boxRemainingSum[id] -= digit;
             --_boxRemainingCells[id];
         }
 
         /// @brief Undoes a number on the board in a given cell (the exact opposite of what Place func does)
         /// @param r The row of the given cell
         /// @param c The column of the given cell
-        /// @param val The given number
-        void Undo(size_t r, size_t c, int val)
+        /// @param digit The given number
+        void Undo(size_t r, size_t c, int digit)
         {
             size_t id = _boxID[r][c];
 
             _board[r][c] = 0;
-            _rowMask[r] &= ~(1U << val);
-            _colMask[c] &= ~(1U << val);
-            _boxMask[id] &= ~(1U << val);
-            _options[r][c]|= (1U << val);
-            _boxRemainingSum[id] += val;
+            _rowMask[r] &= ~(1U << digit);
+            _colMask[c] &= ~(1U << digit);
+            _boxMask[id] &= ~(1U << digit);
+            _options[r][c]|= (1U << digit);
+            _boxRemainingSum[id] += digit;
             ++_boxRemainingCells[id];
         }
 
