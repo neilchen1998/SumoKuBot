@@ -12,11 +12,11 @@
 constexpr int CountCombinationThreeNumbers(int target)
 {
     int count = 0;
-    for (size_t i = 1; i <= 9; ++i)
+    for (auto i = 1; i <= 9; ++i)
     {
-        for (size_t j = i + 1; j <= 9; ++j)
+        for (auto j = i + 1; j <= 9; ++j)
         {
-            for (size_t k = j + 1; k <= 9; ++k)
+            for (auto k = j + 1; k <= 9; ++k)
             {
                 count += ((i + j + k) == target) ? 1 : 0;
             }
@@ -29,13 +29,13 @@ constexpr int CountCombinationThreeNumbers(int target)
 constexpr int CountCombinationFourNumbers(int target)
 {
     int count = 0;
-    for (size_t i = 1; i <= 9; ++i)
+    for (auto i = 1; i <= 9; ++i)
     {
-        for (size_t j = i + 1; j <= 9; ++j)
+        for (auto j = i + 1; j <= 9; ++j)
         {
-            for (size_t k = j + 1; k <= 9; ++k)
+            for (auto k = j + 1; k <= 9; ++k)
             {
-                for (size_t u = k + 1; u <= 9; ++u)
+                for (auto u = k + 1; u <= 9; ++u)
                 {
                     count += ((i + j + k + u) == target) ? 1 : 0;
                 }

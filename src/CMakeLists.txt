@@ -14,5 +14,5 @@ target_include_directories(solver_library INTERFACE
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
 )
 
-target_link_libraries(board_library INTERFACE  Boost::boost fmt::fmt)
-target_link_libraries(solver_library INTERFACE fmt::fmt)
+target_link_libraries(board_library INTERFACE  Boost::boost fmt::fmt project_options)
+target_link_libraries(solver_library INTERFACE fmt::fmt project_options)
