@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.18...4.0)
 
 project(
     Sudoku
-    VERSION 0.1
+    VERSION 1.0
     DESCRIPTION "Solve Sudoku"
     LANGUAGES CXX
 )
