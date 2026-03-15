@@ -263,6 +263,33 @@ target_link_libraries(board_library INTERFACE  Boost::boost fmt::fmt project_opt
 - *-march=native*: uses all available instructions on the machine
 - *-DNDEBUG*: disable all standard *assert*s
 
+### Variadic templates w/ concepts
+
+Variadic templte was introduced back in **C++11** and can be paired with *concepts* in **C++20**.
+
+We want to create a function that takes multiple digits and output the mask that contains them.
+The number of digits varies therefore creatin a variadic function is the best option.
+Also, we would only take argument that is of type **int**.
+Hence we add *requires* in the template.
+
+```cpp
+template <typename... Args>
+requires (std::same_as<Args, int>&&...)
+uint16_t GenerateCandidateMask(Args... digit)
+{
+    return ((1U << digit) | ... | 0);
+}
+```
+
+Variadic functions could be gnarly at first glance.
+But we can easily break it down and see what it does.
+
+We can expand `return ((1U << digit) | ... | 0);` to `return ((1U << digit1) | (1U << digit2) | (1U << digit3)| 0);`
+
+And for the *requires* part, we need to add *&&* there since it represents the AND operator after expansion:
+
+`(std::same_as<Args1, int> && std::same_as<Args2, int> && std::same_as<Args3, int>)`.
+
 ## Reference
 
 - [gprof2dot](https://pypi.org/project/gprof2dot/)
