@@ -11,13 +11,27 @@ else()
   FetchContent_MakeAvailable(Catch2)
 endif()
 
+find_package(nlohmann_json 3.9.1 REQUIRED)
+
+if (nlohmann_json_FOUND)
+  message(STATUS "Found nlohmann_json version: ${nlohmann_json_VERSION}")
+else()
+  message(STATUS "nlohmann_json not found or version is too old, downloading via FetchContent...")
+  FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG        v3.9.1
+  )
+  FetchContent_MakeAvailable(json)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
 add_executable(solvertestlib solvertestlib.cc)
 add_executable(boardtestlib boardtestlib.cc)
 
-target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain solver_library project_options)
+target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json solver_library  project_options)
 target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library project_options)
 
 catch_discover_tests(solvertestlib)

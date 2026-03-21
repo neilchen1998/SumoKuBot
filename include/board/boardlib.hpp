@@ -6,6 +6,9 @@
 #include <boost/functional/hash.hpp>    // boost::hash_combine
 #include <fmt/core.h>   // fmt::print
 #include <fmt/ranges.h> // fmt::print for std::array
+#include <nlohmann/json.hpp>    // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE
+
+using json = nlohmann::json;
 
 template<typename T>
 concept BoardType = std::integral<T> && !std::same_as<T, bool>;
@@ -18,6 +21,19 @@ struct Point
     // Use the default == operator
     bool operator==(const Point&) const = default;
 };
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
+
+/// @brief The Sumoku test data structure
+struct SumokuTestData
+{
+    size_t N;
+    std::vector<std::vector<Point>> boxes;
+    std::vector<int> sums;
+    std::string label;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuTestData, N, boxes, sums, label)   // for nlohmann::json
 
 struct BoostPointHasher
 {

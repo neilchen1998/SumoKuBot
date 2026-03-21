@@ -2,6 +2,8 @@
 
 #include <algorithm>  // std::ranges::all_of
 #include <concepts> // concept
+#include <filesystem>   // std::filesystem
+#include <fstream>      // std::ifstream
 #include <numeric>  // std::iota
 #include <ranges>    // std::ranges::input_range
 #include <unordered_set>    // std::unordered_set
@@ -10,147 +12,46 @@
 #include <catch2/catch_test_macros.hpp> // TEST_CASE, SECTION, REQUIRE
 #include <catch2/matchers/catch_matchers_all.hpp>   // Catch::Matchers::Equals
 #include <catch2/generators/catch_generators_all.hpp>   // Catch::Generators::values
+#include <nlohmann/json.hpp>    // nlohmann::json
 
-#include "solver/solverlib.hpp"
+#include "solver/solverlib.hpp" // solver::SumokuMRV
 
-struct SumokuTestData
+namespace fs = std::filesystem;
+
+/// @brief Gets the directory of the test data
+/// @return Test data directory
+std::string GetTestDataPath()
 {
-    size_t N;
-    std::vector<std::vector<Point>> boxes;
-    std::vector<int> sums;
-    std::string label;
-};
+    // Gets the current path of this file
+    // __FILE__ is the path to the current file
+    fs::path source_file = __FILE__;
 
-namespace SumokuPuzzles
+    return (source_file.parent_path() / "data").string();
+}
+
+/// @brief Load all the test cases from the data directory
+/// @param dir The directory of the data
+/// @return A vector of SumokuTestData
+std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
 {
-    inline SumokuTestData GetPuzzle4()
+    std::vector<SumokuTestData> testCases;
+
+    // Iterate over all the json entries in the directory
+    for (const auto& entry : fs::directory_iterator(dir))
     {
-        return
+        if (entry.path().extension() == ".json")
         {
-            9,
-            {
-                {{0, 0}, {1, 0}, {2, 0}}, {{0, 1}, {1, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {1, 3}}, {{0, 4}, {1, 4}}, {{0, 5}, {0, 6}}, {{0, 7}, {0, 8}},
-                {{1, 5}, {2, 5}}, {{1, 6}, {2, 6}}, {{1, 7}, {1, 8}},
-                {{2, 1}, {2, 2}}, {{2, 3}, {2, 4}}, {{2, 7}, {3, 7}, {4, 7}}, {{2, 8}, {3, 8}},
-                {{3, 0}, {3, 1}}, {{3, 2}, {3, 3}}, {{3, 4}, {3, 5}}, {{3, 6}, {4, 6}},
-                {{4, 0}, {5, 0}, {6, 0}}, {{4, 1}, {5, 1}}, {{4, 2}, {5, 2}}, {{4, 3}, {4, 4}}, {{4, 5}, {5, 5}}, {{4, 8}, {5, 8}},
-                {{5, 3}, {5, 4}}, {{5, 6}, {5, 7}},
-                {{6, 1}, {6, 2}}, {{6, 3}, {6, 4}}, {{6, 5}, {6, 6}}, {{6, 7}, {7, 7}}, {{6, 8}, {7, 8}},
-                {{7, 0}, {7, 1}}, {{7, 2}, {8, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {8, 4}}, {{7, 5}, {7, 6}},
-                {{8, 0}, {8, 1}}, {{8, 5}, {8, 6}}, {{8, 7}, {8, 8}}
-            },
-            {
-                18, 4, 8, 10, 13, 13, 17,
-                5, 11, 7,
-                5, 15, 17, 11,
-                10, 6, 10, 17,
-                11, 12, 12, 11, 5, 8,
-                12, 5,
-                13, 9, 11, 11, 11,
-                17, 10, 6, 11, 8,
-                10, 11, 4
-            },
-            "P4"
-        };
+            std::ifstream file{entry.path()};
+            nlohmann::json j;
+            file >> j;
+
+            SumokuTestData puzzle = j.get<SumokuTestData>();
+            testCases.push_back(puzzle);
+        }
     }
 
-    inline SumokuTestData GetPuzzle5()
-    {
-        return
-        {
-            9,
-            {
-                {{0, 0}, {1, 0}}, {{0, 1}, {0, 2}}, {{0, 3}, {1, 3}}, {{0, 4}, {0, 5}}, {{0, 6}, {0, 7}}, {{0, 8}, {1, 8}},
-                {{1, 1}, {1, 2}}, {{1, 4}, {1, 5}}, {{1, 6}, {1, 7}},
-                {{2, 0}, {2, 1}}, {{2, 2}, {3, 2}}, {{2, 3}, {2, 4}}, {{2, 5}, {3, 5}}, {{2, 6}, {2, 7}}, {{2, 8}, {3, 8}},
-                {{3, 0}, {3, 1}}, {{3, 3}, {3, 4}}, {{3, 6}, {3, 7}},
-                {{4, 0}, {5, 0}}, {{4, 1}, {4, 2}}, {{4, 3}, {4, 4}}, {{4, 5}, {4, 6}}, {{4, 7}, {4, 8}},
-                {{5, 1}, {5, 2}}, {{5, 3}, {5, 4}}, {{5, 5}, {5, 6}}, {{5, 7}, {5, 8}},
-                {{6, 0}, {7, 0}}, {{6, 1}, {6, 2}}, {{6, 3}, {6, 4}}, {{6, 5}, {7, 5}}, {{6, 6}, {6, 7}}, {{6, 8}, {7, 8}},
-                {{7, 1}, {7, 2}}, {{7, 3}, {7, 4}}, {{7, 6}, {7, 7}},
-                {{8, 0}, {8, 1}}, {{8, 2}, {8, 3}}, {{8, 4}, {8, 5}}, {{8, 6}, {8, 7}, {8, 8}}
-            },
-            {
-                13, 11, 7, 7, 10, 10,
-                11, 14, 10,
-                10, 10, 11, 11, 9, 8,
-                9, 6, 12,
-                7, 13, 10, 11, 9,
-                5, 9, 7, 13,
-                9, 13, 11, 9, 11, 7,
-                7, 11, 8,
-                11, 7, 12, 12
-            },
-            "P5"
-        };
-    }
-
-    inline SumokuTestData GetPuzzle6()
-    {
-        return
-        {
-            9,
-            {
-                {{0,0},{1,0}},{{0,1},{0,2}},{{0,3},{1,3}},{{0,4},{0,5}},{{0,6},{1,6}},{{0,7},{0,8}},
-                {{1,1},{1,2}},{{1,4},{1,5}},{{1,7},{1,8}},
-                {{2,0},{2,1}},{{2,2},{3,2}},{{2,3},{2,4}},{{2,5},{3,5}},{{2,6},{2,7}},{{2,8},{3,8}},
-                {{3,0},{3,1}},{{3,3},{3,4}},{{3,6},{3,7}},
-                {{4,0},{5,0}},{{4,1},{4,2}},{{4,3},{4,4}},{{4,5},{4,6}},{{4,7},{4,8}},
-                {{5,1},{5,2}},{{5,3},{5,4}},{{5,5},{5,6}},{{5,7},{5,8}},
-                {{6,0},{7,0}},{{6,1},{6,2}},{{6,3},{6,4}},{{6,5},{7,5}},{{6,6},{6,7}},{{6,8},{7,8}},
-                {{7,1},{7,2}},{{7,3},{7,4}},{{7,6},{7,7}},
-                {{8,0},{8,1}},{{8,2},{8,3}},{{8,4},{8,5}},{{8,6},{8,7},{8,8}}
-            },
-            {
-                3, 15, 8, 9, 14, 13,
-                7, 10, 10,
-                13, 11, 11, 8, 7, 6,
-                9, 13, 10,
-                13, 11, 10, 5, 12,
-                12, 10, 9, 11,
-                11, 13, 6, 8, 12, 10,
-                10, 15, 6,
-                7, 10, 11, 12
-            },
-            "P6"
-        };
-    }
-
-    inline SumokuTestData GetPuzzle7()
-    {
-        return
-        {
-            9,
-            {
-                {{0, 0}, {0, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {0, 4}}, {{0, 5}, {1, 5}}, {{0, 6}, {0, 7}}, {{0, 8}, {1, 8}},
-                {{1, 0}, {2, 0}}, {{1, 1}, {2, 1}}, {{1, 3}, {1, 4}}, {{1, 6}, {1, 7}},
-                {{2, 2}, {2, 3}}, {{2, 4}, {3, 4}}, {{2, 5}, {2, 6}}, {{2, 7}, {2, 8}},
-
-                {{3, 0}, {4, 0}}, {{3, 1}, {3, 2}}, {{3, 3}, {4, 3}}, {{3, 5}, {3, 6}}, {{3, 7}, {3, 8}},
-                {{4, 1}, {4, 2}}, {{4, 4}, {5, 4}}, {{4, 5}, {5, 5}}, {{4, 6}, {4, 7}}, {{4, 8}, {5, 8}},
-                {{5, 0}, {5, 1}}, {{5, 2}, {5, 3}}, {{5, 6}, {5, 7}},
-
-                {{6, 0}, {6, 1}}, {{6, 2}, {7, 2}}, {{6, 3}, {6, 4}}, {{6, 5}, {7, 5}}, {{6, 6}, {7, 6}}, {{6, 7}, {6, 8}},
-                {{7, 0}, {7, 1}}, {{7, 3}, {7, 4}}, {{7, 7}, {7, 8}},
-                {{8, 0}, {8, 1}, {8, 2}}, {{8, 3}, {8, 4}}, {{8, 5}, {8, 6}}, {{8, 7}, {8, 8}}
-            },
-            {
-                8, 10, 13, 7, 11, 14,
-                11, 8, 9, 10,
-                12, 15, 6, 13,
-
-                5, 11, 10, 9, 7,
-                14, 11, 6, 8, 12,
-                10, 9, 13,
-
-                7, 11, 8, 10, 14, 9,
-                12, 13, 5,
-                15, 10, 7, 11
-            },
-            "P7"
-        };
-    }
-};  // namespace SumokuPuzzles
+    return testCases;
+}
 
 /// @brief Converts a character digit or integer to an int
 /// @tparam T Must be char or int
@@ -728,58 +629,20 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
-
-    SECTION("Puzzle 3", "[9 x 9]")
-    {
-        constexpr size_t N = 9;
-        const std::vector<std::vector<Point>> boxes {
-            {{0, 0}, {0, 1}}, {{0, 2}, {1, 2}}, {{0 ,3}, {0, 4}}, {{0, 5}, {1, 5}}, {{0, 6}, {0, 7}}, {{0, 8}, {1, 8}},
-            {{1, 0}, {1, 1}}, {{1, 3}, {1, 4}}, {{1, 6}, {1, 7}},
-            {{2, 0}, {3, 0}}, {{2, 1}, {3, 1}}, {{2, 2}, {3, 2}}, {{2, 3}, {3, 3}}, {{2, 4}, {3, 4}}, {{2, 5}, {2, 6}}, {{2, 7}, {3, 7}}, {{2, 8}, {3, 8}},
-            {{3, 5}, {3, 6}},
-            {{4, 0}, {4, 1}}, {{4, 2}, {4, 3}}, {{4, 4}, {4, 5}}, {{4, 6}, {5, 6}}, {{4, 7}, {4, 8}},
-            {{5, 0}, {5, 1}}, {{5, 2}, {5, 3}}, {{5, 4}, {5, 5}}, {{5, 7}, {5, 8}},
-            {{6, 0}, {6, 1}}, {{6, 2}, {6, 3}}, {{6, 4}, {6, 5}}, {{6, 6}, {7, 6}}, {{6, 7}, {6, 8}},
-            {{7, 0}, {8, 0}}, {{7, 1}, {7, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {7, 5}}, {{7, 7}, {8, 7}}, {{7, 8}, {8, 8}},
-            {{8, 1}, {8, 2}}, {{8, 4}, {8, 5}, {8, 6}}
-        };
-        const std::vector<int> sums {
-            15, 13, 10, 5, 8, 8,
-            12, 6, 13,
-            15, 6, 4, 5, 13, 12, 11, 13,
-            11,
-            9, 11, 13, 3, 10,
-            7, 13, 17, 7,
-            10, 7, 10, 12, 11,
-            9, 11, 14, 11, 10, 8,
-            9, 13
-        };
-
-        solver::SumokuMRV s {N, boxes, sums};
-
-        s.Solve();
-
-        auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
-
-        std::vector<std::vector<int>> solution = *ret;
-
-        REQUIRE (solution.size() == N);
-        validate_boad_is_square(solution);
-        validate_sukodu_row_column_constraints(solution);
-    }
 }
 
 TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
 {
-    auto data = GENERATE(Catch::Generators::values(
-        {
-            SumokuPuzzles::GetPuzzle4(),
-            SumokuPuzzles::GetPuzzle5(),
-            SumokuPuzzles::GetPuzzle6(),
-            SumokuPuzzles::GetPuzzle7()
-        }));
+    // Load all the test cases
+    static std::string folder = GetTestDataPath();
+    static std::vector<SumokuTestData> all_puzzles = LoadAllPuzzles(folder);
 
+    // Check the vector to make sure it contains at least one test case
+    REQUIRE_FALSE(all_puzzles.empty());
+
+    const SumokuTestData& data = GENERATE(from_range(all_puzzles));
+
+    // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
     {
         solver::SumokuMRV s {data.N, data.boxes, data.sums};
