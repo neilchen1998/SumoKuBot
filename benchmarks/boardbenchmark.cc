@@ -28,7 +28,7 @@ int main()
 
     size_t i = 0;
     bench.title("Hashing")
-        .run("PointerHash", [&]
+        .run("PointerHasher", [&]
     {
         auto& p = points[i++ & 1023];   // equivalent to (i++) % 1024
         auto h = hasher(p);
@@ -36,7 +36,7 @@ int main()
     });
 
     i = 0;
-    bench.run("PointHash w/ boost", [&]
+    bench.run("PointHasher w/ boost", [&]
     {
         auto& p = points[i++ & 1023];   // equivalent to (i++) % 1024
         auto h = boostHasher(p);
