@@ -638,7 +638,7 @@ int main()
         "P7"
     };
 
-    nlohmann::json j{myPuzzle};
+    nlohmann::json j(myPuzzle);
 
     std::ofstream file("./tests/data/puzzle_p8.json");
 
@@ -719,6 +719,43 @@ TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
 
 Note that we want to see the name of the test case should a test case fails, therefore we need to provide the label or the name of a test to the title.
 This eliminate the need to write multiple sections and the code inside the section can be reused.
+
+### Assignment vs. constructor vs. list-initialization
+
+Assignment is used with an equal sign (*=*) before the new value.
+
+We can assign a vector to anothe vector like this:
+
+```
+std::vector<int> a, b;
+a = b;
+```
+
+Now the vector *a* will copy the values from vector *b*.
+
+Constructor is used with a pair of parentheses *()* that can construct the object from the get-go.
+
+We can construct a vector like this:
+
+```
+std::vector<int> vec({1, 2, 3, 4});
+```
+
+List-initialization is used with a pair of braces (*{}*) with the elements inside it.
+
+We can construct a vector like this:
+
+```
+std::vector<int> vec{1, 2, 3, 4};
+```
+
+In this case, the vector contains all the elements inside the braces.
+
+We need to beware of the differences between a constructor and a list-initilization since the result of *nlohmann::json j(myPuzzle);* is not the same as *nlohmann::json j{myPuzzle};*.
+
+The first line of code is saying that I want to construct an instance of *nlohmann::json* that takes an instance of *myPuzzle*,
+whereas the second line of code is saying that I want to construct a list of *nlohmann::json*'s that has one instance of *myPuzzle*.
+The output of the JSON files will be different as well.
 
 ## Reference
 
