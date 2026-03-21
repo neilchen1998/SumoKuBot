@@ -464,6 +464,36 @@ And for the *requires* part, we need to add *&&* there since it represents the A
 
 `(std::same_as<Args1, int> && std::same_as<Args2, int> && std::same_as<Args3, int>)`.
 
+### Module
+
+*%* is a very computationally expensive operator as it can take up to multiple CPU cycles.
+Whereas, *&* only requires a single CPU instruction.
+
+In benchmark functions when we need to iterate an array with multiple elements in it, we need to make sure the index stays within bound.
+One might use ```(i++) % sz```.
+But it can be optimized by using:
+
+```cpp
+(i++) & (sz - 1)
+```
+
+, when the size of the array is a power of 2.
+
+This is a very common low-level programming techique that optimizes the code.
+In our case, if the size of the array is 1024 (which is $2^{10}$), and the current index is $1025$,
+we need to access the first element of the array.
+
+We only care about the last 7 bits and by subtracting one from 1024, we are effectively getting the last 7 bits.
+
+This is the math behind it:
+```text
+  0b10000000001
+& 0b01111111111
+---------------
+  0b00000000001
+```
+
+
 ## Reference
 
 - [gprof2dot](https://pypi.org/project/gprof2dot/)
