@@ -73,6 +73,12 @@ To build and test:
 cmake --build build -DCMAKE_BUILD_TYPE=Test && cmake --build build --target test
 ```
 
+Run a specific tag:
+
+```zsh
+./build/tests/solvertestlib "[<tag>]"
+```
+
 To build docs (requires Doxygen, output in `build/docs/html`):
 
 ```bash
