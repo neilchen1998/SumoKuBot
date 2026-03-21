@@ -780,7 +780,7 @@ TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
             SumokuPuzzles::GetPuzzle7()
         }));
 
-    DYNAMIC_SECTION("Testing " << data.label)
+    DYNAMIC_SECTION("Puzzle: " << data.label)
     {
         solver::SumokuMRV s {data.N, data.boxes, data.sums};
 
