@@ -175,7 +175,12 @@ struct PossibleNumbersTable
         for (uint16_t i = 0U; i < (1U << MAX_COUNT); ++i)
         {
             // Get the count of the numbers
-            int cnt = std::popcount(i);
+            int cnt = 0;
+            #ifdef __GNUC__
+            cnt = __builtin_popcount(i);
+            #else
+            cnt = std::popcount(i);
+            #endif
 
             uint16_t mask = i;
             uint16_t sum = 0;
@@ -183,7 +188,13 @@ struct PossibleNumbersTable
             uint16_t tmp = i;
             while (tmp)
             {
-                sum += (std::countr_zero(tmp) + 1); // converts to number
+                // Convert to number and add to the current sum
+                #ifdef __GNUC__
+                sum += __builtin_ctz(tmp) + 1;
+                #else
+                sum += std::countr_zero(tmp) + 1;
+                #endif
+
                 tmp &= (tmp - 1);   // removes the rightmost 1 bit
             }
 
