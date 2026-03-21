@@ -35,6 +35,7 @@ The requirements are:
 - [fmt](https://github.com/fmtlib/fmt) 11.0 or higher (will automatically install if not present)
 - [Catch2](https://github.com/catchorg/Catch2) 3.8 or higher (will automatically install if not present)
 - [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
+- [json](https://github.com/nlohmann/json.git) 3.9.1 or higher (will automatically install if not present)
 - [abseil](https://github.com/abseil/abseil-cpp.git) 20250512.1 or newer (will automatically install if not present)
 
 ## Instructions
@@ -560,8 +561,204 @@ This is the math behind it:
   0b00000000001
 ```
 
+### Serialize and Deserialize Data
+
+**nlohmann/json** is the golden tool to serialize and deserialize data for C++ projects.
+It is a header-only and light-weight tool that is easy to use.
+
+In order for nlohmann::json to know the data structure, we need to provide the arguments of a structure by calling *NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE*.
+*NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE* is a macro and the first argument is the name of the structure, followed by the member elements.
+
+```cpp
+#include <nlohmann/json.hpp>
+
+struct Point
+{
+    size_t x;
+    size_t y;
+
+    // Use the default == operator
+    bool operator==(const Point&) const = default;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
+
+/// @brief The Sumoku test data structure
+struct SumokuTestData
+{
+    size_t N;
+    std::vector<std::vector<Point>> boxes;
+    std::vector<int> sums;
+    std::string label;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuTestData, N, boxes, sums, label)   // for nlohmann::json
+```
+
+### Data-driven testing (DDT)
+
+Data-driven testing is a technique that uses external data and import it into the test environment.
+This approach eliminates the need to incorportate test cases into the test source code.
+One can just create new tests in the test directory and rerun the test binary.
+
+We can create a Sumoku test case by running this main function:
+
+```cpp
+int main()
+{
+    SumokuTestData myPuzzle
+    {
+        9,
+        {
+            {{0, 0}, {0, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {0, 4}}, {{0, 5}, {1, 5}}, {{0, 6}, {0, 7}}, {{0, 8}, {1, 8}},
+            {{1, 0}, {2, 0}}, {{1, 1}, {2, 1}}, {{1, 3}, {1, 4}}, {{1, 6}, {1, 7}},
+            {{2, 2}, {2, 3}}, {{2, 4}, {3, 4}}, {{2, 5}, {2, 6}}, {{2, 7}, {2, 8}},
+
+            {{3, 0}, {4, 0}}, {{3, 1}, {3, 2}}, {{3, 3}, {4, 3}}, {{3, 5}, {3, 6}}, {{3, 7}, {3, 8}},
+            {{4, 1}, {4, 2}}, {{4, 4}, {5, 4}}, {{4, 5}, {5, 5}}, {{4, 6}, {4, 7}}, {{4, 8}, {5, 8}},
+            {{5, 0}, {5, 1}}, {{5, 2}, {5, 3}}, {{5, 6}, {5, 7}},
+
+            {{6, 0}, {6, 1}}, {{6, 2}, {7, 2}}, {{6, 3}, {6, 4}}, {{6, 5}, {7, 5}}, {{6, 6}, {7, 6}}, {{6, 7}, {6, 8}},
+            {{7, 0}, {7, 1}}, {{7, 3}, {7, 4}}, {{7, 7}, {7, 8}},
+            {{8, 0}, {8, 1}, {8, 2}}, {{8, 3}, {8, 4}}, {{8, 5}, {8, 6}}, {{8, 7}, {8, 8}}
+        },
+        {
+            8, 10, 13, 7, 11, 14,
+            11, 8, 9, 10,
+            12, 15, 6, 13,
+
+            5, 11, 10, 9, 7,
+            14, 11, 6, 8, 12,
+            10, 9, 13,
+
+            7, 11, 8, 10, 14, 9,
+            12, 13, 5,
+            15, 10, 7, 11
+        },
+        "P7"
+    };
+
+    nlohmann::json j(myPuzzle);
+
+    std::ofstream file("./tests/data/puzzle_p8.json");
+
+    if (file.is_open())
+    {
+        file << j.dump(4);
+        file.close();
+    }
+
+    return 0;
+}
+```
+
+**nlohmann::json** sees the macros defined in *board/boardlib.hpp* for both **SumokuTestData** and **Point**.
+Therefore it can handle the data structure for us.
+
+We then use this function to load the data (test cases) into the test.
+Again, since we have the macros for both **SumokuTestData** and **Point**, *nlohmann::json* can deserialize the data.
+
+```cpp
+std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
+{
+    std::vector<SumokuTestData> testCases;
+
+    // Iterate over all the json entries in the directory
+    for (const auto& entry : fs::directory_iterator(dir))
+    {
+        if (entry.path().extension() == ".json")
+        {
+            std::ifstream file{entry.path()};
+            nlohmann::json j;
+            file >> j;
+
+            SumokuTestData puzzle = j.get<SumokuTestData>();
+            testCases.push_back(puzzle);
+        }
+    }
+
+    return testCases;
+}
+```
+
+We also need to change the **test section** in our **test case** since there are now multiple test cases.
+Luckily, *Catch2* supports this method.
+We can use *DYNAMIC_SECTION* and load the test cases by using *GENERATE* to generate multiple test cases for us.
+We just need to provide an array or vector of test cases and *Catch2* and automatically does it for us.
+
+```cpp
+TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
+{
+    // Load all the test cases
+    static std::string folder = GetTestDataPath();
+    static std::vector<SumokuTestData> all_puzzles = LoadAllPuzzles(folder);
+
+    // Check the vector to make sure it contains at least one test case
+    REQUIRE_FALSE(all_puzzles.empty());
+
+    const SumokuTestData& data = GENERATE(from_range(all_puzzles));
+
+    // The section
+    DYNAMIC_SECTION("Puzzle: " << data.label)
+    {
+        solver::SumokuMRV s {data.N, data.boxes, data.sums};
+
+        s.Solve();
+
+        auto ret = s.GetSolution();
+        REQUIRE (ret != std::nullopt);
+
+        std::vector<std::vector<int>> solution = *ret;
+
+        REQUIRE (solution.size() == data.N);
+        validate_boad_is_square(solution);
+        validate_sukodu_row_column_constraints(solution);
+    }
+}
+```
+
+Note that we want to see the name of the test case should a test case fails, therefore we need to provide the label or the name of a test to the title.
+This eliminate the need to write multiple sections and the code inside the section can be reused.
+
+### Assignment vs. constructor vs. list-initialization
+
+Assignment is used with an equal sign (*=*) before the new value.
+
+We can assign a vector to anothe vector like this:
+
+```
+std::vector<int> a, b;
+a = b;
+```
+
+Now the vector *a* will copy the values from vector *b*.
+
+Constructor is used with a pair of parentheses *()* that can construct the object from the get-go.
+
+We can construct a vector like this:
+
+```
+std::vector<int> vec({1, 2, 3, 4});
+```
+
+List-initialization is used with a pair of braces (*{}*) with the elements inside it.
+
+We can construct a vector like this:
+
+```
+std::vector<int> vec{1, 2, 3, 4};
+```
+
+In this case, the vector contains all the elements inside the braces.
+
+We need to beware of the differences between a constructor and a list-initilization since the result of *nlohmann::json j(myPuzzle);* is not the same as *nlohmann::json j{myPuzzle};*.
+
+The first line of code is saying that I want to construct an instance of *nlohmann::json* that takes an instance of *myPuzzle*,
+whereas the second line of code is saying that I want to construct a list of *nlohmann::json*'s that has one instance of *myPuzzle*.
+The output of the JSON files will be different as well.
 
 ## Reference
 
 - [gprof2dot](https://pypi.org/project/gprof2dot/)
 - [Visually Profile C++ Program Performance](https://www.youtube.com/watch?v=zbTtVW64R_I)
+- [Data-Driven Testing](https://www.leapwork.com/blog/a-short-introduction-to-data-driven-testing)
