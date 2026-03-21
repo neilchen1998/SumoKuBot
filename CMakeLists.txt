@@ -62,8 +62,8 @@ include(FetchContent)
 
 # all required packages (will be downloaded automatically)
 
-# Try to find fmt that is at least 11.0 but the same major version
-find_package(fmt CONFIG 11.0...<12.0 QUIET)
+# Try to find fmt that is at least 12.0 but the same major version
+find_package(fmt CONFIG 12.0...<13.0 QUIET)
 if (fmt_FOUND)
     message(STATUS "Found fmt version: ${fmt_VERSION}")
 else()
