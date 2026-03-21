@@ -243,6 +243,13 @@ int curNumOfCandidates = std::popcount(candidates);
 #endif
 ```
 
+### __builtin_ctz
+
+*__builtin_ctz* (count trailing zeros) is a GCC special function that returns the number of consecutive 0's from the right (least significant bit).
+It leverages hardware instructions if possible, which is significantly faster than software implementation.
+In C++20, one can use *std::countr_zero* if the compiler is not GCC compatible.
+If the input is 41 (**0b101001**) then the return value will be 0 and if the input is 48 (**0b110000**), then the return value will be 4.
+
 ### Pre-calculate candidates
 
 We know that there can be at most 9 elements in a box and the maximum sum is 45 ($\sum_{i=1}^{9} i$).
@@ -293,6 +300,60 @@ We see a whopping 120 times improvement over the old method.
 |--------------------:|--------------------:|--------:|----------:|:----------------------------
 |               17.10 |               58.48 |    0.4% |      0.19 | `MRV`
 |                0.15 |            6,810.44 |    1.9% |      0.01 | `MRV w/ precalculated candidates`
+
+### Find candidates that can sum up to a target
+
+In a typical Sumoku game, the valid number goes from 1 to 9. Therefore the number of combinaitons is $2^9$.
+The search space is not too large, therefore we can loop through all possible combinations to precalculate all the candidates that can sum up to a target.
+
+We use **i** to represents the current combination of numbers. Since the number 0 is not a valid candidate, we just ignore it and let the last bit of **i** to represent the number 1, the second last bit of **i** to represent the number 2, etc.
+
+However, since the mask is 0-based, i.e., the last digit represents the number 0, the second last bit represents the number 1, we need to convert **i** to **mask** before we can put it to **table**.
+
+```text
+0b001: 1
+0b010: 2
+0b100: 3
+```
+
+We can get the number that **i** represents by adding the number of trailing 0's (*__builtin_ctz*: count trailing zeros) and 1.
+
+
+And since each 1 bit in **i** represents a digit, we can get the current number of digits by counting the numbers of 1's in **i** by using *__builtin_popcount*.
+
+```cpp
+for (uint16_t i = 0U; i < (1U << MAX_COUNT); ++i)
+{
+    // Get the count of the numbers
+    int cnt = 0;
+    #ifdef __GNUC__
+    cnt = __builtin_popcount(i);
+    #else
+    cnt = std::popcount(i);
+    #endif
+
+    uint16_t mask = i;
+    uint16_t sum = 0;
+
+    uint16_t tmp = i;
+    while (tmp)
+    {
+        // Convert to number and add to the current sum
+        #ifdef __GNUC__
+        sum += __builtin_ctz(tmp) + 1;
+        #else
+        sum += std::countr_zero(tmp) + 1;
+        #endif
+
+        tmp &= (tmp - 1);   // removes the rightmost 1 bit
+    }
+
+    // Store the current count and the sum into the table
+    table[cnt][sum] |= (mask << 1);
+}
+```
+
+This new version of finding all candidates that can sum up to a target is easier and more straight-forward compared to the dynamic programming that we will cover later.
 
 ### Dynamic programming
 

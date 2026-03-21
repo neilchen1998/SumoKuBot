@@ -168,64 +168,38 @@ struct PossibleNumbersTable
 
     consteval PossibleNumbersTable()
     {
-        struct State
+        // Loop through each digit from 1 to 9
+        // NOTE: the lowest bit of i represents the number 1, the second lowest bit represents the number 2, etc.
+        // 0b1: 1 -> there is no trailing zero
+        // 0b10: 2 -> there is one trailing zero
+        for (uint16_t i = 0U; i < (1U << MAX_COUNT); ++i)
         {
-            /// @brief All the masks (combinations)
-            // For instance, masks[1] with a value of 1b110 means {1, 2} is a valid combination of candidates
-            uint16_t masks[1 << MAX_COUNT] {};  // there are 2^MAX_COUNT possibilities (in this case 2^9)
+            // Get the count of the numbers
+            int cnt = 0;
+            #ifdef __GNUC__
+            cnt = __builtin_popcount(i);
+            #else
+            cnt = std::popcount(i);
+            #endif
 
-            /// @brief The number of combinations (also used as an index)
-            size_t sz = 0;
-        };
+            uint16_t mask = i;
+            uint16_t sum = 0;
 
-        std::array<std::array<State, MAX_SUM + 1>, MAX_COUNT + 1> states {};
-
-        // The base case
-        states[0][0].masks[states[0][0].sz++] = 0;
-
-        // Iterate from number 1 to 9
-        for (int digit = 1; digit <= MAX_COUNT; ++digit)
-        {
-            // Iterate the number of digits and target in reverse to ensure each digit is used only once
-            // NOTE: Iterating forward from k = 1 to k = 9 would allow the current digit to be added
-            // to a sum that already includes it, leading duplicated digits.
-            // Reversing the loops ensures we only build results from the previous iteration
-            for (int c = MAX_COUNT; c >= 1; --c)
+            uint16_t tmp = i;
+            while (tmp)
             {
-                for (int s = MAX_SUM; s >= digit; --s)
-                {
-                    // Get the previous state
-                    // The previous state has one less number of digits, therefore it's (c - 1)
-                    // and it has less sum, i.e., (s - num)
-                    State& prev = states[c - 1][s - digit];
-                    State& curr = states[c][s];
+                // Convert to number and add to the current sum
+                #ifdef __GNUC__
+                sum += __builtin_ctz(tmp) + 1;
+                #else
+                sum += std::countr_zero(tmp) + 1;
+                #endif
 
-                    // Propagate all candidates from previous state to the current state and
-                    // add the current digit to the mask
-                    for (int i = 0; i < prev.sz; ++i)
-                    {
-                        curr.masks[curr.sz++] = prev.masks[i] | (1u << digit);
-                    }
-                }
+                tmp &= (tmp - 1);   // removes the rightmost 1 bit
             }
-        }
 
-        // Construct the final table that combine masks from all states
-        for (int c = 0; c <= MAX_COUNT; ++c)
-        {
-            for (int s = 0; s <= MAX_SUM; ++s)
-            {
-                uint16_t mask = 0;
-                const State& st = states[c][s];
-
-                // Loop through all masks
-                for (int i = 0; i < st.sz; ++i)
-                {
-                    mask |= st.masks[i];
-                }
-
-                table[c][s] = mask;
-            }
+            // Store the current count and the sum into the table
+            table[cnt][sum] |= (mask << 1);
         }
     }
 
