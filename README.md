@@ -35,6 +35,7 @@ The requirements are:
 - [fmt](https://github.com/fmtlib/fmt) 11.0 or higher (will automatically install if not present)
 - [Catch2](https://github.com/catchorg/Catch2) 3.8 or higher (will automatically install if not present)
 - [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
+- [json](https://github.com/nlohmann/json.git) 3.9.1 or higher (will automatically install if not present)
 - [abseil](https://github.com/abseil/abseil-cpp.git) 20250512.1 or newer (will automatically install if not present)
 
 ## Instructions
@@ -558,6 +559,40 @@ This is the math behind it:
 & 0b01111111111
 ---------------
   0b00000000001
+```
+
+### Serialize and Deserialize Data
+
+**nlohmann/json** is the golden tool to serialize and deserialize data for C++ projects.
+It is a header-only and light-weight tool that is easy to use.
+
+In order for nlohmann::json to know the data structure, we need to provide the arguments of a structure by calling *NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE*.
+*NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE* is a macro and the first argument is the name of the structure, followed by the member elements.
+
+```cpp
+#include <nlohmann/json.hpp>
+
+struct Point
+{
+    size_t x;
+    size_t y;
+
+    // Use the default == operator
+    bool operator==(const Point&) const = default;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
+
+/// @brief The Sumoku test data structure
+struct SumokuTestData
+{
+    size_t N;
+    std::vector<std::vector<Point>> boxes;
+    std::vector<int> sums;
+    std::string label;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuTestData, N, boxes, sums, label)   // for nlohmann::json
 ```
 
 ### Data-driven testing (DDT)
