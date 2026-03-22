@@ -28,11 +28,16 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
+add_library(loaderlib STATIC common/loaderlib.cc)
+target_include_directories(loaderlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common)
+target_link_libraries(loaderlib PRIVATE nlohmann_json::nlohmann_json board_library)
+add_library(Project::TestUtils ALIAS loaderlib)
+
 add_executable(solvertestlib solvertestlib.cc)
 add_executable(boardtestlib boardtestlib.cc)
 
-target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json solver_library  project_options)
 target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library project_options)
+target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain loaderlib solver_library project_options)
 
 catch_discover_tests(solvertestlib)
 catch_discover_tests(boardtestlib)
