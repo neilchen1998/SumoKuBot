@@ -716,14 +716,31 @@ namespace solver
         {
             size_t id = _boxID[r][c];
 
-            uint16_t forbidden = _rowMask[r] | _colMask[c] | _boxMask[id];
+            uint16_t forbidden = _rowMask[r] | _colMask[c] | (_boxMask[id] & ~(_options[r][c]));
             uint16_t ret = 0U;
 
-            for (size_t v = 1; v <= _N; ++v)
+            for (int v = 1; v <= _N; ++v)
             {
                 // Check if the current number is possible
-                if (!(forbidden & (1U << v)) && (_options[r][c] >> v))
+                if (!(forbidden & (1U << v)))
                 {
+                    int remainingSum = _boxRemainingSum[id] - v;
+
+                    // If the current sum reaches to negative values,
+                    // then the current number is not a possible
+                    if (remainingSum < 0 )
+                    {
+                        continue;
+                    }
+
+                    // If there is only one cell left in the box and the remaining sum is not equal to zero,
+                    // then we know that the current number is not possible either
+                    if (_boxRemainingCells[id] == 1 && remainingSum != 0)
+                    {
+                        continue;
+                    }
+
+                    // If none of the two scenario is true, then the current nubmer is a possible candidate
                     ret |= (1U << v);
                 }
             }
@@ -734,8 +751,8 @@ namespace solver
         /// @brief The selection
         struct Selection
         {
-            int r = -1;
-            int c = -1;
+            size_t r = -1;
+            size_t c = -1;
 
             /// @brief The candidates in the mask form
             uint16_t mask = 0U;
@@ -769,9 +786,9 @@ namespace solver
                         }
 
                         #ifdef __GNUC__
-                        size_t curNumOfCandidates = static_cast<size_t>(__builtin_popcount(candidates));
+                        int curNumOfCandidates = __builtin_popcount(candidates);
                         #else
-                        size_t curNumOfCandidates = static_cast<size_t>(std::popcount(candidates));
+                        int curNumOfCandidates = std::popcount(candidates);
                         #endif
 
                         // Update the return value when the current number of candidates is smaller than the previous one
@@ -814,16 +831,16 @@ namespace solver
             }
 
             // Loop from number 1 to N
-            for (size_t digit = 1; digit <= _N; ++digit)
+            for (int val = 1; val <= _N; ++val)
             {
-                if (next.mask & (1U << digit))
+                if (next.mask & (1U << val))
                 {
-                    Place(next.r, next.c, digit);
+                    Place(next.r, next.c, val);
                     if (Backtrack())
                     {
                         return true;
                     }
-                    Undo(next.r, next.c, digit);
+                    Undo(next.r, next.c, val);
                 }
             }
 
@@ -833,34 +850,32 @@ namespace solver
         /// @brief Places a number on the board in a given cell
         /// @param r The row of the given cell
         /// @param c The column of the given cell
-        /// @param digit The given number
-        void Place(size_t r, size_t c, int digit)
+        /// @param val The given number
+        void Place(size_t r, size_t c, int val)
         {
             size_t id = _boxID[r][c];
 
-            _board[r][c] = digit;
-            _rowMask[r] |= (1U << digit);
-            _colMask[c] |= (1U << digit);
-            _boxMask[id] |= (1U << digit);
-            _options[r][c] &= ~(1U << digit);
-            _boxRemainingSum[id] -= digit;
+            _board[r][c] = val;
+            _rowMask[r] |= (1U << val);
+            _colMask[c] |= (1U << val);
+            _boxMask[id] |= (1U << val);
+            _boxRemainingSum[id] -= val;
             --_boxRemainingCells[id];
         }
 
         /// @brief Undoes a number on the board in a given cell (the exact opposite of what Place func does)
         /// @param r The row of the given cell
         /// @param c The column of the given cell
-        /// @param digit The given number
-        void Undo(size_t r, size_t c, int digit)
+        /// @param val The given number
+        void Undo(size_t r, size_t c, int val)
         {
             size_t id = _boxID[r][c];
 
             _board[r][c] = 0;
-            _rowMask[r] &= ~(1U << digit);
-            _colMask[c] &= ~(1U << digit);
-            _boxMask[id] &= ~(1U << digit);
-            _options[r][c]|= (1U << digit);
-            _boxRemainingSum[id] += digit;
+            _rowMask[r] &= ~(1U << val);
+            _colMask[c] &= ~(1U << val);
+            _boxMask[id] &= ~(1U << val);
+            _boxRemainingSum[id] += val;
             ++_boxRemainingCells[id];
         }
 
