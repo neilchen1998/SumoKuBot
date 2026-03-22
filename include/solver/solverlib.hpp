@@ -719,7 +719,7 @@ namespace solver
             uint16_t forbidden = _rowMask[r] | _colMask[c] | (_boxMask[id] & ~(_options[r][c]));
             uint16_t ret = 0U;
 
-            for (int v = 1; v <= _N; ++v)
+            for (size_t v = 1; v <= _N; ++v)
             {
                 // Check if the current number is possible
                 if (!(forbidden & (1U << v)))
@@ -766,7 +766,7 @@ namespace solver
         inline Selection FindNextBestCell()
         {
             Selection ret;
-            size_t curMinCnt = _N + 1;
+            int curMinCnt = _N + 1;
 
             // Loop through the entire board to find the next best cell
             for (size_t r = 0; r < _N; ++r)
@@ -825,13 +825,13 @@ namespace solver
             }
 
             // If there is no next best cell and we are not hitting a dead end that means we have finished the entire board
-            if (next.r == -1 && next.c == -1)
+            if (next.r == static_cast<size_t>(-1) && next.c == static_cast<size_t>(-1))
             {
                 return true;
             }
 
             // Loop from number 1 to N
-            for (int val = 1; val <= _N; ++val)
+            for (size_t val = 1; val <= _N; ++val)
             {
                 if (next.mask & (1U << val))
                 {
