@@ -859,6 +859,7 @@ namespace solver
             _rowMask[r] |= (1U << val);
             _colMask[c] |= (1U << val);
             _boxMask[id] |= (1U << val);
+            _options[r][c] &= ~(1U << val);
             _boxRemainingSum[id] -= val;
             --_boxRemainingCells[id];
         }
@@ -875,6 +876,7 @@ namespace solver
             _rowMask[r] &= ~(1U << val);
             _colMask[c] &= ~(1U << val);
             _boxMask[id] &= ~(1U << val);
+            _options[r][c]|= (1U << val);
             _boxRemainingSum[id] += val;
             ++_boxRemainingCells[id];
         }
