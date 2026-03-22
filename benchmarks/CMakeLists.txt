@@ -11,4 +11,4 @@ add_executable(solverbenchmark solverbenchmark.cc)
 # Link required libraries
 # NOTE: ankerl::nanobench::templates::csv() requires fmt library
 target_link_libraries(boardbenchmark PRIVATE nanobench board_library fmt::fmt)
-target_link_libraries(solverbenchmark PRIVATE nanobench solver_library fmt::fmt)
+target_link_libraries(solverbenchmark PRIVATE nanobench fmt::fmt solver_library loader_library)

@@ -28,11 +28,21 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
+add_library(loader_library STATIC common/loaderlib.cc)
+
+# Create a macro called TEST_DATA_DIR
+target_compile_definitions(loader_library PRIVATE
+    TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data"
+)
+
+target_include_directories(loader_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common)
+target_link_libraries(loader_library PUBLIC nlohmann_json::nlohmann_json board_library)
+
 add_executable(solvertestlib solvertestlib.cc)
 add_executable(boardtestlib boardtestlib.cc)
 
-target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json solver_library  project_options)
 target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library project_options)
+target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain loader_library solver_library project_options)
 
 catch_discover_tests(solvertestlib)
 catch_discover_tests(boardtestlib)
