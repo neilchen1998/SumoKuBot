@@ -36,5 +36,11 @@ std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
         }
     }
 
+    // Sort the test cases based on the label
+    std::sort(std::begin(testCases), std::end(testCases), [](const SumokuTestData& a, const SumokuTestData& b)
+    {
+        return a.label < b.label;
+    });
+
     return testCases;
 }

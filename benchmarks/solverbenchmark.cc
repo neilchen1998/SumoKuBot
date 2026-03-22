@@ -1,8 +1,8 @@
 
 #include <chrono>   // std::chrono::milliseconds
-#include <vector>   // std::vector
-#include <nanobench.h>  // ankerl::nanobench::Bench
 #include <fstream>  // std::ofstream
+#include <nanobench.h>  // ankerl::nanobench::Bench
+#include <vector>   // std::vector
 
 #include <fmt/core.h>   // fmt::format
 
@@ -14,8 +14,8 @@ int main()
 {
     std::ofstream file("./build/benchmarks/solver-results.csv");
     ankerl::nanobench::Bench bench;
-    bench.timeUnit(std::chrono::milliseconds(1), "ms"); // change to ms instead of the default ns
 
+    // Load the puzzles
     const std::string folder = GetTestDataPath();
     const std::vector<SumokuTestData> all_puzzles = LoadAllPuzzles(folder);
 
