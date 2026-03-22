@@ -29,9 +29,14 @@ list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
 add_library(loaderlib STATIC common/loaderlib.cc)
+
+# Create a macro called TEST_DATA_DIR
+target_compile_definitions(loaderlib PRIVATE
+    TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data"
+)
+
 target_include_directories(loaderlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common)
-target_link_libraries(loaderlib PRIVATE nlohmann_json::nlohmann_json board_library)
-add_library(Project::TestUtils ALIAS loaderlib)
+target_link_libraries(loaderlib PUBLIC nlohmann_json::nlohmann_json board_library)
 
 add_executable(solvertestlib solvertestlib.cc)
 add_executable(boardtestlib boardtestlib.cc)

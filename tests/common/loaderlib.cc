@@ -12,11 +12,7 @@ namespace fs = std::filesystem;
 /// @return Test data directory
 std::string GetTestDataPath()
 {
-    // Gets the current path of this file
-    // __FILE__ is the path to the current file
-    fs::path source_file = __FILE__;
-
-    return (source_file.parent_path() / "data").string();
+    return TEST_DATA_DIR;
 }
 
 /// @brief Load all the test cases from the data directory
