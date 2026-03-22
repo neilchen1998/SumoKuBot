@@ -80,6 +80,27 @@ void validate_sukodu_row_column_constraints(const std::vector<std::vector<T>>& b
     }
 }
 
+/// @brief Validates a given Sumoku that it satisfies the sum constraints
+/// @tparam T The element type of the board
+/// @tparam U The element type of the sum vector
+/// @param board The Sudoku or any variations
+/// @param boxes The boxes
+/// @param sums The sums
+template <BoardType T, std::integral U>
+void validate_sumoku_constraints(const std::vector<std::vector<T>>& board, const std::vector<std::vector<Point>>& boxes, const std::vector<U>& sums)
+{
+    for (size_t i = 0; i < boxes.size(); ++i)
+    {
+        int curSum = 0;
+        for (const Point& p : boxes[i])
+        {
+            curSum += board[p.x][p.y];
+        }
+
+        REQUIRE (curSum == sums[i]);
+    }
+}
+
 TEST_CASE( "Sukodu", "[main]" )
 {
     SECTION("Puzzle 0", "[trivial case]")
@@ -620,5 +641,6 @@ TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
         REQUIRE (solution.size() == data.N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
+        validate_sumoku_constraints(solution, data.boxes, data.sums);
     }
 }
