@@ -707,47 +707,6 @@ namespace solver
         }
 
     private:
-
-        /// @brief Find the possible number(s)
-        /// @param r The current row
-        /// @param c The current column
-        /// @return Possible number(s) in the mask format
-        uint16_t GetCandidates(size_t r, size_t c)
-        {
-            size_t id = _boxID[r][c];
-
-            uint16_t forbidden = _rowMask[r] | _colMask[c] | (_boxMask[id] & ~(_options[r][c]));
-            uint16_t ret = 0U;
-
-            for (size_t v = 1; v <= _N; ++v)
-            {
-                // Check if the current number is possible
-                if (!(forbidden & (1U << v)))
-                {
-                    int remainingSum = _boxRemainingSum[id] - v;
-
-                    // If the current sum reaches to negative values,
-                    // then the current number is not a possible
-                    if (remainingSum < 0 )
-                    {
-                        continue;
-                    }
-
-                    // If there is only one cell left in the box and the remaining sum is not equal to zero,
-                    // then we know that the current number is not possible either
-                    if (_boxRemainingCells[id] == 1 && remainingSum != 0)
-                    {
-                        continue;
-                    }
-
-                    // If none of the two scenario is true, then the current nubmer is a possible candidate
-                    ret |= (1U << v);
-                }
-            }
-
-            return ret;
-        }
-
         /// @brief The selection
         struct Selection
         {
@@ -773,11 +732,14 @@ namespace solver
             {
                 for (size_t c = 0; c < _N; ++c)
                 {
+                    size_t id = _boxID[r][c];
+
                     // Only check the cell that is empty
                     if (_board[r][c] == 0)
                     {
                         // Get the candidates and the number of candidates
-                        uint16_t candidates = GetCandidates(r, c);
+                        uint16_t sumMask = GetPossibleNumbersMask(_boxRemainingSum[id], _boxRemainingCells[id]);
+                        uint16_t candidates = ~(_rowMask[r] | _colMask[c] | _boxMask[id]) & _options[r][c] & sumMask;
 
                         // If there is no candidate available that means we hit a dead end and this tree needs to be pruned
                         if (candidates == 0) [[unlikely]]
