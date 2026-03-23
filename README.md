@@ -309,7 +309,7 @@ uint16_t GetCandidates(size_t r, size_t c)
     uint16_t forbidden = _rowMask[r] | _colMask[c] | _boxMask[id];
     uint16_t ret = 0U;
 
-    for (int v = 1; v <= _N; ++v)
+    for (size_t v = 1; v <= _N; ++v)
     {
         // Check if the current number is possible
         if (!(forbidden & (1U << v)) && (_options[r][c] >> v))
@@ -325,15 +325,25 @@ uint16_t GetCandidates(size_t r, size_t c)
 The following table shows the improvement by using pre-calculated candidate approach.
 We see a whopping 120 times improvement over the old method.
 
-|               ms/op |                op/s |    err% |     total | Sumoku Solver Comparison #1
+|               ns/op |                op/s |    err% |     total | Sumoku Solver Comparison #1
 |--------------------:|--------------------:|--------:|----------:|:----------------------------
-|               17.54 |               57.02 |    0.9% |      0.19 | `MRV`
-|                0.14 |            6,920.13 |    1.3% |      0.01 | `MRV w/ precalculated candidates`
+|            1,568.39 |          637,595.16 |    0.8% |      0.01 | `traditional`
+|              518.23 |        1,929,629.18 |    4.0% |      0.01 | `MRV`
 
-|               ms/op |                op/s |    err% |     total | Sumoku Solver Comparison #2
+|               ns/op |                op/s |    err% |     total | Sumoku Solver Comparison #2
 |--------------------:|--------------------:|--------:|----------:|:----------------------------
-|               17.10 |               58.48 |    0.4% |      0.19 | `MRV`
-|                0.15 |            6,810.44 |    1.9% |      0.01 | `MRV w/ precalculated candidates`
+|            2,842.32 |          351,825.79 |    1.3% |      0.01 | `traditional`
+|              820.51 |        1,218,759.94 |    1.3% |      0.01 | `MRV`
+
+|               ns/op |                op/s |    err% |     total | Sumoku Solver Comparison #3
+|--------------------:|--------------------:|--------:|----------:|:----------------------------
+|       14,526,208.00 |               68.84 |    0.6% |      0.16 | `traditional`
+|          717,833.00 |            1,393.08 |    1.2% |      0.01 | `MRV`
+
+|               ns/op |                op/s |    err% |     total | Sumoku Solver Comparison #4
+|--------------------:|--------------------:|--------:|----------:|:----------------------------
+|        1,874,208.00 |              533.56 |    2.7% |      0.02 | `traditional`
+|           71,750.00 |           13,937.28 |    1.2% |      0.01 | `MRV`
 
 ### Find candidates that can sum up to a target
 
