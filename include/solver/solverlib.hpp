@@ -681,8 +681,7 @@ namespace solver
         _boxMask(boxes.size(), 0),
         _boxID(N, std::vector<size_t>(N, 0)),
         _boxRemainingSum(sums),
-        _boxRemainingCells(sums.size(), 0),
-        _options(N, std::vector<uint16_t>(N, 0))
+        _boxRemainingCells(sums.size(), 0)
         {
             for (size_t i = 0; i < boxes.size(); ++i)
             {
@@ -691,7 +690,6 @@ namespace solver
                 for (const Point& p : boxes[i])
                 {
                     _boxID[p.x][p.y] = i;
-                    _options[p.x][p.y] = GetPossibleNumbersMask(sums[i], boxes[i].size());
                 }
             }
         }
@@ -739,7 +737,7 @@ namespace solver
                     {
                         // Get the candidates and the number of candidates
                         uint16_t sumMask = GetPossibleNumbersMask(_boxRemainingSum[id], _boxRemainingCells[id]);
-                        uint16_t candidates = ~(_rowMask[r] | _colMask[c] | _boxMask[id]) & _options[r][c] & sumMask;
+                        uint16_t candidates = ~(_rowMask[r] | _colMask[c] | _boxMask[id]) & sumMask;
 
                         // If there is no candidate available that means we hit a dead end and this tree needs to be pruned
                         if (candidates == 0) [[unlikely]]
@@ -821,7 +819,6 @@ namespace solver
             _rowMask[r] |= (1U << val);
             _colMask[c] |= (1U << val);
             _boxMask[id] |= (1U << val);
-            _options[r][c] &= ~(1U << val);
             _boxRemainingSum[id] -= val;
             --_boxRemainingCells[id];
         }
@@ -838,7 +835,6 @@ namespace solver
             _rowMask[r] &= ~(1U << val);
             _colMask[c] &= ~(1U << val);
             _boxMask[id] &= ~(1U << val);
-            _options[r][c]|= (1U << val);
             _boxRemainingSum[id] += val;
             ++_boxRemainingCells[id];
         }
@@ -851,7 +847,6 @@ namespace solver
         std::vector<std::vector<size_t>> _boxID;
         std::vector<int> _boxRemainingSum;
         std::vector<size_t> _boxRemainingCells;
-        std::vector<std::vector<uint16_t>> _options;
     };
 }   // solver
 
