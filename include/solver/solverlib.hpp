@@ -739,6 +739,12 @@ namespace solver
                         uint16_t sumMask = GetPossibleNumbersMask(_boxRemainingSum[id], _boxRemainingCells[id]);
                         uint16_t candidates = ~(_rowMask[r] | _colMask[c] | _boxMask[id]) & sumMask;
 
+                        // Early return if there is only a single candidate based on the box
+                        if (std::popcount(sumMask) == 1)
+                        {
+                            return {.r = r, .c = c, .mask = candidates};
+                        }
+
                         // If there is no candidate available that means we hit a dead end and this tree needs to be pruned
                         if (candidates == 0) [[unlikely]]
                         {
