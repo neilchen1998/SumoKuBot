@@ -778,6 +778,32 @@ The first line of code is saying that I want to construct an instance of *nlohma
 whereas the second line of code is saying that I want to construct a list of *nlohmann::json*'s that has one instance of *myPuzzle*.
 The output of the JSON files will be different as well.
 
+### `std::mdspan`
+
+`std::mdspan` was introduced in C++23 as a non-owning , multi-dimensional view over a contiguous sequence of elements.
+Packing elements in a contiguous block in memory improve cache efficiency.
+By using `std::mdspan`, the user can just access the element by using $(i, j, k)$ without the need to calculate the exact index of the element in its array.
+
+Here is a way to create a view of a 2D vector.
+We first needs to create the underlying containter, in this case we are using a `std::vector`.
+Then we need to declare and create the view of the container with the dimension.
+In this case, it is a 2D view, with N rows of M integers.
+We then can access the element by the row-column index of an element.
+
+```cpp
+#include <std::mdspan>  // std::mdspan, std::dextents
+
+int main()
+{
+    const int N = 3;
+    const int M = 4;
+    std::vector<int> board();
+    std::mdspan<int, std::dextents<size_t, 2>> boardView(board.data(), N, M);
+
+    fmt::println("Element @ (1, 2): {}", boardView[1, 2]);
+}
+```
+
 ## Reference
 
 - [gprof2dot](https://pypi.org/project/gprof2dot/)
