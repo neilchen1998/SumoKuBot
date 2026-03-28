@@ -3,6 +3,7 @@
 
 #include <algorithm>    // std::algorithm
 #include <cstdint>  // uint16_t
+#include <mdspan>   // std::mdspan
 #include <numeric>   // std::iota
 #include <optional> // std::optional
 #include <unordered_map>   // std::unordered_map
@@ -675,7 +676,8 @@ namespace solver
     public:
         SumokuMRV(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
         : _N(N),
-        _board(N, std::vector<int>(N, 0)),
+        _board(N * N, 0),
+        _boardView(_board.data(), N, N),
         _rowMask(N, 0),
         _colMask(N, 0),
         _boxMask(boxes.size(), 0),
@@ -701,7 +703,19 @@ namespace solver
 
         std::optional<std::vector<std::vector<int>>> GetSolution() const
         {
-            return _solved ? std::make_optional(_board) : std::nullopt;
+            if (!_solved)   return std::nullopt;
+
+            std::vector<std::vector<int>> ret(_N, std::vector<int>(_N));
+
+            for (size_t r = 0; r < _N; ++r)
+            {
+                for (size_t c = 0; c < _N; ++c)
+                {
+                    ret[r][c] = _boardView[r, c];
+                }
+            }
+
+            return ret;
         }
 
     private:
@@ -733,7 +747,7 @@ namespace solver
                     size_t id = _boxID[r][c];
 
                     // Only check the cell that is empty
-                    if (_board[r][c] == 0)
+                    if (_boardView[r, c] == 0)
                     {
                         // Get the candidates and the number of candidates
                         uint16_t sumMask = GetPossibleNumbersMask(_boxRemainingSum[id], _boxRemainingCells[id]);
@@ -821,7 +835,7 @@ namespace solver
         {
             size_t id = _boxID[r][c];
 
-            _board[r][c] = val;
+            _boardView[r, c] = val;
             _rowMask[r] |= (1U << val);
             _colMask[c] |= (1U << val);
             _boxMask[id] |= (1U << val);
@@ -837,7 +851,7 @@ namespace solver
         {
             size_t id = _boxID[r][c];
 
-            _board[r][c] = 0;
+            _boardView[r, c] = 0;
             _rowMask[r] &= ~(1U << val);
             _colMask[c] &= ~(1U << val);
             _boxMask[id] &= ~(1U << val);
@@ -848,7 +862,8 @@ namespace solver
     private:
         size_t _N;
         bool _solved = false;
-        std::vector<std::vector<int>> _board;
+        std::vector<int> _board;
+        std::mdspan<int, std::dextents<size_t, 2>> _boardView;
         std::vector<uint16_t> _rowMask, _colMask, _boxMask;
         std::vector<std::vector<size_t>> _boxID;
         std::vector<int> _boxRemainingSum;
