@@ -19,6 +19,12 @@ The objective is to fill the board with numbers from 1 to 9 and follow the follo
 - A number is unique in each box
 - The sum of all numbers in a box should equal to the number provided
 
+Killer Sudoku is a variation of Sudoku.
+
+Killer Sudoku has small 3-by-3 grids like a regular Sudoku with rules like Sumoku.
+
+Note: In this repo, there are two types of Sumoku, the one that does not have 3-by-3 grids, will be referred to **Sudoku** and the one that has 3-by-3 grids will be referred to **Killer Sudoku**.
+
 ## Background Story
 
 The lady sitting next to me on my flight back home was solving [Sudoku](https://en.wikipedia.org/wiki/Sudoku) problems. I chatted with her saying that I am also a fan of solving Sudoku problems. She tore a page from her Sudoku magazine and handed me. It was not standard Sudoku, but Sumoku-a variation of Sudoku that I have never seen before. I was flabbergasted as it is provided with no hints but only sums to begin with. I gave up solving the puzzle on my flight and started to chat with the lady. I mentioned that I am a software engineer to her. She believes that I am smart enough to solve this Sumoku. When I disembarked the plane, I thought to myself, "Hmm..., what if I write a piece of software that solves Sumoku? This is very similar to Sudoku and I did a [LeetCode question](https://leetcode.com/problems/sudoku-solver/description/) like this before." And the rest is history.
@@ -809,3 +815,4 @@ int main()
 - [gprof2dot](https://pypi.org/project/gprof2dot/)
 - [Visually Profile C++ Program Performance](https://www.youtube.com/watch?v=zbTtVW64R_I)
 - [Data-Driven Testing](https://www.leapwork.com/blog/a-short-introduction-to-data-driven-testing)
+- [Killer Sudoku Puzzles](https://github.com/tommy-andersen/killer-sudoku-solver/blob/main/expert-1.json)

@@ -869,6 +869,205 @@ namespace solver
         std::vector<int> _boxRemainingSum;
         std::vector<size_t> _boxRemainingCells;
     };
+
+    class KillerSudokuMRV
+    {
+    public:
+        KillerSudokuMRV(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
+        : _N(N),
+        _board(N * N, 0),
+        _boardView(_board.data(), N, N),
+        _rowMask(N, 0),
+        _colMask(N, 0),
+        _boxMask(boxes.size(), 0),
+        _gridMask((N / 3) * (N / 3), 0),
+        _boxID(N, std::vector<size_t>(N, 0)),
+        _boxRemainingSum(sums),
+        _boxRemainingCells(sums.size(), 0)
+        {
+            for (size_t i = 0; i < boxes.size(); ++i)
+            {
+                _boxRemainingCells[i] = boxes[i].size();
+
+                for (const Point& p : boxes[i])
+                {
+                    _boxID[p.x][p.y] = i;
+                }
+            }
+        }
+
+        void Solve()
+        {
+            _solved = Backtrack();
+        }
+
+        std::optional<std::vector<std::vector<int>>> GetSolution() const
+        {
+            if (!_solved)   return std::nullopt;
+
+            std::vector<std::vector<int>> ret(_N, std::vector<int>(_N));
+
+            for (size_t r = 0; r < _N; ++r)
+            {
+                for (size_t c = 0; c < _N; ++c)
+                {
+                    ret[r][c] = _boardView[r, c];
+                }
+            }
+
+            return ret;
+        }
+
+    private:
+        /// @brief The selection
+        struct Selection
+        {
+            size_t r = -1;
+            size_t c = -1;
+
+            /// @brief The candidates in the mask form
+            uint16_t mask = 0U;
+
+            /// @brief TRUE if there is no other options
+            bool deadEnd = false;
+        };
+
+        /// @brief Finds the next best cell that has the least candidates (most constrainted cell)
+        /// @return The next best cell
+        inline Selection FindNextBestCell()
+        {
+            Selection ret;
+            int curMinCnt = _N + 1;
+
+            // Loop through the entire board to find the next best cell
+            for (size_t r = 0; r < _N; ++r)
+            {
+                for (size_t c = 0; c < _N; ++c)
+                {
+                    size_t id = _boxID[r][c];
+                    size_t gridID = (r / 3) * 3 + (c / 3);
+
+                    // Only check the cell that is empty
+                    if (_boardView[r, c] == 0)
+                    {
+                        // Get the candidates and the number of candidates
+                        uint16_t sumMask = GetPossibleNumbersMask(_boxRemainingSum[id], _boxRemainingCells[id]);
+                        uint16_t candidates = ~(_rowMask[r] | _colMask[c] | _boxMask[id] | _gridMask[gridID]) & sumMask;
+
+                        // If there is no candidate available that means we hit a dead end and this tree needs to be pruned
+                        if (candidates == 0) [[unlikely]]
+                        {
+                            return Selection {.deadEnd = true};
+                        }
+
+                        #ifdef __GNUC__
+                        int curNumOfCandidates = __builtin_popcount(candidates);
+                        #else
+                        int curNumOfCandidates = std::popcount(candidates);
+                        #endif
+
+                        // Update the return value when the current number of candidates is smaller than the previous one
+                        if (curNumOfCandidates < curMinCnt)
+                        {
+                            curMinCnt = curNumOfCandidates;
+                            ret.r = r;
+                            ret.c = c;
+                            ret.mask = candidates;
+
+                            // If there is only one candidate then we return the current value early
+                            if (curNumOfCandidates == 1)
+                            {
+                                return ret;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        /// @brief Solves the given Sumoku using backtracking technique
+        /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
+        bool Backtrack()
+        {
+            Selection next = FindNextBestCell();
+
+            // If the next best cell is illegal, that means backtracking fails
+            if (next.deadEnd)
+            {
+                return false;
+            }
+
+            // If there is no next best cell and we are not hitting a dead end that means we have finished the entire board
+            if (next.r == static_cast<size_t>(-1) && next.c == static_cast<size_t>(-1))
+            {
+                return true;
+            }
+
+            // Loop from number 1 to N
+            for (size_t val = 1; val <= _N; ++val)
+            {
+                if (next.mask & (1U << val))
+                {
+                    Place(next.r, next.c, val);
+                    if (Backtrack())
+                    {
+                        return true;
+                    }
+                    Undo(next.r, next.c, val);
+                }
+            }
+
+            return false;
+        }
+
+        /// @brief Places a number on the board in a given cell
+        /// @param r The row of the given cell
+        /// @param c The column of the given cell
+        /// @param val The given number
+        void Place(size_t r, size_t c, int val)
+        {
+            size_t id = _boxID[r][c];
+            size_t gridID = (r / 3) * 3 + (c / 3);
+
+            _boardView[r, c] = val;
+            _rowMask[r] |= (1U << val);
+            _colMask[c] |= (1U << val);
+            _boxMask[id] |= (1U << val);
+            _gridMask[gridID] |= (1U << val);
+            _boxRemainingSum[id] -= val;
+            --_boxRemainingCells[id];
+        }
+
+        /// @brief Undoes a number on the board in a given cell (the exact opposite of what Place func does)
+        /// @param r The row of the given cell
+        /// @param c The column of the given cell
+        /// @param val The given number
+        void Undo(size_t r, size_t c, int val)
+        {
+            size_t id = _boxID[r][c];
+            size_t gridID = (r / 3) * 3 + (c / 3);
+
+            _boardView[r, c] = 0;
+            _rowMask[r] &= ~(1U << val);
+            _colMask[c] &= ~(1U << val);
+            _boxMask[id] &= ~(1U << val);
+            _gridMask[gridID] &= ~(1U << val);
+            _boxRemainingSum[id] += val;
+            ++_boxRemainingCells[id];
+        }
+
+    private:
+        size_t _N;
+        bool _solved = false;
+        std::vector<int> _board;
+        std::mdspan<int, std::dextents<size_t, 2>> _boardView;
+        std::vector<uint16_t> _rowMask, _colMask, _boxMask, _gridMask;
+        std::vector<std::vector<size_t>> _boxID;
+        std::vector<int> _boxRemainingSum;
+        std::vector<size_t> _boxRemainingCells;
+    };
 }   // solver
 
 #endif // INCLUDE_SOLVER_SOLVERLIB_H_
