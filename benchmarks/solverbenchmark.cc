@@ -39,6 +39,7 @@ int main()
     }
 
     {
+        // Killer Sudoku
         std::ofstream killerSudokuFile("./build/benchmarks/killer-sudoku-results.csv");
         ankerl::nanobench::Bench bench;
         bench.title("Killer Sudoku");
