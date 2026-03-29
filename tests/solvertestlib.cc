@@ -531,3 +531,33 @@ TEST_CASE("Sumoku Solver: SumokuMRV", "[SumokuMRV]")
         validate_sumoku_constraints(solution, data.boxes, data.sums);
     }
 }
+
+TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
+{
+    // Load all the test cases
+    static std::string folder = GetTestDataPath() + "/killer_sudoku";
+    static std::vector<SumokuTestData> all_puzzles = LoadAllPuzzles(folder);
+
+    // Check the vector to make sure it contains at least one test case
+    REQUIRE_FALSE(all_puzzles.empty());
+
+    const SumokuTestData& data = GENERATE(from_range(all_puzzles));
+
+    // The section
+    DYNAMIC_SECTION("Puzzle: " << data.label)
+    {
+        solver::KillerSudokuMRV s {data.N, data.boxes, data.sums};
+
+        s.Solve();
+
+        auto ret = s.GetSolution();
+        REQUIRE (ret != std::nullopt);
+
+        std::vector<std::vector<int>> solution = *ret;
+
+        REQUIRE (solution.size() == data.N);
+        validate_boad_is_square(solution);
+        validate_sukodu_row_column_constraints(solution);
+        validate_sumoku_constraints(solution, data.boxes, data.sums);
+    }
+}

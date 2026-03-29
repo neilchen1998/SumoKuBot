@@ -37,4 +37,27 @@ int main()
             ankerl::nanobench::doNotOptimizeAway(s);
         });
     }
+
+    {
+        std::ofstream killerSudokuFile("./build/benchmarks/killer-sudoku-results.csv");
+        ankerl::nanobench::Bench bench;
+        bench.title("Killer Sudoku");
+
+        // Load the puzzles
+        const std::string folder = GetTestDataPath() + "/killer_sudoku";
+        const std::vector<SumokuTestData> all_puzzles = LoadAllPuzzles(folder);
+
+        for (const auto& p : all_puzzles)
+        {
+            bench.run(fmt::format("MRV - #{}", p.label), [&]
+            {
+                solver::KillerSudokuMRV s {p.N, p.boxes, p.sums};
+
+                s.Solve();
+                ankerl::nanobench::doNotOptimizeAway(s);
+            });
+        }
+
+        bench.render(ankerl::nanobench::templates::csv(), killerSudokuFile);
+    }
 }
