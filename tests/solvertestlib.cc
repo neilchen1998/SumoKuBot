@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 
 #include <algorithm>  // std::ranges::all_of
+#include <cmath> // std::sqrt
 #include <concepts> // concept
 #include <filesystem>   // std::filesystem
 #include <fstream>      // std::ifstream
@@ -101,6 +102,40 @@ void validate_sumoku_constraints(const std::vector<std::vector<T>>& board, const
     }
 }
 
+/// @brief Validates if a given Sukodu satisfy the box constraints
+/// @tparam T The element type of the board
+/// @param board The Sudoku or any variations
+template <BoardType T>
+void validate_sukodu_row_column_box_constraints(const std::vector<std::vector<T>>& board)
+{
+    validate_sukodu_row_column_constraints(board);
+
+    const size_t N = board.size();
+    const int n = std::sqrt(N);
+
+    std::vector<int> expected_vec(N);
+    std::iota(expected_vec.begin(), expected_vec.end(), 1);
+
+    for (size_t i = 0; i < N; i += n)
+    {
+        for (size_t j = 0; j < N; j += n)
+        {
+            std::vector<int> box;
+            box.reserve(n * n);
+
+            for (size_t x = i; x < i + n; ++x)
+            {
+                for (size_t y = j; y < j + n; ++y)
+                {
+                    box.emplace_back(to_int(board[x][y]));
+                }
+            }
+
+            REQUIRE_THAT(box, Catch::Matchers::UnorderedEquals(expected_vec));
+        }
+    }
+}
+
 TEST_CASE( "Sukodu", "[main]" )
 {
     SECTION("Puzzle 0", "[trivial case]")
@@ -119,7 +154,7 @@ TEST_CASE( "Sukodu", "[main]" )
 
         REQUIRE (solution.size() == ans.size());
         validate_boad_is_square(solution);
-        validate_sukodu_row_column_constraints(solution);
+        validate_sukodu_row_column_box_constraints(solution);
     }
 }
 
@@ -557,7 +592,7 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
 
         REQUIRE (solution.size() == data.N);
         validate_boad_is_square(solution);
-        validate_sukodu_row_column_constraints(solution);
+        validate_sukodu_row_column_box_constraints(solution);
         validate_sumoku_constraints(solution, data.boxes, data.sums);
     }
 }
