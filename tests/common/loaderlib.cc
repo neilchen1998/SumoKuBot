@@ -1,7 +1,6 @@
 #include <expected> // std::expected
 #include <filesystem>   // std::filesystem
 #include <fstream>      // std::ifstream
-#include <iostream> // std::cerr
 #include <numeric>  // std::accumulate
 #include <unordered_set>    // std::unordered_set
 #include <vector>    // std::vector
@@ -12,7 +11,10 @@
 
 namespace fs = std::filesystem;
 
-std::expected<SumokuTestData, std::string> check(const SumokuTestData& puzzle)
+/// @brief Validates if the given Sumoku puzzle is valid
+/// @param puzzle A Sumoku puzzle
+/// @return {} if correct, otherwise an error string
+std::expected<void, std::string> ValidateSumokuPuzzle(const SumokuTestData& puzzle)
 {
     const size_t N = puzzle.N;
 
@@ -51,7 +53,7 @@ std::expected<SumokuTestData, std::string> check(const SumokuTestData& puzzle)
         return std::unexpected(fmt::format("Expected sum is {}, but the actual sum is {}.", expected_sum, sum));
     }
 
-    return puzzle;
+    return {};
 }
 
 /// @brief Gets the directory of the test data
@@ -79,15 +81,15 @@ std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
 
             SumokuTestData puzzle = j.get<SumokuTestData>();
 
-            auto result = check(puzzle);
+            auto result = ValidateSumokuPuzzle(puzzle);
 
-            if (result)
+            if (result.has_value())
             {
                 testCases.push_back(puzzle);
             }
             else
             {
-                std::cerr << "Error: " << result.error() << std::endl;
+                fmt::print(stderr, "Error: {}\n", result.error());
             }
         }
     }
