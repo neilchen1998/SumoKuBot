@@ -546,11 +546,11 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
     // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
     {
-        solver::KillerSudokuMRV s {data.N, data.boxes, data.sums};
+        solver::KillerSudokuMRV solver {data.N, data.boxes, data.sums};
 
-        s.Solve();
+        solver.Solve();
 
-        auto ret = s.GetSolution();
+        auto ret = solver.GetSolution();
         REQUIRE (ret != std::nullopt);
 
         std::vector<std::vector<int>> solution = *ret;
