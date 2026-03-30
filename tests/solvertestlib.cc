@@ -53,7 +53,7 @@ void validate_boad_is_square(const std::vector<std::vector<T>>& board)
     REQUIRE (isSquare);
 }
 
-/// @brief Validates a given Sukodu satisfy both the row and column constraints
+/// @brief Validates a given Sudoku satisfies both the row and column constraints
 /// @tparam T The element type of the board
 /// @param board The Sudoku or any variations
 template <BoardType T>
@@ -102,7 +102,7 @@ void validate_sumoku_constraints(const std::vector<std::vector<T>>& board, const
     }
 }
 
-/// @brief Validates if a given Sukodu satisfy the box constraints
+/// @brief Validates if a given Sudoku satisfies the box constraints
 /// @tparam T The element type of the board
 /// @param board The Sudoku or any variations
 template <BoardType T>
@@ -136,7 +136,7 @@ void validate_sukodu_row_column_box_constraints(const std::vector<std::vector<T>
     }
 }
 
-TEST_CASE( "Sukodu", "[main]" )
+TEST_CASE( "Sudoku", "[main]" )
 {
     SECTION("Puzzle 0", "[trivial case]")
     {
