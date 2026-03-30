@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 /// @brief Validates if the given Sumoku puzzle is valid
 /// @param puzzle A Sumoku puzzle
 /// @return {} if correct, otherwise an error string
-std::expected<void, std::string> validate_sumoku_puzzle(const SumokuTestData& puzzle)
+std::expected<void, std::string> ValidateSumokuPuzzle(const SumokuTestData& puzzle)
 {
     const size_t N = puzzle.N;
 
@@ -103,7 +103,7 @@ std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
 
             SumokuTestData puzzle = j.get<SumokuTestData>();
 
-            auto result = validate_sumoku_puzzle(puzzle);
+            auto result = ValidateSumokuPuzzle(puzzle);
 
             if (result.has_value())
             {
