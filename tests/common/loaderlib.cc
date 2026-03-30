@@ -85,7 +85,7 @@ std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
 
             if (result.has_value())
             {
-                testCases.push_back(puzzle);
+                testCases.push_back(std::move(puzzle));
             }
             else
             {
