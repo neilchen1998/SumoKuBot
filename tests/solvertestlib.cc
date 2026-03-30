@@ -548,8 +548,6 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
     {
         solver::KillerSudokuMRV solver {data.N, data.boxes, data.sums};
 
-
-
         solver.Solve();
 
         auto ret = solver.GetSolution();
