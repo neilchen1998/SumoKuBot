@@ -1,7 +1,6 @@
 #include <expected> // std::expected
 #include <filesystem>   // std::filesystem
 #include <fstream>      // std::ifstream
-#include <iostream> // std::cerr
 #include <numeric>  // std::accumulate
 #include <unordered_set>    // std::unordered_set
 #include <vector>    // std::vector
@@ -12,7 +11,10 @@
 
 namespace fs = std::filesystem;
 
-std::expected<SumokuTestData, std::string> check(const SumokuTestData& puzzle)
+/// @brief Validates if the given Sumoku puzzle is valid
+/// @param puzzle A Sumoku puzzle
+/// @return {} if correct, otherwise an error string
+std::expected<void, std::string> validate_sumoku_puzzle(const SumokuTestData& puzzle)
 {
     const size_t N = puzzle.N;
 
@@ -51,7 +53,7 @@ std::expected<SumokuTestData, std::string> check(const SumokuTestData& puzzle)
         return std::unexpected(fmt::format("Expected sum is {}, but the actual sum is {}.", expected_sum, sum));
     }
 
-    return puzzle;
+    return {};
 }
 
 /// @brief Gets the directory of the test data
@@ -66,6 +68,20 @@ std::string GetTestDataPath()
 /// @return A vector of SumokuTestData
 std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
 {
+    // Check if the given directory exists
+    if (!fs::exists(dir))
+    {
+        fmt::print(stderr, "Error: '{}' does not exist.\n", dir.data());
+        return {};
+    }
+
+    // Check if the given argument is a directory
+    if (!fs::is_directory(dir))
+    {
+        fmt::print(stderr, "Error: '{}' is not a directory.\n", dir.data());
+        return {};
+    }
+
     std::vector<SumokuTestData> testCases;
 
     // Iterate over all the json entries in the directory
@@ -74,20 +90,28 @@ std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
         if (entry.path().extension() == ".json")
         {
             std::ifstream file{entry.path()};
+
+            // Check if the file can be opened
+            if (!file)
+            {
+                fmt::print(stderr, "Error: Could not open file at '{}'.\n", dir.data());
+                continue;
+            }
+
             nlohmann::json j;
             file >> j;
 
             SumokuTestData puzzle = j.get<SumokuTestData>();
 
-            auto result = check(puzzle);
+            auto result = validate_sumoku_puzzle(puzzle);
 
-            if (result)
+            if (result.has_value())
             {
-                testCases.push_back(puzzle);
+                testCases.push_back(std::move(puzzle));
             }
             else
             {
-                std::cerr << "Error: " << result.error() << std::endl;
+                fmt::print(stderr, "Error: {}\n", result.error());
             }
         }
     }
