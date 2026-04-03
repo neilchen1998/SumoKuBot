@@ -1,9 +1,10 @@
+#include <array>   // std::array
 #include <fstream>  // std::ofstream
 #include <nanobench.h>  // ankerl::nanobench::Bench
 #include <random>   // std::mt19937_64
-#include <array>   // std::array
 
-#include "board/boardlib.hpp"   // PointHasher, BoostPointHasher
+#include "board/boardlib.hpp"   // Point
+#include "math/mathlib.hpp"   // PointHasher, BoostPointHasher
 
 int main()
 {

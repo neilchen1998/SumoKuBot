@@ -17,6 +17,7 @@
 #include <fmt/core.h>   // fmt::print
 
 #include "board/boardlib.hpp"   // Point, SudokuBoard
+#include "math/mathlib.hpp"   // PointHasher
 
 using SudokuBoard = std::vector<std::vector<size_t>>;
 

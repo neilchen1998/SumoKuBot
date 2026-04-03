@@ -7,4 +7,5 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Benchmark &&
 cmake --build build &&
 
 # Run the benchmark(s)
+./build/benchmarks/mathbenchmark
 ./build/benchmarks/solverbenchmark

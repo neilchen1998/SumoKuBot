@@ -35,14 +35,17 @@ target_compile_definitions(loader_library PRIVATE
     TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data"
 )
 
-target_include_directories(loader_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/common)
-target_link_libraries(loader_library PUBLIC nlohmann_json::nlohmann_json board_library)
+target_include_directories(loader_library PUBLIC ${CMAKE_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/common)
+target_link_libraries(loader_library PUBLIC nlohmann_json::nlohmann_json board_library math_library)
 
 add_executable(solvertestlib solvertestlib.cc)
+add_executable(mathtestlib mathtestlib.cc)
 add_executable(boardtestlib boardtestlib.cc)
 
 target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library project_options)
+target_link_libraries(mathtestlib PRIVATE Catch2::Catch2WithMain math_library board_library project_options)
 target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain loader_library solver_library project_options)
 
 catch_discover_tests(solvertestlib)
+catch_discover_tests(mathtestlib)
 catch_discover_tests(boardtestlib)
