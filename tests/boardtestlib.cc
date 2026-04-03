@@ -126,32 +126,6 @@ uint16_t GenerateCandidateMask(Args... digit)
     return ((1U << digit) | ... | 0);
 }
 
-TEST_CASE( "Unordered Map", "[main]" )
-{
-    std::unordered_map<Point, int, PointHasher> m;
-
-    SECTION("Inserting and retrieving elements")
-    {
-        Point a {1, 2};
-        Point b {3, 4};
-
-        m[a] = 10;
-        m.insert({b, 20});
-
-        REQUIRE (m.size() == 2);
-        REQUIRE (m[a] == 10);
-        REQUIRE (m.at(b) == 20);
-    }
-
-    SECTION("Accessing non-existent keys")
-    {
-        REQUIRE_THROWS_AS (m.at({99, 98}), std::out_of_range);
-
-        REQUIRE (m[{3, 5}] == 0);
-        REQUIRE (m.size() == 1);
-    }
-}
-
 TEST_CASE( "Combinations (Recursive)", "[main]" )
 {
     constexpr std::array<int, 18> cache = []()

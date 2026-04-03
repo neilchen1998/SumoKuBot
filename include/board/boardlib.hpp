@@ -26,45 +26,6 @@ struct Point
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
 
-struct BoostPointHasher
-{
-    std::size_t operator()(const Point& p) const noexcept
-    {
-        std::size_t seed = 0;
-        boost::hash_combine(seed, p.x);
-        boost::hash_combine(seed, p.y);
-        return seed;
-    }
-};
-
-/// @brief Defines a type that is hashable
-template<typename T>
-concept Hashable = requires (T a)
-{
-    { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
-};
-
-/// @brief Hashes a value with a seed
-/// @tparam T Hashable
-/// @param seed The seed
-/// @param v The value
-template <Hashable T>
-void hash_combine(std::size_t& seed, const T& v)
-{
-    seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-}
-
-struct PointHasher
-{
-    std::size_t operator()(const Point& p) const noexcept
-    {
-        std::size_t seed = 0;
-        hash_combine(seed, p.x);
-        hash_combine(seed, p.y);
-        return seed;
-    }
-};
-
 /// @brief Print a Sudoku board
 /// @tparam T The element type of the board (must support << operator)
 /// @param board The given Sudoku board

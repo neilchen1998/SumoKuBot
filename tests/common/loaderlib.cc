@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>    // nlohmann::json
 
 #include "loaderlib.hpp"
+#include "math/mathlib.hpp" // PointHasher
 
 namespace fs = std::filesystem;
 
