@@ -1,0 +1,20 @@
+---
+# The checks
+Checks:
+  -*,
+  clang-analyzer-*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  performance-*,
+  modernize-*,
+  cppcoreguidelines-*,
+  -modernize-use-trailing-return-type,
+  -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic
+
+# Only report warnings from the this repo's headers
+HeaderFilterRegex: '.*'
+
+# Treat high priority warnings as errors
+WarningsAsErrors: 'bugprone-*,clang-analyzer-*'
+...
