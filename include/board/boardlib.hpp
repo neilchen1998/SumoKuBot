@@ -149,7 +149,7 @@ struct CombinationsLUT
     /// @param target The target sum
     /// @param k The number of distinct digit(s)
     /// @return The total number of unique combinations
-    constexpr int get(int target, int k) const
+    [[nodiscard]] constexpr int get(int target, int k) const
     {
         if (target < 0 || target > 45 || k < 0 || k > 9) return 0;
         return data[k][target];
@@ -214,7 +214,7 @@ struct PossibleNumbersTable
     /// @param target The target sum
     /// @param k The number of distinct digit(s)
     /// @return All the candidates in mask format
-    constexpr uint16_t get(size_t target, size_t count) const
+    [[nodiscard]] constexpr uint16_t get(size_t target, size_t count) const
     {
         if (count > MAX_COUNT || target > MAX_SUM)  return 0;
 
