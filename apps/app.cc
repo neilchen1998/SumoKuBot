@@ -1,5 +1,5 @@
 #include <chrono>   // std::chrono::high_resolution_clock
-#include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
+#include <cstdlib> // EXIT_SUCCESS, EXIT_FAILURE
 #include <vector>  // std::vector
 
 #include <fmt/core.h>   // fmt::print

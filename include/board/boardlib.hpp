@@ -10,6 +10,8 @@
 
 using json = nlohmann::json;
 
+using SudokuBoard = std::vector<std::vector<size_t>>;
+
 template<typename T>
 concept BoardType = std::integral<T> && !std::same_as<T, bool>;
 

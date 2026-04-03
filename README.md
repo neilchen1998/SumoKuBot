@@ -34,21 +34,22 @@ The lady sitting next to me on my flight back home was solving [Sudoku](https://
 The requirements are:
 
 - CMake 3.18 or better; 4.0+ highly recommended
-- A C++20 compatible compiler ([gcc](https://gcc.gnu.org/) or [llvm](https://llvm.org/))
-- The Boost libararies
-- Git
-- Doxygen (optional, highly recommended)
+- A C++23 compatible compiler ([gcc](https://gcc.gnu.org/) or [llvm](https://llvm.org/))
+- [The Boost libararies](https://www.boost.org/)
+- [Git](https://git-scm.com/)
+- [Doxygen](https://www.doxygen.nl/) (optional, highly recommended)
 - [fmt](https://github.com/fmtlib/fmt) 11.0 or higher (will automatically install if not present)
 - [Catch2](https://github.com/catchorg/Catch2) 3.8 or higher (will automatically install if not present)
 - [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
 - [json](https://github.com/nlohmann/json.git) 3.9.1 or higher (will automatically install if not present)
 - [abseil](https://github.com/abseil/abseil-cpp.git) 20250512.1 or newer (will automatically install if not present)
+- [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) (optional, highly recommended)
 
 ## Instructions
 
 To configure:
 
-```bash
+```zsh
 cmake -S . -B build
 ```
 
@@ -58,25 +59,25 @@ Add `-GNinja` if you have Ninja.
 
 To build without example:
 
-```bash
+```zsh
 cmake --build build
 ```
 
 To test (`--target` can be written as `-t` in CMake 3.15+):
 
-```bash
+```zsh
 cmake --build build --target test
 ```
 
 To run the binary with example layout:
 
-```bash
+```zsh
 ./build/apps/app
 ```
 
 To build and test:
 
-```bash
+```zsh
 cmake --build build -DCMAKE_BUILD_TYPE=Test && cmake --build build --target test
 ```
 
@@ -88,14 +89,26 @@ Run a specific tag:
 
 To build docs (requires Doxygen, output in `build/docs/html`):
 
-```bash
+```zsh
 cmake --build build --target docs
 ```
 
 To build and run benchmark:
 
-```bash
+```zsh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Benchmark && ./build/bench/<name_of_benchmark>
+```
+
+To build and generate **compile_commands.json** (which clang-tidy relies on):
+
+```zsh
+cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+```
+
+To run clang-tidy:
+
+```zsh
+run-clang-tidy -p build/ '.*/(apps|benchmarks|tests)/.*'
 ```
 
 ## Benchmark
@@ -197,15 +210,15 @@ We iterate all blank elements in each iteration and find the element with the mi
 inline Selection FindNextBestCell()
 {
     Selection ret;
-    size_t curMinCnt = _N + 1;
+    size_t curMinCnt = N_ + 1;
 
     // Loop through the entire board to find the next best cell
-    for (size_t r = 0; r < _N; ++r)
+    for (size_t r = 0; r < N_; ++r)
     {
-        for (size_t c = 0; c < _N; ++c)
+        for (size_t c = 0; c < N_; ++c)
         {
             // Only check the cell that is empty
-            if (_board[r][c] == 0)
+            if (board_[r][c] == 0)
             {
                 // Get the candidates and the number of candidates
                 uint16_t candidates = GetCandidates(r, c);
@@ -303,12 +316,12 @@ Now we can use *GetPossibleNumbersMask* to improve our *FindNextBestCell()*.
 ```cpp
 uint16_t GetCandidates(size_t r, size_t c)
 {
-    size_t id = _boxID[r][c];
+    size_t id = boxID_[r][c];
 
-    uint16_t forbidden = _rowMask[r] | _colMask[c] | _boxMask[id];
+    uint16_t forbidden = rowMask_[r] | colMask_[c] | boxMask_[id];
     uint16_t ret = 0U;
 
-    for (size_t v = 1; v <= _N; ++v)
+    for (size_t v = 1; v <= N_; ++v)
     {
         // Check if the current number is possible
         if (!(forbidden & (1U << v)) && (_options[r][c] >> v))
@@ -744,7 +757,7 @@ TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == data.N);
         validate_boad_is_square(solution);
