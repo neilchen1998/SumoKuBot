@@ -3,6 +3,7 @@
 
 #include <algorithm>    // std::algorithm
 #include <cstdint>  // uint16_t
+#include <limits>   // std::numeric_limits<size_t>::max
 #include <mdspan>   // std::mdspan
 #include <numeric>   // std::iota
 #include <optional> // std::optional
@@ -727,8 +728,8 @@ namespace solver
         /// @brief The selection
         struct Selection
         {
-            size_t r = -1;
-            size_t c = -1;
+            size_t r = std::numeric_limits<size_t>::max();
+            size_t c = std::numeric_limits<size_t>::max();
 
             /// @brief The candidates in the mask form
             uint16_t mask = 0U;
@@ -810,7 +811,8 @@ namespace solver
             }
 
             // If there is no next best cell and we are not hitting a dead end that means we have finished the entire board
-            if (next.r == static_cast<size_t>(-1) && next.c == static_cast<size_t>(-1))
+            if (next.r == std::numeric_limits<size_t>::max() &&
+    next.c == std::numeric_limits<size_t>::max())
             {
                 return true;
             }
@@ -1008,7 +1010,8 @@ namespace solver
             }
 
             // If there is no next best cell and we are not hitting a dead end that means we have finished the entire board
-            if (next.r == static_cast<size_t>(-1) && next.c == static_cast<size_t>(-1))
+            if (next.r == std::numeric_limits<size_t>::max() &&
+    next.c == std::numeric_limits<size_t>::max())
             {
                 return true;
             }

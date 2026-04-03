@@ -509,7 +509,7 @@ struct PossibleNumbersTable
     /// @param target The target sum
     /// @param k The number of distinct digit(s)
     /// @return All the candidates in mask format
-    constexpr uint16_t get(size_t target, size_t count) const
+    [[nodiscard]] constexpr uint16_t get(size_t target, size_t count) const
     {
         if (count > MAX_COUNT || target > MAX_SUM)  return 0;
 
