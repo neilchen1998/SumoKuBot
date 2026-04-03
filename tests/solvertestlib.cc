@@ -173,7 +173,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -193,7 +193,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -213,7 +213,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -253,7 +253,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -293,7 +293,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -316,7 +316,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -336,7 +336,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -356,7 +356,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -396,7 +396,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -436,7 +436,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -459,7 +459,7 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -479,7 +479,7 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -499,7 +499,7 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == N);
         validate_boad_is_square(solution);
@@ -528,7 +528,7 @@ TEST_CASE("Sumoku Solver: Naive", "[Sumoku]")
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == data.N);
         validate_boad_is_square(solution);
@@ -558,7 +558,7 @@ TEST_CASE("Sumoku Solver: SumokuMRV", "[SumokuMRV]")
         auto ret = s.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == data.N);
         validate_boad_is_square(solution);
@@ -588,7 +588,7 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
         auto ret = solver.GetSolution();
         REQUIRE (ret != std::nullopt);
 
-        std::vector<std::vector<int>> solution = *ret;
+        std::vector<std::vector<size_t>> solution = *ret;
 
         REQUIRE (solution.size() == data.N);
         validate_boad_is_square(solution);
