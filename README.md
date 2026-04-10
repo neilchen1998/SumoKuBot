@@ -53,7 +53,7 @@ To configure:
 cmake -S . -B build
 ```
 
-For linux systems:
+For linux systems (64-bit machines):
 
 ```zsh
 cmake -S . -B build --toolchain=./linux-x86_64.toolchain
