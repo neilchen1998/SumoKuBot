@@ -44,9 +44,10 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     if(lto_supported)
         # Enable LTO specifically for the Benchmark configuration
         set_target_properties(project_options PROPERTIES
+            INTERPROCEDURAL_OPTIMIZATION_RELEASE   TRUE
             INTERPROCEDURAL_OPTIMIZATION_BENCHMARK TRUE
         )
-        message(STATUS "LTO/IPO is supported and enabled for Benchmark.")
+        message(STATUS "LTO/IPO is supported and enabled")
     else()
         message(STATUS "LTO/IPO not supported: ${error}")
     endif()
