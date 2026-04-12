@@ -4,7 +4,8 @@
 #include <random>   // std::mt19937_64
 
 #include "board/boardlib.hpp"   // Point
-#include "math/mathlib.hpp"   // PointHasher, BoostPointHasher
+#include "math/mathlib.hpp"        // PointHasher
+#include "shared/boostmathlib.hpp" // BoostPointHasher
 
 int main()
 {

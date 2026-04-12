@@ -1,5 +1,5 @@
 # The minimum cmake requirements
-cmake_minimum_required(VERSION 3.18...4.0)
+cmake_minimum_required(VERSION 3.21...4.0)
 
 project(
     Sudoku
@@ -12,8 +12,9 @@ project(
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Check if we are in the main CMakeLists
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+# Check if we are at the top level
+# NOTE: PROJECT_IS_TOP_LEVEL is available after CMake 3.21
+if(PROJECT_IS_TOP_LEVEL)
 
     # Ensure -std=c++xx instead of -std=g++xx for protability purposes
     set(CMAKE_CXX_EXTENSIONS OFF)
@@ -32,20 +33,24 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     # Flags based on the specified build type
     target_compile_options(project_options INTERFACE
-        $<$<CONFIG:Release>:-O3>
-        $<$<CONFIG:Debug>:-g -O0>
-        $<$<CONFIG:Benchmark>:-O3 -march=native -ffast-math -DNDEBUG>
-        $<$<CONFIG:Test>:-g -O1 -fsanitize=address -fsanitize=undefined>
+        # High performance builds
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-O3 -march=native -ffast-math -DNDEBUG>
+        $<$<CONFIG:MinSizeRel>:-Os -DNDEBUG>
+
+        # Debug builds
+        $<$<CONFIG:Debug>:-g -O0 -fsanitize=address,undefined>
+        $<$<CONFIG:RelWithDebInfo>:-g>
     )
 
+    # Check if IPO/LTO is supported
     include(CheckIPOSupported)
     check_ipo_supported(RESULT lto_supported OUTPUT error)
-
     if(lto_supported)
-        # Enable LTO specifically for the Benchmark configuration
+        # Enable LTO specifically for release builds
         set_target_properties(project_options PROPERTIES
-            INTERPROCEDURAL_OPTIMIZATION_RELEASE   TRUE
-            INTERPROCEDURAL_OPTIMIZATION_BENCHMARK TRUE
+            INTERPROCEDURAL_OPTIMIZATION_RELEASE        TRUE
+            INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE
+            INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL     TRUE
         )
         message(STATUS "LTO/IPO is supported and enabled")
     else()
@@ -54,12 +59,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     # Linker flags
     target_link_options(project_options INTERFACE
-        $<$<CONFIG:Test>:-fsanitize=address -fsanitize=undefined>
+        $<$<CONFIG:Debug>:-fsanitize=address,undefined>
     )
-
-    # Use CTest
-    # NOTE: this needs to be done in the main CMakeLists
-    include(CTest)
 
     # Docs only available in the main app
     find_package(Doxygen)
@@ -74,10 +75,11 @@ endif()
 # NOTE: available after CMake 3.11
 include(FetchContent)
 
-# all required packages (will be downloaded automatically)
+# All required packages will be downloaded automatically if unavailable
 
 # Try to find fmt that is at least 12.0 but the same major version
 find_package(fmt CONFIG 12.0...<13.0 QUIET)
+
 if (fmt_FOUND)
     message(STATUS "Found fmt version: ${fmt_VERSION}")
 else()
@@ -95,10 +97,24 @@ add_subdirectory(src)
 # The executable code
 add_subdirectory(apps)
 
-# Check if we are in the main CMakeLists
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
-    add_subdirectory(tests)
-    if(CMAKE_BUILD_TYPE STREQUAL "Benchmark")
+option(PROJECT_BUILD_TESTS "Build tests" OFF)
+option(PROJECT_BUILD_BENCHMARKS "Build benchmarks" OFF)
+
+# Always include shared if we're top-level or explicitly requested
+if(PROJECT_IS_TOP_LEVEL OR PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS)
+
+    # This subdirectory contains files needed by tests and benchmarks
+    add_subdirectory(shared)
+
+    if(PROJECT_BUILD_TESTS)
+        # Use CTest and set BUILD_TESTING
+        include(CTest)
+        if(BUILD_TESTING)
+            add_subdirectory(tests)
+        endif()
+    endif()
+
+    if(PROJECT_BUILD_BENCHMARKS)
         add_subdirectory(benchmarks)
     endif()
 endif()

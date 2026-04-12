@@ -1,22 +1,9 @@
 #ifndef INCLUDE_MATH_MATHLIB_H_
 #define INCLUDE_MATH_MATHLIB_H_
 
-#include <cstddef>  // std::size_t
-#include <span> // std::span
-#include <functional>   // std::hash
-
-#include <boost/container_hash/hash.hpp>    // boost::hash_combine
-
-struct BoostPointHasher
-{
-    std::size_t operator()(const Point& p) const noexcept
-    {
-        std::size_t seed = 0;
-        boost::hash_combine(seed, p.x);
-        boost::hash_combine(seed, p.y);
-        return seed;
-    }
-};
+#include <cstddef>    // std::size_t
+#include <span>       // std::span
+#include <functional> // std::hash
 
 /// @brief Defines a type that is hashable
 template<typename T>

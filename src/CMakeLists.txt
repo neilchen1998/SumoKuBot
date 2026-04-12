@@ -2,8 +2,6 @@ file(GLOB BOARD_HEADER_LIST CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/include/boa
 file(GLOB MATH_HEADER_LIST CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/include/math/*.hpp")
 file(GLOB SOLVER_HEADER_LIST CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/include/solver/*.hpp")
 
-find_package(Boost REQUIRED)
-
 add_library(board_library INTERFACE)
 add_library(math_library INTERFACE)
 add_library(solver_library INTERFACE)
@@ -21,5 +19,5 @@ target_include_directories(solver_library INTERFACE
 )
 
 target_link_libraries(board_library INTERFACE fmt::fmt project_options)
-target_link_libraries(math_library INTERFACE Boost::boost project_options)
+target_link_libraries(math_library INTERFACE project_options)
 target_link_libraries(solver_library INTERFACE fmt::fmt math_library project_options)

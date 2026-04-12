@@ -15,7 +15,7 @@
 #include <catch2/generators/catch_generators_all.hpp>   // Catch::Generators::values
 
 #include "solver/solverlib.hpp" // solver::SumokuMRV
-#include "common/loaderlib.hpp" // GetTestDataPath
+#include "shared/loaderlib.hpp" // GetTestDataPath
 
 /// @brief Converts a character digit or integer to an int
 /// @tparam T Must be char or int
