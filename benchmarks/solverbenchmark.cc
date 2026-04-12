@@ -8,7 +8,7 @@
 
 #include "solver/solverlib.hpp"   // SumokuSolver, SumokuOrdering, etc.
 
-#include "loaderlib.hpp"    // GetTestDataPath, LoadAllPuzzles
+#include "shared/loaderlib.hpp" // GetTestDataPath, LoadAllPuzzles
 
 int main()
 {

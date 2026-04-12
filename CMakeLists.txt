@@ -12,8 +12,14 @@ project(
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Check if we are in the main CMakeLists
+# Check if we are at the top level
+set(PROJECT_IS_TOP_LEVEL OFF)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(PROJECT_IS_TOP_LEVEL ON)
+endif()
+
+# Check if we are at the top level
+if(PROJECT_IS_TOP_LEVEL)
 
     # Ensure -std=c++xx instead of -std=g++xx for protability purposes
     set(CMAKE_CXX_EXTENSIONS OFF)
@@ -32,10 +38,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     # Flags based on the specified build type
     target_compile_options(project_options INTERFACE
-        $<$<CONFIG:Release>:-O3>
+        $<$<CONFIG:Release>:-O3 -march=native -ffast-math -DNDEBUG>
         $<$<CONFIG:Debug>:-g -O0>
-        $<$<CONFIG:Benchmark>:-O3 -march=native -ffast-math -DNDEBUG>
-        $<$<CONFIG:Test>:-g -O1 -fsanitize=address -fsanitize=undefined>
     )
 
     include(CheckIPOSupported)
@@ -54,12 +58,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     # Linker flags
     target_link_options(project_options INTERFACE
-        $<$<CONFIG:Test>:-fsanitize=address -fsanitize=undefined>
+        $<$<CONFIG:Debug>:-fsanitize=address -fsanitize=undefined>
     )
-
-    # Use CTest
-    # NOTE: this needs to be done in the main CMakeLists
-    include(CTest)
 
     # Docs only available in the main app
     find_package(Doxygen)
@@ -95,14 +95,24 @@ add_subdirectory(src)
 # The executable code
 add_subdirectory(apps)
 
-# Check if we are in the main CMakeLists
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)
+option(PROJECT_BUILD_TESTS "Build tests" OFF)
+option(PROJECT_BUILD_BENCHMARKS "Build benchmarks" OFF)
+
+# Always include shared if we're top-level or explicitly requested
+if(PROJECT_IS_TOP_LEVEL OR PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS)
+
+    # This subdirectory contains files needed by tests and benchmarks
     add_subdirectory(shared)
-    if(BUILD_TESTING)
-        add_subdirectory(tests)
+
+    if(PROJECT_BUILD_TESTS)
+        # Use CTest and set BUILD_TESTING
+        include(CTest)
+        if(BUILD_TESTING)
+            add_subdirectory(tests)
+        endif()
     endif()
 
-    if(BUILD_BENCHMARKS)
+    if(PROJECT_BUILD_BENCHMARKS)
         add_subdirectory(benchmarks)
     endif()
 endif()

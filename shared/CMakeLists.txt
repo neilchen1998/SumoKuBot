@@ -12,6 +12,9 @@ else()
   FetchContent_MakeAvailable(json)
 endif()
 
+find_package(Boost REQUIRED)
+
+add_library(boost_math_library INTERFACE)
 add_library(loader_library STATIC ${PROJECT_SOURCE_DIR}/shared/loaderlib.cc)
 
 # Create a macro called TEST_DATA_DIR
@@ -19,5 +22,14 @@ target_compile_definitions(loader_library PRIVATE
     TEST_DATA_DIR="${PROJECT_SOURCE_DIR}/tests/data"
 )
 
-target_include_directories(loader_library PUBLIC ${CMAKE_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR})
-target_link_libraries(loader_library PUBLIC nlohmann_json::nlohmann_json board_library math_library)
+target_include_directories(loader_library PUBLIC
+  ${CMAKE_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}
+)
+target_include_directories(boost_math_library INTERFACE
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
+  # "$<INSTALL_INTERFACE:include>"
+)
+
+target_link_libraries(loader_library PUBLIC nlohmann_json::nlohmann_json board_library math_library project_options)
+target_link_libraries(boost_math_library INTERFACE Boost::boost board_library project_options)

@@ -6,7 +6,8 @@
 #include <catch2/catch_test_macros.hpp> // TEST_CASE, SECTION, REQUIRE, REQUIRE_THROWS_AS
 
 #include "board/boardlib.hpp"   // Point
-#include "math/mathlib.hpp" // PointHasher, BoostPointHasher
+#include "math/mathlib.hpp"        // PointHasher
+#include "shared/boostmathlib.hpp" // BoostPointHasher
 
 TEMPLATE_TEST_CASE("Unordered Map w/ Hashers", "[unordered_map][hasher]", PointHasher, BoostPointHasher)
 {

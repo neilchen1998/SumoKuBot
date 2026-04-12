@@ -14,13 +14,12 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
-
 add_executable(solvertestlib solvertestlib.cc)
 add_executable(mathtestlib mathtestlib.cc)
 add_executable(boardtestlib boardtestlib.cc)
 
 target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library project_options)
-target_link_libraries(mathtestlib PRIVATE Catch2::Catch2WithMain math_library board_library project_options)
+target_link_libraries(mathtestlib PRIVATE Catch2::Catch2WithMain math_library board_library boost_math_library project_options)
 target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain loader_library solver_library project_options)
 
 catch_discover_tests(solvertestlib)
