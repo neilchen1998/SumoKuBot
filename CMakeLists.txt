@@ -96,9 +96,13 @@ add_subdirectory(src)
 add_subdirectory(apps)
 
 # Check if we are in the main CMakeLists
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND BUILD_TESTING)
-    add_subdirectory(tests)
-    if(CMAKE_BUILD_TYPE STREQUAL "Benchmark")
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)
+    add_subdirectory(shared)
+    if(BUILD_TESTING)
+        add_subdirectory(tests)
+    endif()
+
+    if(BUILD_BENCHMARKS)
         add_subdirectory(benchmarks)
     endif()
 endif()
