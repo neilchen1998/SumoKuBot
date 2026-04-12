@@ -1,5 +1,5 @@
 # The minimum cmake requirements
-cmake_minimum_required(VERSION 3.18...4.0)
+cmake_minimum_required(VERSION 3.21...4.0)
 
 project(
     Sudoku
@@ -13,12 +13,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Check if we are at the top level
-set(PROJECT_IS_TOP_LEVEL OFF)
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    set(PROJECT_IS_TOP_LEVEL ON)
-endif()
-
-# Check if we are at the top level
+# NOTE: PROJECT_IS_TOP_LEVEL is available after CMake 3.21
 if(PROJECT_IS_TOP_LEVEL)
 
     # Ensure -std=c++xx instead of -std=g++xx for protability purposes
@@ -38,18 +33,24 @@ if(PROJECT_IS_TOP_LEVEL)
 
     # Flags based on the specified build type
     target_compile_options(project_options INTERFACE
-        $<$<CONFIG:Release>:-O3 -march=native -ffast-math -DNDEBUG>
-        $<$<CONFIG:Debug>:-g -O0>
+        # High performance builds
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-O3 -march=native -ffast-math -DNDEBUG>
+        $<$<CONFIG:MinSizeRel>:-Os -DNDEBUG>
+
+        # Debug builds
+        $<$<CONFIG:Debug>:-g -O0 -fsanitize=address,undefined>
+        $<$<CONFIG:RelWithDebInfo>:-g>
     )
 
+    # Check if IPO/LTO is supported
     include(CheckIPOSupported)
     check_ipo_supported(RESULT lto_supported OUTPUT error)
-
     if(lto_supported)
-        # Enable LTO specifically for the Benchmark configuration
+        # Enable LTO specifically for release builds
         set_target_properties(project_options PROPERTIES
-            INTERPROCEDURAL_OPTIMIZATION_RELEASE   TRUE
-            INTERPROCEDURAL_OPTIMIZATION_BENCHMARK TRUE
+            INTERPROCEDURAL_OPTIMIZATION_RELEASE        TRUE
+            INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE
+            INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL     TRUE
         )
         message(STATUS "LTO/IPO is supported and enabled")
     else()
@@ -58,7 +59,7 @@ if(PROJECT_IS_TOP_LEVEL)
 
     # Linker flags
     target_link_options(project_options INTERFACE
-        $<$<CONFIG:Debug>:-fsanitize=address -fsanitize=undefined>
+        $<$<CONFIG:Debug>:-fsanitize=address,undefined>
     )
 
     # Docs only available in the main app
@@ -74,10 +75,11 @@ endif()
 # NOTE: available after CMake 3.11
 include(FetchContent)
 
-# all required packages (will be downloaded automatically)
+# All required packages will be downloaded automatically if unavailable
 
 # Try to find fmt that is at least 12.0 but the same major version
 find_package(fmt CONFIG 12.0...<13.0 QUIET)
+
 if (fmt_FOUND)
     message(STATUS "Found fmt version: ${fmt_VERSION}")
 else()
