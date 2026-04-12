@@ -34,9 +34,23 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     target_compile_options(project_options INTERFACE
         $<$<CONFIG:Release>:-O3>
         $<$<CONFIG:Debug>:-g -O0>
-        $<$<CONFIG:Benchmark>:-O3 -march=native -flto -ffast-math -DNDEBUG>
+        $<$<CONFIG:Benchmark>:-O3 -march=native -ffast-math -DNDEBUG>
         $<$<CONFIG:Test>:-g -O1 -fsanitize=address -fsanitize=undefined>
     )
+
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT lto_supported OUTPUT error)
+
+    if(lto_supported)
+        # Enable LTO specifically for the Benchmark configuration
+        set_target_properties(project_options PROPERTIES
+            INTERPROCEDURAL_OPTIMIZATION_RELEASE   TRUE
+            INTERPROCEDURAL_OPTIMIZATION_BENCHMARK TRUE
+        )
+        message(STATUS "LTO/IPO is supported and enabled")
+    else()
+        message(STATUS "LTO/IPO not supported: ${error}")
+    endif()
 
     # Linker flags
     target_link_options(project_options INTERFACE
@@ -71,7 +85,7 @@ else()
     FetchContent_Declare(
     fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG        11.2.0)
+    GIT_TAG        12.1.0)
     FetchContent_MakeAvailable(fmt)
 endif()
 

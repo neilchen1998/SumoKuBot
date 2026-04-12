@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Configure the repo
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release &&
-
 # Build the repo
-cmake --build build &&
+cmake --build build -j$(nproc) &&
 
 # Run the app
 ./build/apps/app
