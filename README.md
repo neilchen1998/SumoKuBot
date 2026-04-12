@@ -33,24 +33,36 @@ The lady sitting next to me on my flight back home was solving [Sudoku](https://
 
 The requirements are:
 
-- CMake 3.18 or better; 4.0+ highly recommended
+- CMake 3.21 or better; 4.0+ highly recommended
 - A C++23 compatible compiler ([gcc](https://gcc.gnu.org/) or [llvm](https://llvm.org/))
-- [The Boost libararies](https://www.boost.org/)
 - [Git](https://git-scm.com/)
-- [Doxygen](https://www.doxygen.nl/) (optional, highly recommended)
-- [fmt](https://github.com/fmtlib/fmt) 11.0 or higher (will automatically install if not present)
-- [Catch2](https://github.com/catchorg/Catch2) 3.8 or higher (will automatically install if not present)
-- [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
-- [json](https://github.com/nlohmann/json.git) 3.9.1 or higher (will automatically install if not present)
 - [abseil](https://github.com/abseil/abseil-cpp.git) 20250512.1 or newer (will automatically install if not present)
+- [Boost](https://www.boost.org/) 1.67 or higher (will automatically install if not present)
+- [Catch2](https://github.com/catchorg/Catch2) 3.8 or higher (will automatically install if not present)
+- [fmt](https://github.com/fmtlib/fmt) 11.0 or higher (will automatically install if not present)
+- [json](https://github.com/nlohmann/json.git) 3.0.0 or higher (will automatically install if not present)
+- [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
 - [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) (optional, highly recommended)
+- [Doxygen](https://www.doxygen.nl/) (optional, highly recommended)
 
 ## Instructions
 
-To configure:
+To generate the build system:
 
 ```zsh
 cmake -S . -B build
+```
+
+To generate the build system with unit tests enabled (**tests** subdirectory):
+
+```zsh
+cmake -S . -B build -DPROJECT_BUILD_TESTS=ON
+```
+
+To generate the build system with benchmarks enabled (**benchmarks** subdirectory):
+
+```zsh
+cmake -S . -B build -DPROJECT_BUILD_BENCHMARKS=ON
 ```
 
 For 64-bit Linux systems:
@@ -61,12 +73,18 @@ cmake -S . -B build --toolchain=./linux-x86_64.toolchain
 
 Add `--toolchain=./<your_toolchain_file>.toolchain` if you want to use your own toolchain.
 
-Add `-GNinja` if you have Ninja.
+Add `-GNinja` if you want to use Ninja.
 
-To build without example:
+To build with release configuration:
 
 ```zsh
-cmake --build build
+cmake --build build --config Release
+```
+
+To build with debug configuration:
+
+```zsh
+cmake --build build --config Debug
 ```
 
 To test (`--target` can be written as `-t` in CMake 3.15+):
