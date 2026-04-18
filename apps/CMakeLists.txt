@@ -15,4 +15,4 @@ endif()
 add_executable(app app.cc)
 
 # Link required libraries
-target_link_libraries(app PRIVATE CLI11::CLI11 fmt::fmt board_library solver_library project_options)
+target_link_libraries(app PRIVATE CLI11::CLI11 fmt::fmt board_library solver_library loader_library project_options)

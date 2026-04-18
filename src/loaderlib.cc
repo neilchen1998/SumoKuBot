@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 /// @brief Validates if the given Sumoku puzzle is valid
 /// @param puzzle A Sumoku puzzle
 /// @return {} if correct, otherwise an error string
-std::expected<void, std::string> ValidateSumokuPuzzle(const SumokuTestData& puzzle)
+std::expected<void, std::string> ValidateSumokuPuzzle(const SumokuPuzzleData& puzzle)
 {
     const size_t N = puzzle.N;
 
@@ -65,10 +65,51 @@ std::string GetTestDataPath()
     return TEST_DATA_DIR;
 }
 
-/// @brief Load all the test cases from the data directory
-/// @param dir The directory of the data
-/// @return A vector of SumokuTestData
-std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
+SumokuPuzzleData LoadPuzzle(std::string_view filePath)
+{
+    std::filesystem::path p {filePath};
+
+    if (p.extension() != ".json")
+    {
+        fmt::print(stderr, "Error: File '{}' is not a .json file.\n", filePath);
+        return {};
+    }
+
+    // Check if the file can be opened
+    std::ifstream ifstrm(p);
+    if (!ifstrm.is_open())
+    {
+        fmt::print(stderr, "Error: Could not open file at '{}'.\n", filePath);
+        return {};
+    }
+
+    try
+    {
+        nlohmann::json j;
+        ifstrm >> j;
+
+        SumokuPuzzleData puzzle = j.get<SumokuPuzzleData>();
+
+        auto result = ValidateSumokuPuzzle(puzzle);
+
+        if (result.has_value())
+        {
+            return puzzle;
+        }
+        else
+        {
+            fmt::print(stderr, "Validation Error: {}\n", result.error());
+            return {};
+        }
+    }
+    catch (const nlohmann::json::exception& e)
+    {
+        fmt::print(stderr, "JSON Error: {}\n", e.what());
+        return {};
+    }
+}
+
+std::vector<SumokuPuzzleData> LoadAllPuzzles(std::string_view dir)
 {
     // Check if the given directory exists
     if (!fs::exists(dir))
@@ -84,26 +125,26 @@ std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
         return {};
     }
 
-    std::vector<SumokuTestData> testCases;
+    std::vector<SumokuPuzzleData> testCases;
 
     // Iterate over all the json entries in the directory
     for (const auto& entry : fs::directory_iterator(dir))
     {
         if (entry.path().extension() == ".json")
         {
-            std::ifstream file{entry.path()};
+            std::ifstream ifstrm{entry.path()};
 
             // Check if the file can be opened
-            if (!file)
+            if (!ifstrm)
             {
                 fmt::print(stderr, "Error: Could not open file at '{}'.\n", dir.data());
                 continue;
             }
 
             nlohmann::json j;
-            file >> j;
+            ifstrm >> j;
 
-            SumokuTestData puzzle = j.get<SumokuTestData>();
+            SumokuPuzzleData puzzle = j.get<SumokuPuzzleData>();
 
             auto result = ValidateSumokuPuzzle(puzzle);
 
@@ -119,7 +160,7 @@ std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
     }
 
     // Sort the test cases based on the label
-    std::ranges::sort(testCases, [](const SumokuTestData& a, const SumokuTestData& b)
+    std::ranges::sort(testCases, [](const SumokuPuzzleData& a, const SumokuPuzzleData& b)
     {
         return a.label < b.label;
     });

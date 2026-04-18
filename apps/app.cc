@@ -1,5 +1,6 @@
 #include <chrono>   // std::chrono::high_resolution_clock
 #include <cstdlib> // EXIT_SUCCESS, EXIT_FAILURE
+#include <filesystem>   // std::filesystem
 #include <map>  // std::map
 #include <string>   // std::string
 #include <vector>  // std::vector
@@ -8,35 +9,13 @@
 #include <CLI/CLI.hpp>  // CLI::App, CLI::ParseError
 #include <fmt/core.h>   // fmt::print
 #include <fmt/ostream.h>    // fmt::streamed
+#include <fmt/std.h>
 
 #include "board/boardlib.hpp"
+#include "loader/loaderlib.hpp"
 #include "solver/solverlib.hpp"
 
-constexpr size_t N = 9;
-
-const std::vector<std::vector<Point>> boxes {
-    {{0, 0}, {1, 0}, {2, 0}}, {{0, 1}, {1, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {1, 3}}, {{0, 4}, {1, 4}}, {{0, 5}, {0, 6}}, {{0, 7}, {0, 8}},
-    {{1, 5}, {2, 5}}, {{1, 6}, {2, 6}}, {{1, 7}, {1, 8}},
-    {{2, 1}, {2, 2}}, {{2, 3}, {2, 4}}, {{2, 7}, {3, 7}, {4, 7}}, {{2, 8}, {3, 8}},
-    {{3, 0}, {3, 1}}, {{3, 2}, {3, 3}}, {{3, 4}, {3, 5}}, {{3, 6}, {4, 6}},
-    {{4, 0}, {5, 0}, {6, 0}}, {{4, 1}, {5, 1}}, {{4, 2}, {5, 2}}, {{4, 3}, {4, 4}}, {{4, 5}, {5, 5}}, {{4, 8}, {5, 8}},
-    {{5, 3}, {5, 4}}, {{5, 6}, {5, 7}},
-    {{6, 1}, {6, 2}}, {{6, 3}, {6, 4}}, {{6, 5}, {6, 6}}, {{6, 7}, {7, 7}}, {{6, 8}, {7, 8}},
-    {{7, 0}, {7, 1}}, {{7, 2}, {8, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {8, 4}}, {{7, 5}, {7, 6}},
-    {{8, 0}, {8, 1}}, {{8, 5}, {8, 6}}, {{8, 7}, {8, 8}}
-};
-
-const std::vector<int> sums {
-    18, 4, 8, 10, 13, 13, 17,
-    5, 11, 7,
-    5, 15, 17, 11,
-    10, 6, 10, 17,
-    11, 12, 12, 11, 5, 8,
-    12, 5,
-    13, 9, 11, 11, 11,
-    17, 10, 6, 11, 8,
-    10, 11, 4
-};
+namespace fs = std::filesystem;
 
 /// @brief The solver type
 enum class SolverType { SumokuSolver, SumokuMRV, SumokuOrdering };
@@ -68,6 +47,8 @@ int main(int argc, char* argv[])
     CLI::App app {"Options:"};
 
     SolverType solver {SolverType::SumokuMRV};
+    fs::path filePath;
+    fs::path dirPath;
     bool verbose = false;
     bool benchmark = false;
 
@@ -76,6 +57,16 @@ int main(int argc, char* argv[])
         ->option_text("{Basic, SumokuMRV, SumokuOrdering}")
         ->capture_default_str();
 
+    // Path (directory or file)
+    auto group = app.add_option_group("Puzzle path", "Specify either a file or directory");
+    group->add_option("-f,--file", filePath, "Path to the file")
+       ->check(CLI::ExistingFile);
+
+    group->add_option("-d,--dir", dirPath, "Path to the directory")
+       ->check(CLI::ExistingDirectory);
+
+    group->require_option(1);
+
     app.add_flag("-v,--verbose", verbose, "Enable verbose mode");
     app.add_flag("-b,--benchmark", benchmark, "Show benchmark result");
 
@@ -83,6 +74,16 @@ int main(int argc, char* argv[])
     try
     {
         app.parse(argc, argv);
+
+        if (!filePath.empty() && verbose)
+        {
+            fmt::println("Loading puzzle from: '{}'.", filePath);
+            fmt::println("File size: {} bytes.", fs::file_size(filePath));
+        }
+        else if (!dirPath.empty() && verbose)
+        {
+            fmt::println("Loading puzzle from: '{}'.", dirPath);
+        }
     }
     catch (const CLI::ParseError& e)
     {
@@ -91,30 +92,68 @@ int main(int argc, char* argv[])
 
     if (verbose)
     {
-        fmt::print("Solver selected: {}\n", fmt::streamed(solver));
+        fmt::println("Solver selected: {}", fmt::streamed(solver));
     }
 
-    solver::SumokuMRV s {N, boxes, sums};
-
-    auto start = std::chrono::high_resolution_clock::now();
-    s.Solve();
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = (end - start);
-
-    if (auto board = s.GetSolution())
+    if (!dirPath.empty())
     {
-        fmt::println("Result:");
-        PrintBoard(*board);
+        const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(dirPath.string());
+
+        for (const auto& p : all_puzzles)
+        {
+            solver::SumokuMRV s {p.N, p.boxes, p.sums};
+
+            auto start = std::chrono::high_resolution_clock::now();
+            s.Solve();
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> elapsed = (end - start);
+
+            if (auto board = s.GetSolution())
+            {
+                fmt::println("*** Result of Puzzle #{} ***", p.label);
+                fmt::println("");
+                PrintBoard(*board);
+            }
+            else
+            {
+                fmt::println("Failed to solve!");
+                return EXIT_FAILURE;
+            }
+
+            if (benchmark)
+            {
+                fmt::println("Solved in: {:.3f} ms", elapsed.count());
+            }
+
+            fmt::println("");
+        }
     }
     else
     {
-        fmt::println("Failed to solve!");
-        return EXIT_FAILURE;
-    }
+        auto p = LoadPuzzle(filePath.c_str());
+        solver::SumokuMRV s {p.N, p.boxes, p.sums};
 
-    if (benchmark)
-    {
-        fmt::print("Solved in: {:.3f} ms\n", elapsed.count());
+        auto start = std::chrono::high_resolution_clock::now();
+        s.Solve();
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = (end - start);
+
+        if (auto board = s.GetSolution())
+        {
+            fmt::println("*** Result of Puzzle #{} ***", p.label);
+            fmt::println("");
+            PrintBoard(*board);
+        }
+        else
+        {
+            fmt::println("Failed to solve!");
+            return EXIT_FAILURE;
+        }
+
+        if (benchmark)
+        {
+            fmt::println("Solved in: {:.3f} ms", elapsed.count());
+        }
     }
 
     return EXIT_SUCCESS;

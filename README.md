@@ -659,7 +659,7 @@ struct Point
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
 
 /// @brief The Sumoku test data structure
-struct SumokuTestData
+struct SumokuPuzzleData
 {
     size_t N;
     std::vector<std::vector<Point>> boxes;
@@ -667,7 +667,7 @@ struct SumokuTestData
     std::string label;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuTestData, N, boxes, sums, label)   // for nlohmann::json
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuPuzzleData, N, boxes, sums, label)   // for nlohmann::json
 ```
 
 ### Data-driven testing (DDT)
@@ -681,7 +681,7 @@ We can create a Sumoku test case by running this main function:
 ```cpp
 int main()
 {
-    SumokuTestData myPuzzle
+    SumokuPuzzleData myPuzzle
     {
         9,
         {
@@ -727,16 +727,16 @@ int main()
 }
 ```
 
-**nlohmann::json** sees the macros defined in *board/boardlib.hpp* for both **SumokuTestData** and **Point**.
+**nlohmann::json** sees the macros defined in *board/boardlib.hpp* for both **SumokuPuzzleData** and **Point**.
 Therefore it can handle the data structure for us.
 
 We then use this function to load the data (test cases) into the test.
-Again, since we have the macros for both **SumokuTestData** and **Point**, *nlohmann::json* can deserialize the data.
+Again, since we have the macros for both **SumokuPuzzleData** and **Point**, *nlohmann::json* can deserialize the data.
 
 ```cpp
-std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
+std::vector<SumokuPuzzleData> LoadAllPuzzles(std::string_view dir)
 {
-    std::vector<SumokuTestData> testCases;
+    std::vector<SumokuPuzzleData> testCases;
 
     // Iterate over all the json entries in the directory
     for (const auto& entry : fs::directory_iterator(dir))
@@ -747,7 +747,7 @@ std::vector<SumokuTestData> LoadAllPuzzles(std::string_view dir)
             nlohmann::json j;
             file >> j;
 
-            SumokuTestData puzzle = j.get<SumokuTestData>();
+            SumokuPuzzleData puzzle = j.get<SumokuPuzzleData>();
             testCases.push_back(puzzle);
         }
     }
@@ -766,12 +766,12 @@ TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
 {
     // Load all the test cases
     static std::string folder = GetTestDataPath();
-    static std::vector<SumokuTestData> all_puzzles = LoadAllPuzzles(folder);
+    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
 
     // Check the vector to make sure it contains at least one test case
     REQUIRE_FALSE(all_puzzles.empty());
 
-    const SumokuTestData& data = GENERATE(from_range(all_puzzles));
+    const SumokuPuzzleData& data = GENERATE(from_range(all_puzzles));
 
     // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
