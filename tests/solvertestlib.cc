@@ -511,12 +511,12 @@ TEST_CASE("Sumoku Solver: Naive", "[Sumoku]")
 {
     // Load all the test cases
     static std::string folder = GetTestDataPath();
-    static std::vector<SumokuTestData> all_puzzles = LoadAllPuzzles(folder);
+    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
 
     // Check the vector to make sure it contains at least one test case
     REQUIRE_FALSE(all_puzzles.empty());
 
-    const SumokuTestData& data = GENERATE(from_range(all_puzzles));
+    const SumokuPuzzleData& data = GENERATE(from_range(all_puzzles));
 
     // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
@@ -541,12 +541,12 @@ TEST_CASE("Sumoku Solver: SumokuMRV", "[SumokuMRV]")
 {
     // Load all the test cases
     static std::string folder = GetTestDataPath();
-    static std::vector<SumokuTestData> all_puzzles = LoadAllPuzzles(folder);
+    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
 
     // Check the vector to make sure it contains at least one test case
     REQUIRE_FALSE(all_puzzles.empty());
 
-    const SumokuTestData& data = GENERATE(from_range(all_puzzles));
+    const SumokuPuzzleData& data = GENERATE(from_range(all_puzzles));
 
     // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
@@ -571,12 +571,12 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
 {
     // Load all the test cases
     static std::string folder = GetTestDataPath() + "/killer_sudoku";
-    static std::vector<SumokuTestData> all_puzzles = LoadAllPuzzles(folder);
+    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
 
     // Check the vector to make sure it contains at least one test case
     REQUIRE_FALSE(all_puzzles.empty());
 
-    const SumokuTestData& data = GENERATE(from_range(all_puzzles));
+    const SumokuPuzzleData& data = GENERATE(from_range(all_puzzles));
 
     // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
