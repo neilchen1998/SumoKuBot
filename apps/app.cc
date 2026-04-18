@@ -99,11 +99,22 @@ int main(int argc, char* argv[])
     auto start = std::chrono::high_resolution_clock::now();
     s.Solve();
     auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = end - start;
+    std::chrono::duration<double, std::milli> elapsed = (end - start);
+
+    if (auto board = s.GetSolution())
+    {
+        fmt::println("Result:");
+        PrintBoard(*board);
+    }
+    else
+    {
+        fmt::println("Failed to solve!");
+        return EXIT_FAILURE;
+    }
 
     if (benchmark)
     {
-        fmt::print("Elapsed time: {:.3f} ms\n", elapsed.count());
+        fmt::print("Solved in: {:.3f} ms\n", elapsed.count());
     }
 
     return EXIT_SUCCESS;
