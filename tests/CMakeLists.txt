@@ -22,6 +22,11 @@ target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library 
 target_link_libraries(mathtestlib PRIVATE Catch2::Catch2WithMain math_library board_library boost_math_library project_options)
 target_link_libraries(solvertestlib PRIVATE Catch2::Catch2WithMain loader_library solver_library project_options)
 
+# Disable the Catch2 noise for each test library
+target_compile_options(boardtestlib PRIVATE -Wno-c2y-extensions)
+target_compile_options(mathtestlib PRIVATE -Wno-c2y-extensions)
+target_compile_options(solvertestlib PRIVATE -Wno-c2y-extensions)
+
 catch_discover_tests(solvertestlib)
 catch_discover_tests(mathtestlib)
 catch_discover_tests(boardtestlib)
