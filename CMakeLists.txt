@@ -2,9 +2,9 @@
 cmake_minimum_required(VERSION 3.21...4.0)
 
 project(
-    Sudoku
-    VERSION 1.0
-    DESCRIPTION "Solve Sudoku"
+    SumoKuBot
+    VERSION 2.0.0
+    DESCRIPTION "Solve Sudoku puzzles"
     LANGUAGES CXX
 )
 
@@ -69,6 +69,12 @@ if(PROJECT_IS_TOP_LEVEL)
     else()
         message(STATUS "Doxygen not found")
     endif()
+
+    # Configure the SW version file
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/shared/version.h.in"
+        "${CMAKE_BINARY_DIR}/generated/version.h"
+    )
 endif()
 
 # FetchContent helps grabbing repos during the configure step

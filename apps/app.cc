@@ -14,6 +14,7 @@
 #include "board/boardlib.hpp"
 #include "loader/loaderlib.hpp"
 #include "solver/solverlib.hpp"
+#include "version.h"    // SUMOKUBOT_PROJECT_NAME, SUMOKUBOT_PROJECT_VERSION
 
 namespace fs = std::filesystem;
 
@@ -45,6 +46,7 @@ std::ostream& operator<<(std::ostream& os, const SolverType& s)
 int main(int argc, char* argv[])
 {
     CLI::App app {"Options:"};
+    app.name(SUMOKUBOT_PROJECT_NAME);
 
     SolverType solver {SolverType::SumokuMRV};
     fs::path filePath {"./tests/data/killer_sudoku/puzzle_p4.json"};
@@ -69,10 +71,14 @@ int main(int argc, char* argv[])
     group->require_option(0, 1);    // at most one option from this group
 
     // Verbose
-    app.add_flag("-v,--verbose", verbose, "Enable verbose mode");
+    app.add_flag("--verbose", verbose, "Enable verbose mode");
 
     // Benchmark
     app.add_flag("-b,--benchmark", benchmark, "Show benchmark result");
+
+    // Version
+    std::string versionInfo = fmt::format("{}: {}", app.get_name(), SUMOKUBOT_PROJECT_VERSION);
+    app.set_version_flag("-v,--version", versionInfo);
 
     // Check if the user inputs are valid
     try
