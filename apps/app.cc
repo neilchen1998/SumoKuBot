@@ -9,7 +9,7 @@
 #include <CLI/CLI.hpp>  // CLI::App, CLI::ParseError
 #include <fmt/core.h>   // fmt::print
 #include <fmt/ostream.h>    // fmt::streamed
-#include <fmt/std.h>
+#include <fmt/std.h>    // fmt::println for filesystem
 
 #include "board/boardlib.hpp"
 #include "loader/loaderlib.hpp"
