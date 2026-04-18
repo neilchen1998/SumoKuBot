@@ -1,4 +1,4 @@
-# Sumoku
+# SumoKuBot
 
 ## Summary
 
