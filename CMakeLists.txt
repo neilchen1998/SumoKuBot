@@ -70,11 +70,8 @@ if(PROJECT_IS_TOP_LEVEL)
         message(STATUS "Doxygen not found")
     endif()
 
-    # Configure the SW version file
-    configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/shared/version.h.in"
-        "${CMAKE_BINARY_DIR}/generated/version.h"
-    )
+    # Build date
+    string(TIMESTAMP PROJECT_BUILD_DATE "%d-%b-%Y")
 endif()
 
 # FetchContent helps grabbing repos during the configure step
@@ -96,6 +93,13 @@ else()
     GIT_TAG        12.1.0)
     FetchContent_MakeAvailable(fmt)
 endif()
+
+# Configure the SW version file
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/project/version.h.in"
+    "${CMAKE_BINARY_DIR}/generated/version.h"
+    @ONLY
+)
 
 # The compiled library code
 add_subdirectory(src)
