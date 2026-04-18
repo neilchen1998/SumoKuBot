@@ -39,6 +39,7 @@ The requirements are:
 - [abseil](https://github.com/abseil/abseil-cpp.git) 20250512.1 or newer (will automatically install if not present)
 - [Boost](https://www.boost.org/) 1.67 or higher (will automatically install if not present)
 - [Catch2](https://github.com/catchorg/Catch2) 3.8 or higher (will automatically install if not present)
+- [CLI11](https://github.com/CLIUtils/CLI11.git) v2.4.1 or higher (will automatically install if not present)
 - [fmt](https://github.com/fmtlib/fmt) 11.0 or higher (will automatically install if not present)
 - [json](https://github.com/nlohmann/json.git) 3.0.0 or higher (will automatically install if not present)
 - [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
