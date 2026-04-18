@@ -1,3 +1,5 @@
+#include "loader/loaderlib.hpp"
+
 #include <expected> // std::expected
 #include <filesystem>   // std::filesystem
 #include <fstream>      // std::ifstream
@@ -7,7 +9,6 @@
 
 #include <nlohmann/json.hpp>    // nlohmann::json
 
-#include "loaderlib.hpp"
 #include "math/mathlib.hpp" // PointHasher
 
 namespace fs = std::filesystem;
