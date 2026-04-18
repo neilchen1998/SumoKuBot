@@ -22,7 +22,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuPuzzleData, N, boxes, sums, label)   //
 /// @return Test data directory
 std::string GetTestDataPath();
 
-/// @brief Loads all the test cases from the data directory
+/// @brief Loads all the puzzles from the data directory
 /// @param dir The directory of the data
 /// @return A vector of SumokuPuzzleData
 std::vector<SumokuPuzzleData> LoadAllPuzzles(std::string_view dir);

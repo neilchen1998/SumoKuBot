@@ -94,10 +94,22 @@ To test (`--target` can be written as `-t` in CMake 3.15+):
 cmake --build build --target test
 ```
 
-To run the binary with example layout:
+To run the solver with the default example puzzle:
 
 ```zsh
 ./build/apps/app
+```
+
+To run the solver with custom file:
+
+```zsh
+./build/apps/app -f <file_path>
+```
+
+To run the solver with custom directory (will solve all puzzles under the given directory):
+
+```zsh
+./build/apps/app -d <directory>
 ```
 
 To build and test:
