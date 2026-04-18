@@ -1,6 +1,7 @@
 file(GLOB BOARD_HEADER_LIST CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/include/board/*.hpp")
 file(GLOB MATH_HEADER_LIST CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/include/math/*.hpp")
 file(GLOB SOLVER_HEADER_LIST CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/include/solver/*.hpp")
+file(GLOB LOADER_HEADER_LIST CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/include/loader/*.hpp")
 
 find_package(nlohmann_json 3 QUIET)
 
@@ -19,7 +20,7 @@ endif()
 add_library(board_library INTERFACE)
 add_library(math_library INTERFACE)
 add_library(solver_library INTERFACE)
-add_library(loader_library STATIC ${PROJECT_SOURCE_DIR}/src/loaderlib.cc)
+add_library(loader_library loaderlib.cc)
 
 # Create a macro called TEST_DATA_DIR
 target_compile_definitions(loader_library PRIVATE
