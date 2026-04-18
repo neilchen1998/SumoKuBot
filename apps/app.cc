@@ -1,8 +1,7 @@
 #include <chrono>   // std::chrono::high_resolution_clock
 #include <cstdlib> // EXIT_SUCCESS, EXIT_FAILURE
-#include <string_view>
-#include <string>
-#include <utility>  // std::pair
+#include <map>  // std::map
+#include <string>   // std::string
 #include <vector>  // std::vector
 
 #include <boost/program_options.hpp>    // boost::program_options
@@ -12,15 +11,6 @@
 
 #include "board/boardlib.hpp"
 #include "solver/solverlib.hpp"
-
-enum class Solvers { SumokuMRV, OtherType };
-
-/// @brief A bi-directional map for solvers
-static const std::vector<std::pair<Solvers, std::string_view>> SolverMapping
-{
-    {Solvers::SumokuMRV, "SumokuMRV"},
-    {Solvers::OtherType, "OtherType"}
-};
 
 constexpr size_t N = 9;
 
@@ -35,6 +25,7 @@ const std::vector<std::vector<Point>> boxes {
     {{7, 0}, {7, 1}}, {{7, 2}, {8, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {8, 4}}, {{7, 5}, {7, 6}},
     {{8, 0}, {8, 1}}, {{8, 5}, {8, 6}}, {{8, 7}, {8, 8}}
 };
+
 const std::vector<int> sums {
     18, 4, 8, 10, 13, 13, 17,
     5, 11, 7,
@@ -47,13 +38,24 @@ const std::vector<int> sums {
     10, 11, 4
 };
 
+/// @brief The solver type
+enum class SolverType { SumokuSolver, SumokuMRV, SumokuOrdering };
+
+/// @brief A map for solvers
+static const std::map<std::string, SolverType> solverMap
+{
+    {"Basic", SolverType::SumokuSolver},
+    {"SumokuMRV", SolverType::SumokuMRV},
+    {"SumokuOrdering", SolverType::SumokuOrdering},
+};
+
 /// @brief Overloads the stream insertion operator to convert Solvers enum value to string
 /// @param os The output stream
 /// @param s The solver enum value
 /// @return A reference to the output stream
-std::ostream& operator<<(std::ostream& os, const Solvers& s)
+std::ostream& operator<<(std::ostream& os, const SolverType& s)
 {
-    for (const auto& [solver, name] : SolverMapping)
+    for (const auto& [name, solver] : solverMap)
     {
         if (solver == s)    return os << name;
     }
@@ -61,40 +63,19 @@ std::ostream& operator<<(std::ostream& os, const Solvers& s)
     return os << "Unknown";
 }
 
-/// @brief Overloads the stream extraction operator to parse strings into Solvers enum value
-/// @param is The input stream
-/// @param s The solver enum type
-/// @return A reference to the input stream
-std::istream& operator>>(std::istream& is, Solvers& s)
-{
-    std::string input;
-    if (is >> input)
-    {
-        for (const auto& [solver, name] : SolverMapping)
-        {
-            if (name == input)
-            {
-                s = solver;
-                return is;
-            }
-        }
-
-        is.setstate(std::ios::failbit);
-    }
-
-    return is;
-}
-
 int main(int argc, char* argv[])
 {
     CLI::App app {"Options:"};
 
-    std::string solver {"SumokuMRV"};
-    bool version = false;
+    SolverType solver {SolverType::SumokuMRV};
     bool verbose = false;
     bool benchmark = false;
 
-    app.add_option("-s,--solver", solver, "Solver type")->capture_default_str();
+    app.add_option("-s,--solver", solver, "The solver type")
+        ->transform(CLI::CheckedTransformer(solverMap, CLI::ignore_case))
+        ->option_text("{Basic, SumokuMRV, SumokuOrdering}")
+        ->capture_default_str();
+
     app.add_flag("-v,--verbose", verbose, "Enable verbose mode");
     app.add_flag("-b,--benchmark", benchmark, "Show benchmark result");
 
@@ -110,7 +91,7 @@ int main(int argc, char* argv[])
 
     if (verbose)
     {
-        fmt::print("Solver selected: {}\n", solver);
+        fmt::print("Solver selected: {}\n", fmt::streamed(solver));
     }
 
     solver::SumokuMRV s {N, boxes, sums};
