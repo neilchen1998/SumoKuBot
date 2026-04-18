@@ -12,21 +12,25 @@ project(
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Ensure -std=c++xx instead of -std=g++xx for protability purposes
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Compiler flags
+add_library(project_options INTERFACE)
+
+# Options
+option(PROJECT_BUILD_TESTS "Build tests" OFF)
+option(PROJECT_BUILD_BENCHMARKS "Build benchmarks" OFF)
+
 # Check if we are at the top level
 # NOTE: PROJECT_IS_TOP_LEVEL is available after CMake 3.21
 if(PROJECT_IS_TOP_LEVEL)
-
-    # Ensure -std=c++xx instead of -std=g++xx for protability purposes
-    set(CMAKE_CXX_EXTENSIONS OFF)
 
     # Set the default build type if not provided
     if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         message(STATUS "No build type specified. Set to 'Release' by default.")
         set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
     endif()
-
-    # Compiler flags
-    add_library(project_options INTERFACE)
 
     # Flags for all build types
     target_compile_options(project_options INTERFACE -Wall -Wextra -Wpedantic)
@@ -101,29 +105,27 @@ configure_file(
     @ONLY
 )
 
-# The compiled library code
+# The compiled library subdirectory
 add_subdirectory(src)
 
-# The executable code
-add_subdirectory(apps)
+if(PROJECT_IS_TOP_LEVEL)
+    # The executable subdirectory
+    add_subdirectory(apps)
+endif()
 
-option(PROJECT_BUILD_TESTS "Build tests" OFF)
-option(PROJECT_BUILD_BENCHMARKS "Build benchmarks" OFF)
-
-# Always include shared if we're top-level or explicitly requested
-if(PROJECT_IS_TOP_LEVEL OR PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS)
+# Optional modules
+if(PROJECT_IS_TOP_LEVEL AND (PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS))
 
     # This subdirectory contains files needed by tests and benchmarks
     add_subdirectory(shared)
 
+    # The unit test subdirectory
     if(PROJECT_BUILD_TESTS)
-        # Use CTest and set BUILD_TESTING
-        include(CTest)
-        if(BUILD_TESTING)
-            add_subdirectory(tests)
-        endif()
+        enable_testing()
+        add_subdirectory(tests)
     endif()
 
+    # The benchmarking subdirectory
     if(PROJECT_BUILD_BENCHMARKS)
         add_subdirectory(benchmarks)
     endif()
