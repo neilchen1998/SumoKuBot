@@ -148,6 +148,12 @@ To run clang-tidy:
 run-clang-tidy -p build/ '.*/(apps|benchmarks|tests)/.*'
 ```
 
+To package the binary file into a compressed tarball:
+
+```zsh
+cmake --build build --target package
+```
+
 ## Benchmark
 
 The folllowing table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).
@@ -868,6 +874,97 @@ int main()
 
     fmt::println("Element @ (1, 2): {}", boardView[1, 2]);
 }
+```
+
+### Post build
+
+After building the binary, we would like to know the size of each segment of our binary file.
+There are three main segments:
+
+1. **text**: The size of the machine code instructions and read-only constants
+2. **data**: The size of initialized global/static variable
+3. **bss**: The size of uninitialized global/static variables
+
+This is an output example:
+
+```zsh
+   text	   data	    bss	    dec	    hex	filename
+ 497561	   8880	   1192	 507633	  7bef1	SumoKuBot/build/apps/app
+```
+
+Since we would like it to show everytime we compile the code, therefore we can utilize *add_custom_command()*.
+
+*add_custom_command()* executes a command when a certain condition is met.
+Therefore we cannot call via *cmake*.
+
+In this example, we want to call *size* to show us the file size of the target binary when it is built:
+
+```cmake
+add_custom_command(
+    TARGET app
+    POST_BUILD
+    COMMAND size $<TARGET_FILE:app>
+    COMMENT "Display binary size..."
+    VERBATIM
+)
+```
+
+The target is our binary called app.
+The condition is at the post build stage.
+And the command is ```$ size ./build/apps/app``` (CMake can figure out the path to the binary file by itself).
+The string in the *COMMENT* section will shown in the terminal so that we know what is going on.
+*VERBATIM* is recommended to be added here to make sure the arguments are properly being passed into the shell.
+
+Here we also run the binary in the post-build stage to show the software version number of the app:
+
+```cmake
+add_custom_command(
+    TARGET app
+    POST_BUILD
+    COMMAND $<TARGET_FILE:app> --version
+    COMMENT "Verifying binary runs and reports the SW version..."
+)
+```
+
+### CPack
+
+**CPack** is a toolkit in **CMake** that packages binary files.
+The end users might not have the time, the know-how, or a powerful computer to compile the source code into the application.
+Therefore, the developers need to package the binary file and the license, README file, and whatnots for them when making a release.
+
+We need to use *install()* to install (put) files (LICENSE, README, etc.) and binary file (target) into the destination.
+
+Since both LICENSE and README.md are files, we need to use the **FILES** argument.
+Then we provide the files that we want to install.
+Finally, we need to provide the destination.
+In this case the destination is the root of the package, therefore we can just use **.** to represent it.
+
+```cmake
+install(FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+    "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+    DESTINATION .
+)
+```
+
+Same deal for the binary.
+But since the binary is a target therefore we need to use the **TARGET** argument.
+And we want to install the binary into a subdirectory called *bin*.
+
+```cmake
+install(TARGETS app DESTINATION bin)
+```
+
+One can specify the generator (the compress format) here:
+
+```cmake
+set(CPACK_GENERATOR "TGZ") # or "TGZ|ZIP"
+```
+
+It is also a good practice to generate the SHA256 so that the user can make sure the integrity of the download file.
+
+```cmake
+set(CPACK_PACKAGE_CHECKSUM "SHA256")
 ```
 
 ## Reference

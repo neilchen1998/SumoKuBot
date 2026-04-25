@@ -18,3 +18,23 @@ target_include_directories(app PRIVATE "${CMAKE_BINARY_DIR}/generated")
 
 # Link required libraries
 target_link_libraries(app PRIVATE CLI11::CLI11 fmt::fmt board_library solver_library loader_library project_options)
+
+# Install the binary into the 'bin' directory
+install(TARGETS app DESTINATION bin)
+
+# Show the binary size after it is built
+add_custom_command(
+    TARGET app
+    POST_BUILD
+    COMMAND size $<TARGET_FILE:app>
+    COMMENT "Display binary size..."
+    VERBATIM
+)
+
+# Print out the version from the binary after it is built
+add_custom_command(
+    TARGET app
+    POST_BUILD
+    COMMAND $<TARGET_FILE:app> --version
+    COMMENT "Verifying binary runs and reports the SW version..."
+)
