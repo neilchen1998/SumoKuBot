@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.21...4.0)
 
 project(
     SumoKuBot
-    VERSION 2.0.0
-    DESCRIPTION "Solve Sudoku puzzles"
+    VERSION 2.1.0
+    DESCRIPTION "Solve Killer Sudoku (Sumoku) & Sudoku puzzles"
     LANGUAGES CXX
 )
 
