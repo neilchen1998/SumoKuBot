@@ -24,7 +24,18 @@ std::expected<void, std::string> ValidateSudokuPuzzle(const SudokuPuzzleData& pu
 {
     const size_t N = puzzle.N;
 
+    if (puzzle.board.empty())
+    {
+        return std::unexpected(fmt::format("The board is empty."));
+    }
 
+    for (const auto& row : puzzle.board)
+    {
+        if (N != row.size())
+        {
+            return std::unexpected(fmt::format("The board is not square ({} != {}).", N, row.size()));
+        }
+    }
 
     return {};
 }

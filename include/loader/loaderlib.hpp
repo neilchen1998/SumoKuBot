@@ -10,10 +10,20 @@
 #include <unordered_set>    // std::unordered_set
 #include <vector>    // std::vector
 
+#include <nlohmann/json.hpp>    // nlohmann::json
+
 #include "board/boardlib.hpp"   // Point
 #include "math/mathlib.hpp" // PointHasher
 
 namespace fs = std::filesystem;
+
+/// @brief The Sumoku test data structure
+struct SudokuPuzzleData
+{
+    size_t N;
+    std::vector<std::vector<int>> board;
+    std::string label;
+};
 
 /// @brief The Sumoku test data structure
 struct SumokuPuzzleData
@@ -24,13 +34,8 @@ struct SumokuPuzzleData
     std::string label;
 };
 
-/// @brief The Sumoku test data structure
-struct SudokuPuzzleData
-{
-    size_t N;
-    std::vector<std::vector<int>> board;
-    std::string label;
-};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SudokuPuzzleData, N, board, label)   // for nlohmann::json
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuPuzzleData, N, boxes, sums, label)   // for nlohmann::json
 
 /// @brief Validates if the given Sumoku puzzle is valid
 /// @param puzzle A Sumoku puzzle
@@ -42,35 +47,19 @@ std::expected<void, std::string> ValidateSumokuPuzzle(const SumokuPuzzleData& pu
 /// @return {} if correct, otherwise an error string
 std::expected<void, std::string> ValidateSudokuPuzzle(const SudokuPuzzleData& puzzle);
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuPuzzleData, N, boxes, sums, label)   // for nlohmann::json
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SudokuPuzzleData, N, board, label)   // for nlohmann::json
-
 /// @brief Gets the directory of the test data
 /// @return Test data directory
 std::string GetTestDataPath();
 
-/// @brief Puzzle trait
-template <typename T>
-struct PuzzleTraits
-{
-    static std::expected<void, std::string> validate(const T& p)
-    {
-        return ValidatePuzzle(p);
-    }
-
-    static const std::string& label(const T& p)
-    {
-        return p.label;
-    }
-};
-
-template <>
-struct PuzzleTraits<SumokuPuzzleData>
+/// @brief A base trait for puzzle data
+/// @tparam T The type of the puzzle data
+/// @tparam ValidationFn The validation function for the puzzle
+template <typename T, auto ValidationFn>
+struct PuzzleTraitsBase
 {
     static std::expected<void, std::string> validate(const SumokuPuzzleData& p)
     {
-        return ValidateSumokuPuzzle(p);
+        return ValidationFn(p);
     }
 
     static const std::string& label(const SumokuPuzzleData& p)
@@ -79,18 +68,22 @@ struct PuzzleTraits<SumokuPuzzleData>
     }
 };
 
-template <>
-struct PuzzleTraits<SudokuPuzzleData>
-{
-    static std::expected<void, std::string> validate(const SudokuPuzzleData& p)
-    {
-        return ValidateSudokuPuzzle(p);
-    }
+/// @brief Puzzle trait
+template <typename T>
+struct PuzzleTraits;
 
-    static const std::string& label(const SudokuPuzzleData& p)
-    {
-        return p.label;
-    }
+/// @brief The explicit specialization of PuzzleTraits for SudokuPuzzleData
+template<>
+struct PuzzleTraits<SudokuPuzzleData> : PuzzleTraitsBase<SudokuPuzzleData, ValidateSudokuPuzzle>
+{
+
+};
+
+/// @brief The explicit specialization of PuzzleTraits for SumokuPuzzleData
+template<>
+struct PuzzleTraits<SumokuPuzzleData> : PuzzleTraitsBase<SumokuPuzzleData, ValidateSumokuPuzzle>
+{
+
 };
 
 /// @brief Loads all the puzzles
@@ -119,7 +112,7 @@ std::vector<T> LoadAllPuzzles(std::string_view dir)
     // Iterate over all the json entries in the directory
     for (const auto& entry : fs::directory_iterator(dir))
     {
-        if (entry.path().extension() != ".json")
+        if (entry.path().extension() != ".json" && entry.path().extension() != ".JSON")
         {
             continue;
         }
@@ -129,7 +122,7 @@ std::vector<T> LoadAllPuzzles(std::string_view dir)
         // Check if the file can be opened
         if (!ifstrm)
         {
-            fmt::print(stderr, "Error: Could not open file at '{}'.\n", dir.data());
+            fmt::print(stderr, "Error: Could not open file at '{}'.\n", entry.path().string());
             continue;
         }
 
@@ -138,7 +131,7 @@ std::vector<T> LoadAllPuzzles(std::string_view dir)
 
         T puzzle = j.get<T>();
 
-        if (auto result = PuzzleTraits<T>::validate(puzzle))
+        if (auto result = PuzzleTraits<T>::validate(puzzle); !result)
         {
             fmt::print(stderr, "Error: {}\n", result.error());
             continue;
