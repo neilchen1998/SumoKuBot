@@ -132,7 +132,7 @@ namespace solver
         }
 
     private:
-        std::vector<std::vector<char>> board_;
+        std::vector<std::vector<int>> board_;
         bool isSolved_ = false;
     };
 
