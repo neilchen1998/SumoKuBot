@@ -142,62 +142,8 @@ namespace solver
         bool isSolved_ = false;
     };
 
-    // Forward declaration
-    struct ColumnHeader;
-
-    // Circular doubly-linked list
-    struct Node
-    {
-        // Pointers
-        Node* left = this;
-        Node* right = this;
-        Node* up = this;
-        Node* down = this;
-        ColumnHeader* header = nullptr;
-
-        /// @brief Row index
-        int r = -1;
-
-        /// @brief Column index
-        int c = -1;
-
-        /// @brief Digit
-        int d = -1;
-
-        Node() = default;
-
-        Node(ColumnHeader* header, int row, int col, int digit) : header(header), r(row), c(col), d(digit)
-        {
-
-        }
-
-        // Delete copying & move semantics
-        Node (const Node&) = delete;
-        Node& operator=(const Node&) = delete;
-        Node (Node&&) noexcept = delete;
-        Node& operator=(Node&&) = delete;
-    };
-
-    /// @brief Column header node
-    struct ColumnHeader : public Node
-    {
-        /// @brief The id
-        int id = -1;
-
-        /// @brief The number of nodes under the column
-        size_t size = 0;
-
-        ColumnHeader(int id) : id(id)
-        {
-            header = this;
-        }
-    };
-
     class SudokuDLXSolver
     {
-    private:
-        static constexpr size_t TOTAL_NUM_OF_CONSTRAINTS = (81 + (9 * 9) + (9 * 9) + (9 * 9));
-
     public:
         SudokuDLXSolver(std::vector<std::vector<int>>& board) : _board(board)
         {
@@ -286,7 +232,59 @@ namespace solver
         }
 
     private:
+        static constexpr size_t TOTAL_NUM_OF_CONSTRAINTS = (81 + (9 * 9) + (9 * 9) + (9 * 9));
         using SudokuConstraints = std::array<int, 4>;
+
+        // Forward declaration
+        struct ColumnHeader;
+
+        // Circular doubly-linked list
+        struct Node
+        {
+            // Pointers
+            Node* left = this;
+            Node* right = this;
+            Node* up = this;
+            Node* down = this;
+            ColumnHeader* header = nullptr;
+
+            /// @brief Row index
+            int r = -1;
+
+            /// @brief Column index
+            int c = -1;
+
+            /// @brief Digit
+            int d = -1;
+
+            Node() = default;
+
+            Node(ColumnHeader* header, int row, int col, int digit) : header(header), r(row), c(col), d(digit)
+            {
+
+            }
+
+            // Delete copying & move semantics
+            Node (const Node&) = delete;
+            Node& operator=(const Node&) = delete;
+            Node (Node&&) noexcept = delete;
+            Node& operator=(Node&&) = delete;
+        };
+
+        /// @brief Column header node
+        struct ColumnHeader : public Node
+        {
+            /// @brief The id
+            int id = -1;
+
+            /// @brief The number of nodes under the column
+            size_t size = 0;
+
+            ColumnHeader(int id) : id(id)
+            {
+                header = this;
+            }
+        };
 
         /// @brief Search the solution using MRV heuristic
         /// @return true if the matrix is completed recovered, false if there is a dead end
