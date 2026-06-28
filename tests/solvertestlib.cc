@@ -185,31 +185,6 @@ TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", solver::SudokuSolver, solver::
     }
 }
 
-TEST_CASE( "Sudoku (DLX)", "[main]" )
-{
-    SECTION("Puzzle 0", "[trivial case]")
-    {
-        std::vector<std::vector<char>> board ({{'5','3','.','.','7','.','.','.','.'},{'6','.','.','1','9','5','.','.','.'},{'.','9','8','.','.','.','.','6','.'},{'8','.','.','.','6','.','.','.','3'},{'4','.','.','8','.','3','.','.','1'},{'7','.','.','.','2','.','.','.','6'},{'.','6','.','.','.','.','2','8','.'},{'.','.','.','4','1','9','.','.','5'},{'.','.','.','.','8','.','.','7','9'}});
-        std::vector<std::vector<char>> ans ({{'5','3','4','6','7','8','9','1','2'},{'6','7','2','1','9','5','3','4', '8'},{'1','9','8','3','4','2','5','6','7'},{'8','5','9','7','6','1','4','2','3'},{'4','2','6','8','5','3','7','9','1'},{'7','1','3','9','2','4','8','5','6'},{'9','6','1','5','3','7','2','8','4'},{'2','8','7','4','1','9','6','3','5'},{'3','4','5','2','8','6','1','7','9'}});
-
-        std::vector<std::vector<int>> b = convertBoardRaw<int>(board);
-        std::vector<std::vector<int>> a = convertBoardRaw<int>(ans);
-
-        solver::SudokuDLXSolver s {b};
-
-        s.Solve();
-
-        auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
-
-        std::vector<std::vector<int>> solution = *ret;
-
-        REQUIRE (solution.size() == a.size());
-        validate_boad_is_square(solution);
-        validate_sukodu_row_column_box_constraints(solution);
-    }
-}
-
 TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
 {
     SECTION("Puzzle 0", "[2 x 2]")
