@@ -166,7 +166,7 @@ struct SudokuTest
 
 std::vector<SudokuTest> sudokuTests {{board0, ans0}};
 
-TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", solver::SudokuSolver )
+TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", solver::SudokuSolver, solver::SudokuDLXSolver )
 {
     for (auto& test : sudokuTests)
     {

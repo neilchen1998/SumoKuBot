@@ -154,6 +154,12 @@ To package the binary file into a compressed tarball:
 cmake --build build --target package
 ```
 
+To test if there is memory leak on Mac:
+
+```zsh
+leaks --atExit -- <test_binary>
+```
+
 ## Benchmark
 
 The folllowing table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).
@@ -926,6 +932,54 @@ add_custom_command(
 )
 ```
 
+
+### Memory Leak
+
+*new* operator allocates memory on the heap at runtime and *delete* operator frees up memory.
+With great power comes with great responsibility and it is up to the developers' responsibility to delete all the memory that they allocated.
+
+In *SudokuDLXSolver*, we allocate many instances of *Node* on the heap when we construct the matrix in the constructor.
+Therefore, we need to delete those nodes safely in the destructor.
+
+A good way to check if there is memory leak is by using *leaks* on Mac or *valgrind* on Linux.
+
+One can compile the code with `-fsanitize=address,undefined -fno-omit-frame-pointer` and run with:
+
+```zsh
+leaks --atExit -- ./tests/solvertestlib
+```.
+
+The following is an example that does not have memory leak:
+
+```
+Process:         solvertestlib [37544]
+Path:            /Users/USER/*/solvertestlib
+Load Address:    0x10071c000
+Identifier:      solvertestlib
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  leaks [37543]
+Target Type:     live task
+
+Date/Time:       2026-06-27 22:09:49.786 -0500
+Launch Time:     2026-06-27 22:09:49.600 -0500
+OS Version:      macOS 15.7.2 (24G325)
+Report Version:  7
+Analysis Tool:   /usr/bin/leaks
+
+Physical footprint:         3136K
+Physical footprint (peak):  3136K
+Idle exit:                  untracked
+----
+
+leaks Report Version: 4.0, multi-line stacks
+Process 37544: 188 nodes malloced for 14 KB
+Process 37544: 0 leaks for 0 total leaked bytes.
+```
+
+If you get a long output, then there is memory leak and you need to fix the code.
+
 ### CPack
 
 **CPack** is a toolkit in **CMake** that packages binary files.
@@ -969,8 +1023,9 @@ set(CPACK_PACKAGE_CHECKSUM "SHA256")
 
 ## Reference
 
-- [gprof2dot](https://pypi.org/project/gprof2dot/)
-- [Visually Profile C++ Program Performance](https://www.youtube.com/watch?v=zbTtVW64R_I)
+- [Dancing Links (DLX)](https://en.wikipedia.org/wiki/Dancing_links)
 - [Data-Driven Testing](https://www.leapwork.com/blog/a-short-introduction-to-data-driven-testing)
 - [Killer Sudoku Puzzles](https://github.com/tommy-andersen/killer-sudoku-solver/blob/main/expert-1.json)
 - [One of the World's Hardest Killer Sudokus](https://www.calcudoku.org/hardest_logic_number_puzzles/)
+- [Visually Profile C++ Program Performance](https://www.youtube.com/watch?v=zbTtVW64R_I)
+- [gprof2dot](https://pypi.org/project/gprof2dot/)
