@@ -33,32 +33,6 @@ int to_int(T v)
     }
 }
 
-/// @brief Converts a char matrix to an integral matrix
-/// @tparam T Must be of type integral
-/// @return T The new matrix
-template <typename T>
-requires std::same_as<T, char> || std::integral<T>
-std::vector<std::vector<T>> convertBoardRaw(const std::vector<std::vector<char>>& board)
-{
-    std::vector<std::vector<T>> ret;
-    ret.reserve(board.size());
-
-    for (const auto& row : board)
-    {
-        std::vector<T> integralRow;
-        integralRow.reserve(row.size());
-
-        std::transform(row.begin(), row.end(), std::back_inserter(integralRow), [](char c)
-        {
-            return (c == '.') ? 0 : static_cast<T>(c);
-        });
-
-        ret.push_back(std::move(integralRow));
-    }
-
-    return ret;
-}
-
 /// @brief Validates a given board is a square board
 /// @tparam T The element type of the board
 /// @param board The board
