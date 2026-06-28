@@ -25,7 +25,7 @@ std::string GetTestDataPath();
 /// @brief Loads all the puzzles from the data directory
 /// @param dir The directory of the data
 /// @return A vector of SumokuPuzzleData
-std::vector<SumokuPuzzleData> LoadAllPuzzles(std::string_view dir);
+std::vector<SumokuPuzzleData> LoadAllSumokuPuzzles(std::string_view dir);
 
 /// @brief Loads the puzzle from a JSON file
 /// @param filePath The JSON file path

@@ -8,7 +8,7 @@
 
 #include "solver/solverlib.hpp"   // SumokuSolver, SumokuOrdering, etc.
 
-#include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllPuzzles
+#include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllSumokuPuzzles
 
 int main()
 {
@@ -17,7 +17,7 @@ int main()
 
     // Load the puzzles
     const std::string folder = GetTestDataPath();
-    const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
+    const std::vector<SumokuPuzzleData> all_puzzles = LoadAllSumokuPuzzles(folder);
 
     for (const auto& p : all_puzzles)
     {
@@ -47,7 +47,7 @@ int main()
 
         // Load the puzzles
         const std::string folder = GetTestDataPath() + "/killer_sudoku";
-        const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
+        const std::vector<SumokuPuzzleData> all_puzzles = LoadAllSumokuPuzzles(folder);
 
         for (const auto& p : all_puzzles)
         {

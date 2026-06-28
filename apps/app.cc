@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
     std::vector<SumokuPuzzleData> puzzles;
     if (!dirPath.empty())
     {
-        puzzles = LoadAllPuzzles(dirPath.string());
+        puzzles = LoadAllSumokuPuzzles(dirPath.string());
     }
     else
     {

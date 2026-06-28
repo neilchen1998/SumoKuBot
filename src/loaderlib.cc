@@ -109,7 +109,7 @@ SumokuPuzzleData LoadPuzzle(std::string_view filePath)
     }
 }
 
-std::vector<SumokuPuzzleData> LoadAllPuzzles(std::string_view dir)
+std::vector<SumokuPuzzleData> LoadAllSumokuPuzzles(std::string_view dir)
 {
     // Check if the given directory exists
     if (!fs::exists(dir))
