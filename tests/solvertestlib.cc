@@ -35,6 +35,32 @@ int to_int(T v)
     }
 }
 
+/// @brief Converts a char matrix to an integral matrix
+/// @tparam T Must be of type integral
+/// @return T The new matrix
+template <typename T>
+requires std::same_as<T, char> || std::integral<T>
+std::vector<std::vector<T>> convertBoardRaw(const std::vector<std::vector<char>>& board)
+{
+    std::vector<std::vector<T>> ret;
+    ret.reserve(board.size());
+
+    for (const auto& row : board)
+    {
+        std::vector<T> integralRow;
+        integralRow.reserve(row.size());
+
+        std::transform(row.begin(), row.end(), std::back_inserter(integralRow), [](char c)
+        {
+            return (c == '.') ? 0 : static_cast<T>(c);
+        });
+
+        ret.push_back(std::move(integralRow));
+    }
+
+    return ret;
+}
+
 /// @brief Validates a given board is a square board
 /// @tparam T The element type of the board
 /// @param board The board
@@ -136,7 +162,7 @@ void validate_sukodu_row_column_box_constraints(const std::vector<std::vector<T>
     }
 }
 
-TEST_CASE( "Sudoku", "[main]" )
+TEST_CASE( "Sudoku (Backtracking)", "[main]" )
 {
     SECTION("Puzzle 0", "[trivial case]")
     {
@@ -153,6 +179,31 @@ TEST_CASE( "Sudoku", "[main]" )
         std::vector<std::vector<char>> solution = *ret;
 
         REQUIRE (solution.size() == ans.size());
+        validate_boad_is_square(solution);
+        validate_sukodu_row_column_box_constraints(solution);
+    }
+}
+
+TEST_CASE( "Sudoku (DLX)", "[main]" )
+{
+    SECTION("Puzzle 0", "[trivial case]")
+    {
+        std::vector<std::vector<char>> board ({{'5','3','.','.','7','.','.','.','.'},{'6','.','.','1','9','5','.','.','.'},{'.','9','8','.','.','.','.','6','.'},{'8','.','.','.','6','.','.','.','3'},{'4','.','.','8','.','3','.','.','1'},{'7','.','.','.','2','.','.','.','6'},{'.','6','.','.','.','.','2','8','.'},{'.','.','.','4','1','9','.','.','5'},{'.','.','.','.','8','.','.','7','9'}});
+        std::vector<std::vector<char>> ans ({{'5','3','4','6','7','8','9','1','2'},{'6','7','2','1','9','5','3','4', '8'},{'1','9','8','3','4','2','5','6','7'},{'8','5','9','7','6','1','4','2','3'},{'4','2','6','8','5','3','7','9','1'},{'7','1','3','9','2','4','8','5','6'},{'9','6','1','5','3','7','2','8','4'},{'2','8','7','4','1','9','6','3','5'},{'3','4','5','2','8','6','1','7','9'}});
+
+        std::vector<std::vector<int>> b = convertBoardRaw<int>(board);
+        std::vector<std::vector<int>> a = convertBoardRaw<int>(ans);
+
+        solver::SudokuDLXSolver s {b};
+
+        s.Solve();
+
+        auto ret = s.GetSolution();
+        REQUIRE (ret != std::nullopt);
+
+        std::vector<std::vector<int>> solution = *ret;
+
+        REQUIRE (solution.size() == a.size());
         validate_boad_is_square(solution);
         validate_sukodu_row_column_box_constraints(solution);
     }
