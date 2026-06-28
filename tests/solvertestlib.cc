@@ -140,6 +140,7 @@ TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", solver::SudokuSolver, solver::
     static std::string folder = GetTestDataPath() + "/sudoku";
     static std::vector<SudokuPuzzleData> puzzles = LoadAllPuzzles<SudokuPuzzleData>(folder);
 
+    INFO("No Sudoku puzzles were loaded from: " << folder);
     REQUIRE_FALSE(puzzles.empty());
 
     for (auto& puzzle : puzzles)
@@ -518,6 +519,7 @@ TEST_CASE("Sumoku Solver: Naive", "[Sumoku]")
     static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
     // Check the vector to make sure it contains at least one test case
+    INFO("No Sumoku puzzles were loaded from: " << folder);
     REQUIRE_FALSE(all_puzzles.empty());
 
     const SumokuPuzzleData& data = GENERATE(from_range(all_puzzles));
@@ -548,6 +550,7 @@ TEST_CASE("Sumoku Solver: SumokuMRV", "[SumokuMRV]")
     static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
     // Check the vector to make sure it contains at least one test case
+    INFO("No Sumoku puzzles were loaded from: " << folder);
     REQUIRE_FALSE(all_puzzles.empty());
 
     const SumokuPuzzleData& data = GENERATE(from_range(all_puzzles));
@@ -578,6 +581,7 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
     static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
     // Check the vector to make sure it contains at least one test case
+    INFO("No Sumoku puzzles were loaded from: " << folder);
     REQUIRE_FALSE(all_puzzles.empty());
 
     const SumokuPuzzleData& data = GENERATE(from_range(all_puzzles));
