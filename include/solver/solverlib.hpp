@@ -7,26 +7,21 @@
 #include <mdspan>   // std::mdspan
 #include <numeric>   // std::iota
 #include <optional> // std::optional
-#include <unordered_map>   // std::unordered_map
 #include <vector>   // std::vector
 
 #ifndef __GNUC__
 #include <bit>  // std::popcount
 #endif
 
-#include <fmt/core.h>   // fmt::print
-
 #include "board/boardlib.hpp"   // Point, SudokuBoard
 #include "math/mathlib.hpp"   // PointHasher
-
-using SudokuBoard = std::vector<std::vector<size_t>>;
 
 namespace solver
 {
     class SudokuSolver
     {
     public:
-        SudokuSolver(std::vector<std::vector<char>>& board)
+        SudokuSolver(std::vector<std::vector<int>>& board)
         : board_(board),
         isSolved_(false)
         {
@@ -38,9 +33,9 @@ namespace solver
             isSolved_ = Backtrack(board_);
         }
 
-        std::optional<std::vector<std::vector<char>>> GetSolution() const
+        std::optional<std::vector<std::vector<int>>> GetSolution() const
         {
-            return isSolved_ ? std::optional<std::vector<std::vector<char>>>{board_} : std::nullopt;
+            return isSolved_ ? std::optional<std::vector<std::vector<int>>>{board_} : std::nullopt;
         }
 
     private:
@@ -49,7 +44,7 @@ namespace solver
         /// @param x The current row index
         /// @param y The current column index
         /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
-        bool Backtrack(std::vector<std::vector<char>>& board, size_t x = 0, size_t y = 0)
+        bool Backtrack(std::vector<std::vector<int>>& board, size_t x = 0, size_t y = 0)
         {
             // If we reach the last column, then we start from the next row
             if (y == 9)
@@ -64,13 +59,13 @@ namespace solver
             }
 
             // If there is already a value on the current element, then we skip it
-            if (board[x][y] != '.')
+            if (board[x][y] != 0)
             {
                 return Backtrack(board, x, y + 1);
             }
 
             // We can put any number from 1 to 9
-            for (char c = '1'; c <= '9'; ++c)
+            for (int c = 1; c <= 9; ++c)
             {
                 // If the current guess is valid, then we write the current element with the guess
                 if (Check(board, x, y, c))
@@ -85,7 +80,7 @@ namespace solver
 
                     // The current guess is incorrect, we re-write it with a default value
                     // NOTE: if the guess were correct, then we would exit early and would not reach here
-                    board[x][y] = '.';
+                    board[x][y] = 0;
                 }
             }
 
@@ -98,7 +93,7 @@ namespace solver
         /// @param y The column index of the element
         /// @param digit The digit of the element
         /// @return TRUE if the element is valid
-        bool Check(const std::vector<std::vector<char>>& board, size_t x, size_t y, char digit)
+        bool Check(const std::vector<std::vector<int>>& board, size_t x, size_t y, int digit)
         {
             // Check if there is any duplicate row-wise
             for (size_t i = 0; i < 9; ++i)
@@ -137,7 +132,7 @@ namespace solver
         }
 
     private:
-        std::vector<std::vector<char>> board_;
+        std::vector<std::vector<int>> board_;
         bool isSolved_ = false;
     };
 
