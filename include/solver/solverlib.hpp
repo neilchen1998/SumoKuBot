@@ -20,6 +20,8 @@
 #include "board/boardlib.hpp"   // Point, SudokuBoard
 #include "math/mathlib.hpp"   // PointHasher
 
+#include <unordered_set>
+
 using SudokuBoard = std::vector<std::vector<size_t>>;
 
 namespace solver
@@ -156,6 +158,7 @@ namespace solver
             for (size_t i = 0; i < TOTAL_NUM_OF_CONSTRAINTS; ++i)
             {
                 _columns[i] = new ColumnHeader(i);
+                _allAllocatedNodes.push_back(_columns[i]);
                 _columns[i]->left = last;
                 last->right = _columns[i];
                 _columns[i]->right = _root;
@@ -187,21 +190,13 @@ namespace solver
 
         ~SudokuDLXSolver()
         {
-            // Loop through all columns
-            for (ColumnHeader* col : _columns)
+            // Delete every single node ever created, cleanly and exactly once
+            for (Node* node : _allAllocatedNodes)
             {
-                // Loop through all nodes under the current column
-                Node* cur = col->down;
-                while (cur != col)
-                {
-                    Node* next = cur->down;
-                    delete cur;
-                    cur = next;
-                }
-
-                delete col;
+                delete node;
             }
 
+            // Delete the root if it wasn't a part of the tracked node list
             delete _root;
         }
 
@@ -363,6 +358,7 @@ namespace solver
 
                 // Create a new node
                 Node* node = new Node(col, r, c, d);
+                _allAllocatedNodes.push_back(node);
 
                 // Link the newly created node to the column header (vertically)
                 node->down = col;
@@ -476,6 +472,8 @@ namespace solver
 
         /// @brief True if the puzzle is solved
         bool isSolved_ = false;
+
+        std::vector<Node*> _allAllocatedNodes;
     };
 
     class SumokuSolver
