@@ -1,19 +1,19 @@
 #ifndef TESTS_COMMON_LOADERLIB_H_
 #define TESTS_COMMON_LOADERLIB_H_
 
-#include <expected> // std::expected
+#include <expected>     // std::expected
 #include <filesystem>   // std::filesystem
 #include <fstream>      // std::ifstream
-#include <numeric>  // std::accumulate
-#include <string_view>   // std::string_view
-#include <string>   // std::string
-#include <unordered_set>    // std::unordered_set
-#include <vector>    // std::vector
+#include <numeric>      // std::accumulate
+#include <string_view>  // std::string_view
+#include <string>       // std::string
+#include <unordered_set>// std::unordered_set
+#include <vector>       // std::vector
 
 #include <nlohmann/json.hpp>    // nlohmann::json
 
 #include "board/boardlib.hpp"   // Point
-#include "math/mathlib.hpp" // PointHasher
+#include "math/mathlib.hpp"     // PointHasher
 
 namespace fs = std::filesystem;
 
@@ -34,8 +34,8 @@ struct SumokuPuzzleData
     std::string label;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SudokuPuzzleData, N, board, label)   // for nlohmann::json
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuPuzzleData, N, boxes, sums, label)   // for nlohmann::json
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SudokuPuzzleData, N, board, label)       // for nlohmann::json
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SumokuPuzzleData, N, boxes, sums, label) // for nlohmann::json
 
 /// @brief Validates if the given Sumoku puzzle is valid
 /// @param puzzle A Sumoku puzzle
@@ -76,14 +76,12 @@ struct PuzzleTraits;
 template<>
 struct PuzzleTraits<SudokuPuzzleData> : PuzzleTraitsBase<SudokuPuzzleData, ValidateSudokuPuzzle>
 {
-
 };
 
 /// @brief The explicit specialization of PuzzleTraits for SumokuPuzzleData
 template<>
 struct PuzzleTraits<SumokuPuzzleData> : PuzzleTraitsBase<SumokuPuzzleData, ValidateSumokuPuzzle>
 {
-
 };
 
 /// @brief Loads all the puzzles
