@@ -190,13 +190,41 @@ namespace solver
 
         ~SudokuDLXSolver()
         {
-            // Delete every single node ever created, cleanly and exactly once
-            for (Node* node : _allAllocatedNodes)
+            if (!_root) return;
+
+            // Loop through all columns
+            for (ColumnHeader* col : _columns)
             {
-                delete node;
+                // Skip if the column is a nullptr
+                if (!col) continue;
+
+                // Loop through all rows and delete them after deleting the rows
+                Node* rowNode = col->down;
+                while (rowNode && rowNode != col)
+                {
+                    Node* nextRowNode = rowNode->down;
+
+                    // Delete the entire row
+                    Node* rightNode = rowNode->right;
+                    while (rightNode && rightNode != rowNode)
+                    {
+                        Node* nextRight = rightNode->right;
+                        delete rightNode;
+                        rightNode = nextRight;
+                    }
+
+                    delete rowNode;
+                    rowNode = nextRowNode;
+                }
             }
 
-            // Delete the root if it wasn't a part of the tracked node list
+            // Delete all column headers
+            for (ColumnHeader* col : _columns)
+            {
+                delete col;
+            }
+
+            // Delete the root header
             delete _root;
         }
 

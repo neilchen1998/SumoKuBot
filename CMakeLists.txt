@@ -42,7 +42,7 @@ if(PROJECT_IS_TOP_LEVEL)
         $<$<CONFIG:MinSizeRel>:-Os -DNDEBUG>
 
         # Debug builds
-        $<$<CONFIG:Debug>:-g -O0 -fsanitize=address,undefined>
+        $<$<CONFIG:Debug>:-g -O0 -fsanitize=address -fno-omit-frame-pointer,undefined>
         $<$<CONFIG:RelWithDebInfo>:-g>
     )
 
