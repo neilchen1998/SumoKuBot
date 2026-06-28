@@ -57,12 +57,12 @@ std::string GetTestDataPath();
 template <typename T, auto ValidationFn>
 struct PuzzleTraitsBase
 {
-    static std::expected<void, std::string> validate(const SumokuPuzzleData& p)
+    static std::expected<void, std::string> validate(const T& p)
     {
         return ValidationFn(p);
     }
 
-    static const std::string& label(const SumokuPuzzleData& p)
+    static const std::string& label(const T& p)
     {
         return p.label;
     }
