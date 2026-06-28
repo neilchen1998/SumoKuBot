@@ -154,6 +154,12 @@ To package the binary file into a compressed tarball:
 cmake --build build --target package
 ```
 
+To test if there is memory leak on Mac:
+
+```zsh
+leaks --atExit -- <test_binary>
+```
+
 ## Benchmark
 
 The folllowing table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).

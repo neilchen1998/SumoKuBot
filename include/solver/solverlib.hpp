@@ -190,23 +190,18 @@ namespace solver
 
         ~SudokuDLXSolver()
         {
-            if (!_root) return;
-
             // Loop through all columns
             for (ColumnHeader* col : _columns)
             {
-                // Skip if the column is a nullptr
-                if (!col) continue;
-
                 // Loop through all rows and delete them after deleting the rows
                 Node* rowNode = col->down;
-                while (rowNode && rowNode != col)
+                while (rowNode != col)
                 {
                     Node* nextRowNode = rowNode->down;
 
                     // Delete the entire row
                     Node* rightNode = rowNode->right;
-                    while (rightNode && rightNode != rowNode)
+                    while (rightNode != rowNode)
                     {
                         Node* nextRight = rightNode->right;
                         delete rightNode;
@@ -286,6 +281,8 @@ namespace solver
             {
 
             }
+
+            virtual ~Node() = default;
 
             // Delete copying & move semantics
             Node (const Node&) = delete;
@@ -373,7 +370,7 @@ namespace solver
         /// @param c The column index
         /// @param d The digit
         /// @param col_indices The indices of columns
-        void AddRow(int r, int c, int d, const SudokuConstraints& col_indices)
+        void AddRow(int r, int c, int d, const SudokuConstraints& col_indices) noexcept
         {
             // Create a pointer to the very first node of the row
             Node* firstNode = nullptr;
