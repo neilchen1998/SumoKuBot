@@ -11,7 +11,6 @@
 #include <bit>  // std::popcount
 #endif
 
-#include <boost/functional/hash.hpp>    // boost::hash_combine
 #include <fmt/core.h>   // fmt::print
 #include <fmt/ranges.h> // fmt::print for std::array
 #include <nlohmann/json.hpp>    // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE
@@ -40,9 +39,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
 template <BoardType T>
 inline void PrintBoard(const std::vector<std::vector<T>>& board)
 {
-    for (auto& row : board)
+    for (const auto& row : board)
     {
-        for (auto& ele : row)
+        for (const auto& ele : row)
         {
             fmt::print("{} ", ele);
         }

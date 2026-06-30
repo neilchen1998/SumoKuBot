@@ -5,7 +5,6 @@
 #include <string>   // std::string
 #include <vector>  // std::vector
 
-#include <boost/program_options.hpp>    // boost::program_options
 #include <CLI/CLI.hpp>  // CLI::App, CLI::ParseError
 #include <fmt/core.h>   // fmt::print
 #include <fmt/ostream.h>    // fmt::streamed

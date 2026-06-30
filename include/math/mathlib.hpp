@@ -2,8 +2,9 @@
 #define INCLUDE_MATH_MATHLIB_H_
 
 #include <cstddef>    // size_t
-#include <span>       // std::span
 #include <functional> // std::hash
+
+#include "board/boardlib.hpp"   // Point
 
 /// @brief Defines a type that is hashable
 template<typename T>

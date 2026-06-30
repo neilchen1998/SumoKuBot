@@ -8,6 +8,7 @@
 #include <limits>   // std::numeric_limits<size_t>::max
 #include <mdspan>   // std::mdspan
 #include <numeric>   // std::iota
+#include <unordered_map>    // std::unordered_map
 #include <optional> // std::optional
 #include <vector>   // std::vector
 
@@ -141,7 +142,7 @@ namespace solver
     class SudokuDLXSolver
     {
     public:
-        SudokuDLXSolver(std::vector<std::vector<int>>& board) : _board(board)
+        SudokuDLXSolver(const std::vector<std::vector<int>>& board) : _board(board)
         {
             // Create a root column header
             _root = new ColumnHeader(-1);
