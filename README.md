@@ -758,7 +758,7 @@ We then use this function to load the data (test cases) into the test.
 Again, since we have the macros for both **SumokuPuzzleData** and **Point**, *nlohmann::json* can deserialize the data.
 
 ```cpp
-std::vector<SumokuPuzzleData> LoadAllPuzzles(std::string_view dir)
+std::vector<SumokuPuzzleData> LoadAllSumokuPuzzles(std::string_view dir)
 {
     std::vector<SumokuPuzzleData> testCases;
 
@@ -790,7 +790,7 @@ TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
 {
     // Load all the test cases
     static std::string folder = GetTestDataPath();
-    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
+    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllSumokuPuzzles(folder);
 
     // Check the vector to make sure it contains at least one test case
     REQUIRE_FALSE(all_puzzles.empty());
