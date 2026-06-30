@@ -21,7 +21,7 @@ namespace fs = std::filesystem;
 /// @brief The solver type
 enum class SolverType { SumokuSolver, SumokuMRV, SumokuOrdering };
 
-/// @brief A map for solvers
+/// @brief A map for all the solver types
 static const std::map<std::string, SolverType> solverMap
 {
     {"Basic", SolverType::SumokuSolver},
@@ -31,7 +31,7 @@ static const std::map<std::string, SolverType> solverMap
 
 /// @brief Overloads the stream insertion operator to convert Solvers enum value to string
 /// @param os The output stream
-/// @param s The solver enum value
+/// @param s The solver type enum value
 /// @return A reference to the output stream
 std::ostream& operator<<(std::ostream& os, const SolverType& s)
 {
@@ -48,14 +48,14 @@ int main(int argc, char* argv[])
     CLI::App app {"Options:"};
     app.name(SUMOKUBOT_PROJECT_NAME);
 
-    SolverType solver {SolverType::SumokuMRV};
+    SolverType solverType {SolverType::SumokuMRV};
     fs::path filePath {"./tests/data/killer_sudoku/puzzle_p4.json"};
     fs::path dirPath;
     bool verbose = false;
     bool benchmark = false;
 
     // The solver
-    app.add_option("-s,--solver", solver, "The solver type")
+    app.add_option("-s,--solver", solverType, "The solver type")
         ->transform(CLI::CheckedTransformer(solverMap, CLI::ignore_case))
         ->option_text("{Basic, SumokuMRV, SumokuOrdering}")
         ->capture_default_str();
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
     // Print out the solver
     if (verbose)
     {
-        fmt::println("Solver selected: {}", fmt::streamed(solver));
+        fmt::println("Solver selected: {}", fmt::streamed(solverType));
     }
 
     // Load the puzzle(s) to a vector
@@ -120,31 +120,54 @@ int main(int argc, char* argv[])
     // Loop through all puzzles and solve them
     for (const auto& p : puzzles)
     {
-        solver::SumokuMRV s {p.N, p.boxes, p.sums};
-
-        auto start = std::chrono::high_resolution_clock::now();
-        s.Solve();
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> elapsed = (end - start);
-
-        if (auto board = s.GetSolution())
+        auto runSolver = [&](auto& s)
         {
-            fmt::println("*** Result of Puzzle #{} ***", p.label);
+            auto start = std::chrono::high_resolution_clock::now();
+            s.Solve();
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> elapsed = (end - start);
+
+            if (auto board = s.GetSolution())
+            {
+                fmt::println("*** Result of Puzzle #{} ***", p.label);
+                fmt::println("");
+                PrintBoard(*board);
+            }
+            else
+            {
+                fmt::println("Failed to solve!");
+                return;
+            }
+
+            if (benchmark)
+            {
+                fmt::println("Solved in: {:.3f} ms", elapsed.count());
+            }
+
             fmt::println("");
-            PrintBoard(*board);
-        }
-        else
-        {
-            fmt::println("Failed to solve!");
-            continue;
-        }
+        };
 
-        if (benchmark)
+        switch (solverType)
         {
-            fmt::println("Solved in: {:.3f} ms", elapsed.count());
+            case SolverType::SumokuSolver:
+            {
+                solver::SumokuSolver s {p.N, p.boxes, p.sums};
+                runSolver(s);
+                break;
+            }
+            case SolverType::SumokuMRV:
+            {
+                solver::SumokuMRV s {p.N, p.boxes, p.sums};
+                runSolver(s);
+                break;
+            }
+            case SolverType::SumokuOrdering:
+            {
+                solver::SumokuOrdering s {p.N, p.boxes, p.sums};
+                runSolver(s);
+                break;
+            }
         }
-
-        fmt::println("");
     }
 
     return EXIT_SUCCESS;
