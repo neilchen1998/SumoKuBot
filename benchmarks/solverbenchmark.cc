@@ -1,14 +1,12 @@
-
 #include <chrono>   // std::chrono::milliseconds
 #include <fstream>  // std::ofstream
-#include <nanobench.h>  // ankerl::nanobench::Bench
 #include <vector>   // std::vector
 
 #include <fmt/core.h>   // fmt::format
-
-#include "solver/solverlib.hpp"   // SumokuSolver, SumokuOrdering, etc.
+#include <nanobench.h>  // ankerl::nanobench::Bench
 
 #include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllSumokuPuzzles
+#include "solver/solverlib.hpp"   // SumokuSolver, SumokuOrdering, etc.
 
 int main()
 {

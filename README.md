@@ -40,7 +40,7 @@ The requirements are:
 - [Boost](https://www.boost.org/) 1.67 or higher (will automatically install if not present)
 - [Catch2](https://github.com/catchorg/Catch2) 3.8 or higher (will automatically install if not present)
 - [CLI11](https://github.com/CLIUtils/CLI11.git) v2.4.1 or higher (will automatically install if not present)
-- [fmt](https://github.com/fmtlib/fmt) 11.0 or higher (will automatically install if not present)
+- [fmt](https://github.com/fmtlib/fmt) 12.0 or higher (will automatically install if not present)
 - [json](https://github.com/nlohmann/json.git) 3.0.0 or higher (will automatically install if not present)
 - [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
 - [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) (optional, highly recommended)

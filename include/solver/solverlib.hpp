@@ -1,12 +1,14 @@
 #ifndef INCLUDE_SOLVER_SOLVERLIB_H_
 #define INCLUDE_SOLVER_SOLVERLIB_H_
 
-#include <algorithm>    // std::algorithm
+#include <algorithm>// std::algorithm
 #include <array>    // std::array
+#include <cstddef>  // size_t
 #include <cstdint>  // uint16_t
 #include <limits>   // std::numeric_limits<size_t>::max
 #include <mdspan>   // std::mdspan
 #include <numeric>   // std::iota
+#include <unordered_map>    // std::unordered_map
 #include <optional> // std::optional
 #include <vector>   // std::vector
 
@@ -22,7 +24,7 @@ namespace solver
     class SudokuSolver
     {
     public:
-        SudokuSolver(std::vector<std::vector<int>>& board)
+        SudokuSolver(const std::vector<std::vector<int>>& board)
         : board_(board),
         isSolved_(false)
         {
@@ -140,7 +142,7 @@ namespace solver
     class SudokuDLXSolver
     {
     public:
-        SudokuDLXSolver(std::vector<std::vector<int>>& board) : _board(board)
+        SudokuDLXSolver(const std::vector<std::vector<int>>& board) : _board(board)
         {
             // Create a root column header
             _root = new ColumnHeader(-1);
@@ -151,7 +153,6 @@ namespace solver
             for (size_t i = 0; i < TOTAL_NUM_OF_CONSTRAINTS; ++i)
             {
                 _columns[i] = new ColumnHeader(i);
-                _allAllocatedNodes.push_back(_columns[i]);
                 _columns[i]->left = last;
                 last->right = _columns[i];
                 _columns[i]->right = _root;
@@ -215,6 +216,11 @@ namespace solver
             // Delete the root header
             delete _root;
         }
+
+        SudokuDLXSolver(const SudokuDLXSolver&) = delete;
+        SudokuDLXSolver& operator=(const SudokuDLXSolver&) = delete;
+        SudokuDLXSolver(SudokuDLXSolver&&) = delete;
+        SudokuDLXSolver& operator=(SudokuDLXSolver&&) = delete;
 
         /// @brief Solves the Sudoku puzzle
         void Solve()
@@ -376,7 +382,6 @@ namespace solver
 
                 // Create a new node
                 Node* node = new Node(col, r, c, d);
-                _allAllocatedNodes.push_back(node);
 
                 // Link the newly created node to the column header (vertically)
                 node->down = col;
@@ -490,8 +495,6 @@ namespace solver
 
         /// @brief True if the puzzle is solved
         bool isSolved_ = false;
-
-        std::vector<Node*> _allAllocatedNodes;
     };
 
     class SumokuSolver
@@ -1286,8 +1289,8 @@ namespace solver
         /// @brief The selection
         struct Selection
         {
-            size_t r = -1;
-            size_t c = -1;
+            size_t r = std::numeric_limits<size_t>::max();
+            size_t c = std::numeric_limits<size_t>::max();
 
             /// @brief The candidates in the mask form
             uint16_t mask = 0U;

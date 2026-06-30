@@ -94,14 +94,14 @@ std::vector<T> LoadAllPuzzles(std::string_view dir)
     // Check if the given directory exists
     if (!fs::exists(dir))
     {
-        fmt::print(stderr, "Error: '{}' does not exist.\n", dir.data());
+        fmt::print(stderr, "Error: '{}' does not exist.\n", dir);
         return {};
     }
 
     // Check if the given argument is a directory
     if (!fs::is_directory(dir))
     {
-        fmt::print(stderr, "Error: '{}' is not a directory.\n", dir.data());
+        fmt::print(stderr, "Error: '{}' is not a directory.\n", dir);
         return {};
     }
 
@@ -110,32 +110,37 @@ std::vector<T> LoadAllPuzzles(std::string_view dir)
     // Iterate over all the json entries in the directory
     for (const auto& entry : fs::directory_iterator(dir))
     {
-        if (entry.path().extension() != ".json" && entry.path().extension() != ".JSON")
+        if (entry.path().extension() == ".json" || entry.path().extension() == ".JSON")
         {
-            continue;
+            std::ifstream ifstrm{entry.path()};
+
+            // Check if the file can be opened
+            if (!ifstrm)
+            {
+                fmt::print(stderr, "Error: Could not open file at '{}'.\n", entry.path().string());
+                continue;
+            }
+
+            try
+            {
+                nlohmann::json j;
+                ifstrm >> j;
+
+                T puzzle = j.get<T>();
+
+                if (auto result = PuzzleTraits<T>::validate(puzzle); !result)
+                {
+                    fmt::print(stderr, "Error: {}\n", result.error());
+                    continue;
+                }
+
+                puzzles.push_back(std::move(puzzle));
+            }
+            catch (const nlohmann::json::exception& e)
+            {
+                fmt::print(stderr, "JSON error: {}\n", e.what());
+            }
         }
-
-        std::ifstream ifstrm{entry.path()};
-
-        // Check if the file can be opened
-        if (!ifstrm)
-        {
-            fmt::print(stderr, "Error: Could not open file at '{}'.\n", entry.path().string());
-            continue;
-        }
-
-        nlohmann::json j;
-        ifstrm >> j;
-
-        T puzzle = j.get<T>();
-
-        if (auto result = PuzzleTraits<T>::validate(puzzle); !result)
-        {
-            fmt::print(stderr, "Error: {}\n", result.error());
-            continue;
-        }
-
-        puzzles.push_back(std::move(puzzle));
     }
 
     // Sort the test cases based on the label
