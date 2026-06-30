@@ -43,6 +43,39 @@ std::ostream& operator<<(std::ostream& os, const SolverType& s)
     return os << "Unknown";
 }
 
+/// @brief Solves a puzzle and prints the result
+/// @tparam T The solver type
+/// @param s The solver instance
+/// @param puzzle The puzzle data
+/// @param benchmark True if the user wants to print the timing info
+template <typename T>
+void RunSolver(T& s, const SumokuPuzzleData& puzzle, bool benchmark)
+{
+    auto start = std::chrono::high_resolution_clock::now();
+    s.Solve();
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = (end - start);
+
+    if (auto board = s.GetSolution())
+    {
+        fmt::println("*** Result of Puzzle #{} ***", puzzle.label);
+        fmt::println("");
+        PrintBoard(*board);
+    }
+    else
+    {
+        fmt::println("Failed to solve!");
+        return;
+    }
+
+    if (benchmark)
+    {
+        fmt::println("Solved in: {:.3f} ms", elapsed.count());
+    }
+
+    fmt::println("");
+}
+
 int main(int argc, char* argv[])
 {
     CLI::App app {"Options:"};
@@ -120,51 +153,24 @@ int main(int argc, char* argv[])
     // Loop through all puzzles and solve them
     for (const auto& p : puzzles)
     {
-        auto runSolver = [&](auto& s)
-        {
-            auto start = std::chrono::high_resolution_clock::now();
-            s.Solve();
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double, std::milli> elapsed = (end - start);
-
-            if (auto board = s.GetSolution())
-            {
-                fmt::println("*** Result of Puzzle #{} ***", p.label);
-                fmt::println("");
-                PrintBoard(*board);
-            }
-            else
-            {
-                fmt::println("Failed to solve!");
-                return;
-            }
-
-            if (benchmark)
-            {
-                fmt::println("Solved in: {:.3f} ms", elapsed.count());
-            }
-
-            fmt::println("");
-        };
-
         switch (solverType)
         {
             case SolverType::SumokuSolver:
             {
                 solver::SumokuSolver s {p.N, p.boxes, p.sums};
-                runSolver(s);
+                RunSolver(s, p, benchmark);
                 break;
             }
             case SolverType::SumokuMRV:
             {
                 solver::SumokuMRV s {p.N, p.boxes, p.sums};
-                runSolver(s);
+                RunSolver(s, p, benchmark);
                 break;
             }
             case SolverType::SumokuOrdering:
             {
                 solver::SumokuOrdering s {p.N, p.boxes, p.sums};
-                runSolver(s);
+                RunSolver(s, p, benchmark);
                 break;
             }
         }
