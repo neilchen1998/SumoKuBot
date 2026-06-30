@@ -1,7 +1,15 @@
 #ifndef INCLUDE_BOARD_BOARDLIB_H_
 #define INCLUDE_BOARD_BOARDLIB_H_
 
+#include <array>    // std::array
+#include <concepts> // std::integral, std::same_as
+#include <cstddef>  // size_t
+#include <cstdint>  // uint16_t
 #include <vector>   // std::vector
+
+#ifndef __GNUC__
+#include <bit>  // std::popcount
+#endif
 
 #include <boost/functional/hash.hpp>    // boost::hash_combine
 #include <fmt/core.h>   // fmt::print
@@ -81,7 +89,7 @@ consteval int CalCombinations(int target, int k, int num = 1)
 struct CombinationsLUT
 {
     // data[i][j]: the number of unique combinations of i distinct digit(s) that sum up to exactly j
-    int data[10][46] {};
+    std::array<std::array<int, 46>, 10> data {};
 
     constexpr CombinationsLUT()
     {
@@ -150,9 +158,7 @@ struct PossibleNumbersTable
             cnt = std::popcount(i);
             #endif
 
-            uint16_t mask = i;
             uint16_t sum = 0;
-
             uint16_t tmp = i;
             while (tmp)
             {
@@ -167,7 +173,7 @@ struct PossibleNumbersTable
             }
 
             // Store the current count and the sum into the table
-            table[cnt][sum] |= (mask << 1);
+            table[cnt][sum] |= (i << 1);
         }
     }
 
