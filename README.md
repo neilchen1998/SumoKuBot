@@ -40,7 +40,7 @@ The requirements are:
 - [Boost](https://www.boost.org/) 1.67 or higher (will automatically install if not present)
 - [Catch2](https://github.com/catchorg/Catch2) 3.8 or higher (will automatically install if not present)
 - [CLI11](https://github.com/CLIUtils/CLI11.git) v2.4.1 or higher (will automatically install if not present)
-- [fmt](https://github.com/fmtlib/fmt) 11.0 or higher (will automatically install if not present)
+- [fmt](https://github.com/fmtlib/fmt) 12.0 or higher (will automatically install if not present)
 - [json](https://github.com/nlohmann/json.git) 3.0.0 or higher (will automatically install if not present)
 - [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
 - [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) (optional, highly recommended)
@@ -152,6 +152,12 @@ To package the binary file into a compressed tarball:
 
 ```zsh
 cmake --build build --target package
+```
+
+To test if there is memory leak on Mac:
+
+```zsh
+leaks --atExit -- <test_binary>
 ```
 
 ## Benchmark
@@ -752,7 +758,7 @@ We then use this function to load the data (test cases) into the test.
 Again, since we have the macros for both **SumokuPuzzleData** and **Point**, *nlohmann::json* can deserialize the data.
 
 ```cpp
-std::vector<SumokuPuzzleData> LoadAllPuzzles(std::string_view dir)
+std::vector<SumokuPuzzleData> LoadAllSumokuPuzzles(std::string_view dir)
 {
     std::vector<SumokuPuzzleData> testCases;
 
@@ -784,7 +790,7 @@ TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
 {
     // Load all the test cases
     static std::string folder = GetTestDataPath();
-    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
+    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllSumokuPuzzles(folder);
 
     // Check the vector to make sure it contains at least one test case
     REQUIRE_FALSE(all_puzzles.empty());
@@ -926,6 +932,54 @@ add_custom_command(
 )
 ```
 
+
+### Memory Leak
+
+*new* operator allocates memory on the heap at runtime and *delete* operator frees up memory.
+With great power comes with great responsibility and it is up to the developers' responsibility to delete all the memory that they allocated.
+
+In *SudokuDLXSolver*, we allocate many instances of *Node* on the heap when we construct the matrix in the constructor.
+Therefore, we need to delete those nodes safely in the destructor.
+
+A good way to check if there is memory leak is by using *leaks* on Mac or *valgrind* on Linux.
+
+One can compile the code with `-fsanitize=address,undefined -fno-omit-frame-pointer` and run with:
+
+```zsh
+leaks --atExit -- ./tests/solvertestlib
+```.
+
+The following is an example that does not have memory leak:
+
+```
+Process:         solvertestlib [37544]
+Path:            /Users/USER/*/solvertestlib
+Load Address:    0x10071c000
+Identifier:      solvertestlib
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  leaks [37543]
+Target Type:     live task
+
+Date/Time:       2026-06-27 22:09:49.786 -0500
+Launch Time:     2026-06-27 22:09:49.600 -0500
+OS Version:      macOS 15.7.2 (24G325)
+Report Version:  7
+Analysis Tool:   /usr/bin/leaks
+
+Physical footprint:         3136K
+Physical footprint (peak):  3136K
+Idle exit:                  untracked
+----
+
+leaks Report Version: 4.0, multi-line stacks
+Process 37544: 188 nodes malloced for 14 KB
+Process 37544: 0 leaks for 0 total leaked bytes.
+```
+
+If you get a long output, then there is memory leak and you need to fix the code.
+
 ### CPack
 
 **CPack** is a toolkit in **CMake** that packages binary files.
@@ -969,8 +1023,9 @@ set(CPACK_PACKAGE_CHECKSUM "SHA256")
 
 ## Reference
 
-- [gprof2dot](https://pypi.org/project/gprof2dot/)
-- [Visually Profile C++ Program Performance](https://www.youtube.com/watch?v=zbTtVW64R_I)
+- [Dancing Links (DLX)](https://en.wikipedia.org/wiki/Dancing_links)
 - [Data-Driven Testing](https://www.leapwork.com/blog/a-short-introduction-to-data-driven-testing)
 - [Killer Sudoku Puzzles](https://github.com/tommy-andersen/killer-sudoku-solver/blob/main/expert-1.json)
 - [One of the World's Hardest Killer Sudokus](https://www.calcudoku.org/hardest_logic_number_puzzles/)
+- [Visually Profile C++ Program Performance](https://www.youtube.com/watch?v=zbTtVW64R_I)
+- [gprof2dot](https://pypi.org/project/gprof2dot/)

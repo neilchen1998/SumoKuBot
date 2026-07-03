@@ -1,14 +1,12 @@
-
 #include <chrono>   // std::chrono::milliseconds
 #include <fstream>  // std::ofstream
-#include <nanobench.h>  // ankerl::nanobench::Bench
 #include <vector>   // std::vector
 
 #include <fmt/core.h>   // fmt::format
+#include <nanobench.h>  // ankerl::nanobench::Bench
 
+#include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllSumokuPuzzles
 #include "solver/solverlib.hpp"   // SumokuSolver, SumokuOrdering, etc.
-
-#include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllPuzzles
 
 int main()
 {
@@ -17,7 +15,7 @@ int main()
 
     // Load the puzzles
     const std::string folder = GetTestDataPath();
-    const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
+    const std::vector<SumokuPuzzleData> all_puzzles = LoadAllSumokuPuzzles(folder);
 
     for (const auto& p : all_puzzles)
     {
@@ -47,7 +45,7 @@ int main()
 
         // Load the puzzles
         const std::string folder = GetTestDataPath() + "/killer_sudoku";
-        const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles(folder);
+        const std::vector<SumokuPuzzleData> all_puzzles = LoadAllSumokuPuzzles(folder);
 
         for (const auto& p : all_puzzles)
         {
