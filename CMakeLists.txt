@@ -1,11 +1,11 @@
 # The minimum cmake requirements
-cmake_minimum_required(VERSION 3.21...4.0)
+cmake_minimum_required(VERSION 3.24...4.0)
 
 project(
-    SumoKuBot
-    VERSION 2.1.0
-    DESCRIPTION "A fast C++ CLI that solves Sumoku and Killer Sudoku puzzles"
-    LANGUAGES CXX
+  SumoKuBot
+  VERSION 2.1.0
+  DESCRIPTION "A fast C++ CLI that solves Sumoku and Killer Sudoku puzzles"
+  LANGUAGES CXX
 )
 
 # Set C++ standard
@@ -37,34 +37,31 @@ if(PROJECT_IS_TOP_LEVEL)
 
   # Flags based on the specified build type
   target_compile_options(project_options INTERFACE
-        # High performance builds
-        $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-O3 -march=native -ffast-math -DNDEBUG>
-        $<$<CONFIG:MinSizeRel>:-Os -DNDEBUG>
+    # High performance builds
+    $<$<CONFIG:Release>:-march=native>
+    $<$<CONFIG:RelWithDebInfo>:-march=native>
 
-        # Debug builds
-        $<$<CONFIG:Debug>:-g -O0 -fsanitize=address,undefined -fno-omit-frame-pointer>
-        $<$<CONFIG:RelWithDebInfo>:-g>
-    )
+    # Debug builds
+    $<$<CONFIG:Debug>:-fsanitize=address,undefined -fno-omit-frame-pointer>
+  )
+
+  # Linker flags
+  target_link_options(project_options INTERFACE
+    $<$<CONFIG:Debug>:-fsanitize=address,undefined>
+  )
 
   # Check if IPO/LTO is supported
   include(CheckIPOSupported)
   check_ipo_supported(RESULT lto_supported OUTPUT error)
   if(lto_supported)
     # Enable LTO specifically for release builds
-    set_target_properties(project_options PROPERTIES
-            INTERPROCEDURAL_OPTIMIZATION_RELEASE        TRUE
-            INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE
-            INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL     TRUE
-        )
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL TRUE)
     message(STATUS "LTO/IPO is supported and enabled")
   else()
     message(STATUS "LTO/IPO not supported: ${error}")
   endif()
-
-  # Linker flags
-  target_link_options(project_options INTERFACE
-        $<$<CONFIG:Debug>:-fsanitize=address,undefined>
-    )
 
   # Docs only available in the main app
   find_package(Doxygen)
@@ -83,20 +80,13 @@ endif()
 include(FetchContent)
 
 # All required packages will be downloaded automatically if unavailable
-
-# Try to find fmt that is at least 12.0 but the same major version
-find_package(fmt CONFIG 12.0...<13.0 QUIET)
-
-if(fmt_FOUND)
-  message(STATUS "Found fmt version: ${fmt_VERSION}")
-else()
-  message(STATUS "fmt could not be found or version is too old, downloading via FetchContent...")
-  FetchContent_Declare(
-    fmt
-    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-    GIT_TAG        12.1.0)
-  FetchContent_MakeAvailable(fmt)
-endif()
+FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+  GIT_TAG        12.1.0
+  FIND_PACKAGE_ARGS CONFIG 12.0...<13.0
+)
+FetchContent_MakeAvailable(fmt)
 
 # Configure the SW version file
 configure_file(
@@ -154,7 +144,7 @@ if(PROJECT_IS_TOP_LEVEL)
         "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
         "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
         DESTINATION .
-    )
+  )
 
   # CPack helps
   include(CPack)
