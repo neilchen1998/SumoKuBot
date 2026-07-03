@@ -76,7 +76,6 @@ if(PROJECT_IS_TOP_LEVEL)
 endif()
 
 # FetchContent helps grabbing repos during the configure step
-# NOTE: available after CMake 3.11
 include(FetchContent)
 
 # All required packages will be downloaded automatically if unavailable
@@ -90,9 +89,9 @@ FetchContent_MakeAvailable(fmt)
 
 # Configure the SW version file
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/project/version.h.in"
-    "${CMAKE_BINARY_DIR}/generated/version.h"
-    @ONLY
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/project/version.h.in"
+  "${CMAKE_BINARY_DIR}/generated/version.h"
+  @ONLY
 )
 
 # The compiled library subdirectory
@@ -141,9 +140,9 @@ if(PROJECT_IS_TOP_LEVEL)
 
   # Install LICENSE and README into the package
   install(FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
-        "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
-        DESTINATION .
+    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+    "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+    DESTINATION .
   )
 
   # CPack helps
