@@ -1,7 +1,8 @@
 FetchContent_Declare(
   nanobench
   GIT_REPOSITORY https://github.com/martinus/nanobench.git
-  GIT_TAG v4.3.10)
+  GIT_TAG v4.3.10
+)
 FetchContent_MakeAvailable(nanobench)
 
 add_executable(mathbenchmark mathbenchmark.cc)
@@ -11,3 +12,11 @@ add_executable(solverbenchmark solverbenchmark.cc)
 # NOTE: ankerl::nanobench::templates::csv() requires fmt library
 target_link_libraries(mathbenchmark PRIVATE nanobench fmt::fmt board_library math_library boost_math_library project_options)
 target_link_libraries(solverbenchmark PRIVATE nanobench fmt::fmt solver_library loader_library project_options)
+
+# A custom target that runs all benchmarks
+add_custom_target(benchmarks
+  COMMAND $<TARGET_FILE:mathbenchmark>
+  COMMAND $<TARGET_FILE:solverbenchmark>
+  DEPENDS mathbenchmark solverbenchmark
+  COMMENT "Running all benchmarks"
+)

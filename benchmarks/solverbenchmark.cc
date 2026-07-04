@@ -5,7 +5,7 @@
 #include <fmt/core.h>   // fmt::format
 #include <nanobench.h>  // ankerl::nanobench::Bench
 
-#include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllSumokuPuzzles
+#include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllPuzzles<>
 #include "solver/solverlib.hpp"   // SumokuSolver, SumokuOrdering, etc.
 
 int main()
@@ -15,7 +15,7 @@ int main()
 
     // Load the puzzles
     const std::string folder = GetTestDataPath();
-    const std::vector<SumokuPuzzleData> all_puzzles = LoadAllSumokuPuzzles(folder);
+    const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
     for (const auto& p : all_puzzles)
     {
@@ -45,7 +45,7 @@ int main()
 
         // Load the puzzles
         const std::string folder = GetTestDataPath() + "/killer_sudoku";
-        const std::vector<SumokuPuzzleData> all_puzzles = LoadAllSumokuPuzzles(folder);
+        const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
         for (const auto& p : all_puzzles)
         {
