@@ -33,7 +33,7 @@ The lady sitting next to me on my flight back home was solving [Sudoku](https://
 
 The requirements are:
 
-- CMake 3.21 or better; 4.0+ highly recommended
+- CMake 3.24 or better; 4.0+ highly recommended
 - A C++23 compatible compiler ([gcc](https://gcc.gnu.org/) or [llvm](https://llvm.org/))
 - [Git](https://git-scm.com/)
 - [abseil](https://github.com/abseil/abseil-cpp.git) 20250512.1 or newer (will automatically install if not present)
