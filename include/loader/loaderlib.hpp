@@ -82,6 +82,7 @@ struct PuzzleTraits<SudokuPuzzleData> : PuzzleTraitsBase<SudokuPuzzleData, Valid
 template<>
 struct PuzzleTraits<SumokuPuzzleData> : PuzzleTraitsBase<SumokuPuzzleData, ValidateSumokuPuzzle>
 {
+
 };
 
 /// @brief Loads all the puzzles
