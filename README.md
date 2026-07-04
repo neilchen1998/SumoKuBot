@@ -51,25 +51,25 @@ The requirements are:
 To generate the build system:
 
 ```zsh
-cmake -S . -B build
+cmake -S . -B build -Wno-dev
 ```
 
 To generate the build system with unit tests enabled (**tests** subdirectory):
 
 ```zsh
-cmake -S . -B build -DPROJECT_BUILD_TESTS=ON
+cmake -S . -B build -DPROJECT_BUILD_TESTS=ON -Wno-dev
 ```
 
 To generate the build system with benchmarks enabled (**benchmarks** subdirectory):
 
 ```zsh
-cmake -S . -B build -DPROJECT_BUILD_BENCHMARKS=ON
+cmake -S . -B build -DPROJECT_BUILD_BENCHMARKS=ON -Wno-dev
 ```
 
 For 64-bit Linux systems:
 
 ```zsh
-cmake -S . -B build --toolchain=./linux-x86_64.toolchain
+cmake -S . -B build --toolchain=./linux-x86_64.toolchain -Wno-dev
 ```
 
 Add `--toolchain=./<your_toolchain_file>.toolchain` if you want to use your own toolchain.
@@ -79,13 +79,13 @@ Add `-GNinja` if you want to use Ninja.
 To build with release configuration:
 
 ```zsh
-cmake --build build --config Release
+cmake --build build --config Release --parallel
 ```
 
 To build with debug configuration:
 
 ```zsh
-cmake --build build --config Debug
+cmake --build build --config Debug --parallel
 ```
 
 To test (`--target` can be written as `-t` in CMake 3.15+):
@@ -130,10 +130,10 @@ To build docs (requires Doxygen, output in `build/docs/html`):
 cmake --build build --target docs
 ```
 
-To build and run benchmark:
+Run benchmark:
 
 ```zsh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Benchmark && ./build/bench/<name_of_benchmark>
+cmake --build build --target benchmarks
 ```
 
 To build and generate **compile_commands.json** (which clang-tidy relies on):
@@ -758,7 +758,7 @@ We then use this function to load the data (test cases) into the test.
 Again, since we have the macros for both **SumokuPuzzleData** and **Point**, *nlohmann::json* can deserialize the data.
 
 ```cpp
-std::vector<SumokuPuzzleData> LoadAllSumokuPuzzles(std::string_view dir)
+std::vector<SumokuPuzzleData> LoadAllPuzzles<SumokuPuzzleData>(std::string_view dir)
 {
     std::vector<SumokuPuzzleData> testCases;
 
@@ -790,7 +790,7 @@ TEST_CASE("Sumoku (SumokuMRV) Suite", "[SumokuMRV]")
 {
     // Load all the test cases
     static std::string folder = GetTestDataPath();
-    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllSumokuPuzzles(folder);
+    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
     // Check the vector to make sure it contains at least one test case
     REQUIRE_FALSE(all_puzzles.empty());
