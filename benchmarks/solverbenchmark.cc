@@ -5,7 +5,7 @@
 #include <fmt/core.h>   // fmt::format
 #include <nanobench.h>  // ankerl::nanobench::Bench
 
-#include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllPuzzles<SumokuPuzzleData>
+#include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllPuzzles<>
 #include "solver/solverlib.hpp"   // SumokuSolver, SumokuOrdering, etc.
 
 int main()
