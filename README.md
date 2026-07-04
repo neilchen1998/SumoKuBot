@@ -130,7 +130,7 @@ To build docs (requires Doxygen, output in `build/docs/html`):
 cmake --build build --target docs
 ```
 
-Run benchmark:
+Run benchmarks:
 
 ```zsh
 cmake --build build --target benchmarks
