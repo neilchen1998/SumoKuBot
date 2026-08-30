@@ -145,30 +145,32 @@ namespace solver
     class SudokuDLXSolver
     {
     public:
-        SudokuDLXSolver(const std::vector<std::vector<int>>& board) : _board(board)
+        SudokuDLXSolver(const std::vector<std::vector<int>> &board)
+            : _board(board), _root(std::make_unique<ColumnHeader>(-1)), _columns(TOTAL_NUM_OF_CONSTRAINTS)
         {
-            // Create a root column header
-            _root = new ColumnHeader(-1);
-            _columns.resize(TOTAL_NUM_OF_CONSTRAINTS);
+            _root->left = _root.get();
+            _root->right = _root.get();
 
-            // Build the columns (constraints)
-            Node* last = _root;
             for (size_t i = 0; i < TOTAL_NUM_OF_CONSTRAINTS; ++i)
             {
-                _columns[i] = new ColumnHeader(i);
-                _columns[i]->left = last;
-                last->right = _columns[i];
-                _columns[i]->right = _root;
-                _root->left = _columns[i];
-                last = _columns[i];
+                _columns[i] = std::make_unique<ColumnHeader>(static_cast<int>(i));
+
+                ColumnHeader *column = _columns[i].get();
+
+                // Insert the column immediately before the root.
+                column->left = _root->left;
+                column->right = _root.get();
+
+                _root->left->right = column;
+                _root->left = column;
             }
 
             // Generate the constraint matrix
-            for (auto r = 0; r < 9; ++r)
+            for (int r = 0; r < 9; ++r)
             {
-                for (auto c = 0; c < 9; ++c)
+                for (int c = 0; c < 9; ++c)
                 {
-                    int cellDigit = _board[r][c];
+                    const int cellDigit = _board[r][c];
 
                     if (cellDigit > 0 && cellDigit <= 9)
                     {
@@ -176,7 +178,7 @@ namespace solver
                     }
                     else
                     {
-                        for (int digit = 1; digit < 10; ++digit)
+                        for (int digit = 1; digit <= 9; ++digit)
                         {
                             AddRow(r, c, digit, CalculateSudokuConstraints(r, c, digit));
                         }
@@ -184,46 +186,12 @@ namespace solver
                 }
             }
         }
+        ~SudokuDLXSolver() = default;
 
-        ~SudokuDLXSolver()
-        {
-            // Loop through all columns
-            for (ColumnHeader* col : _columns)
-            {
-                // Loop through all rows and delete them after deleting the rows
-                Node* rowNode = col->down;
-                while (rowNode != col)
-                {
-                    Node* nextRowNode = rowNode->down;
-
-                    // Delete the entire row
-                    Node* rightNode = rowNode->right;
-                    while (rightNode != rowNode)
-                    {
-                        Node* nextRight = rightNode->right;
-                        delete rightNode;
-                        rightNode = nextRight;
-                    }
-
-                    delete rowNode;
-                    rowNode = nextRowNode;
-                }
-            }
-
-            // Delete all column headers
-            for (ColumnHeader* col : _columns)
-            {
-                delete col;
-            }
-
-            // Delete the root header
-            delete _root;
-        }
-
-        SudokuDLXSolver(const SudokuDLXSolver&) = delete;
-        SudokuDLXSolver& operator=(const SudokuDLXSolver&) = delete;
-        SudokuDLXSolver(SudokuDLXSolver&&) = delete;
-        SudokuDLXSolver& operator=(SudokuDLXSolver&&) = delete;
+        SudokuDLXSolver(const SudokuDLXSolver &) = delete;
+        SudokuDLXSolver &operator=(const SudokuDLXSolver &) = delete;
+        SudokuDLXSolver(SudokuDLXSolver &&) = delete;
+        SudokuDLXSolver &operator=(SudokuDLXSolver &&) = delete;
 
         /// @brief Solves the Sudoku puzzle
         void Solve()
@@ -231,7 +199,7 @@ namespace solver
             if (Search())
             {
                 // Construct the solution
-                for (Node* ptr : _rows)
+                for (Node *ptr : _rows)
                 {
                     _board[ptr->r][ptr->c] = ptr->d;
                 }
@@ -246,7 +214,7 @@ namespace solver
 
         /// @brief Gets the solution
         /// @return The solved Sudoku board
-        std::optional<std::vector<std::vector<int>>> GetSolution() const
+        [[nodiscard]] std::optional<std::vector<std::vector<int>>> GetSolution() const
         {
             return isSolved_ ? std::optional<std::vector<std::vector<int>>>{_board} : std::nullopt;
         }
@@ -262,11 +230,11 @@ namespace solver
         struct Node
         {
             // Pointers
-            Node* left = this;
-            Node* right = this;
-            Node* up = this;
-            Node* down = this;
-            ColumnHeader* header = nullptr;
+            Node *left = this;
+            Node *right = this;
+            Node *up = this;
+            Node *down = this;
+            ColumnHeader *header = nullptr;
 
             /// @brief Row index
             int r = -1;
@@ -279,33 +247,27 @@ namespace solver
 
             Node() = default;
 
-            Node(ColumnHeader* header, int row, int col, int digit) : header(header), r(row), c(col), d(digit)
-            {
-
-            }
+            Node(ColumnHeader *header, int row, int col, int digit) : header(header), r(row), c(col), d(digit) {}
 
             virtual ~Node() = default;
 
             // Delete copying & move semantics
-            Node (const Node&) = delete;
-            Node& operator=(const Node&) = delete;
-            Node (Node&&) noexcept = delete;
-            Node& operator=(Node&&) = delete;
+            Node(const Node &) = delete;
+            Node &operator=(const Node &) = delete;
+            Node(Node &&) noexcept = delete;
+            Node &operator=(Node &&) = delete;
         };
 
         /// @brief Column header node
         struct ColumnHeader : public Node
         {
             /// @brief The id
-            int id = -1;
+            unsigned int id = -1;
 
             /// @brief The number of nodes under the column
             size_t size = 0;
 
-            ColumnHeader(int id) : id(id)
-            {
-                header = this;
-            }
+            ColumnHeader(int id) : id(id) { header = this; }
         };
 
         /// @brief Search the solution using MRV heuristic
@@ -313,16 +275,16 @@ namespace solver
         bool Search()
         {
             // Check if the matrix is completely recovered
-            if (_root->right == _root)
+            if (_root->right == _root.get())
             {
                 return true;
             }
 
             // Loop through all columns and find the one that has the least number of nodes
-            ColumnHeader* col = static_cast<ColumnHeader*>(_root->right);
-            for (Node* cur = _root->right; cur != _root; cur = cur->right)
+            ColumnHeader *col = dynamic_cast<ColumnHeader *>(_root->right);
+            for (Node *cur = _root->right; cur != _root.get(); cur = cur->right)
             {
-                ColumnHeader* colHeader = static_cast<ColumnHeader*>(cur);
+                ColumnHeader *colHeader = dynamic_cast<ColumnHeader *>(cur);
                 if (colHeader->size < col->size)
                 {
                     col = colHeader;
@@ -337,11 +299,11 @@ namespace solver
 
             Cover(col);
 
-            for (Node* row = col->down; row != col; row = row->down)
+            for (Node *row = col->down; row != col; row = row->down)
             {
                 _rows.push_back(row);
 
-                for (Node* node = row->right; node != row; node = node->right)
+                for (Node *node = row->right; node != row; node = node->right)
                 {
                     Cover(node->header);
                 }
@@ -354,7 +316,7 @@ namespace solver
                 // Undo
                 _rows.pop_back();
 
-                for (Node* node = row->left; node != row; node = node->left)
+                for (Node *node = row->left; node != row; node = node->left)
                 {
                     Uncover(node->header);
                 }
@@ -368,23 +330,27 @@ namespace solver
         }
 
         /// @brief Add a new row
+        ///
         /// @param r The row index
         /// @param c The column index
         /// @param d The digit
         /// @param col_indices The indices of columns
-        void AddRow(int r, int c, int d, const SudokuConstraints& col_indices) noexcept
+        void AddRow(int r, int c, int d, const SudokuConstraints &col_indices) noexcept
         {
             // Create a pointer to the very first node of the row
-            Node* firstNode = nullptr;
+            Node *firstNode = nullptr;
 
             // Loop through all the column indices
             for (const int idx : col_indices)
             {
                 // Get the column header
-                ColumnHeader* col = _columns[idx];
+                ColumnHeader *col = _columns[idx].get();
 
                 // Create a new node
-                Node* node = new Node(col, r, c, d);
+                _nodes.push_back(std::make_unique<Node>(col, r, c, d));
+
+                // Obtain a non-owning pointer to the node
+                Node *node = _nodes.back().get();
 
                 // Link the newly created node to the column header (vertically)
                 node->down = col;
@@ -410,17 +376,17 @@ namespace solver
 
         /// @brief Detaches the given column from its neighbours
         /// @param col The given column
-        void Cover(ColumnHeader* col)
+        void Cover(ColumnHeader *col)
         {
             // Detach its neighbours
             col->left->right = col->right;
             col->right->left = col->left;
 
             // Go down each row
-            for (Node* row = col->down; row != col; row = row->down)
+            for (Node *row = col->down; row != col; row = row->down)
             {
                 // Go through each column (iterate to the right)
-                for (Node* node = row->right; node != row; node = node->right)
+                for (Node *node = row->right; node != row; node = node->right)
                 {
                     node->down->up = node->up;
                     node->up->down = node->down;
@@ -431,13 +397,13 @@ namespace solver
 
         /// @brief Attaches the given column from its neighbours
         /// @param col The given column
-        void Uncover(ColumnHeader* col)
+        void Uncover(ColumnHeader *col)
         {
             // Go up each row
-            for (Node* row = col->up; row != col; row = row->up)
+            for (Node *row = col->up; row != col; row = row->up)
             {
                 // Go through each column (iterate to the left)
-                for (Node* node = row->left; node != row; node = node->left)
+                for (Node *node = row->left; node != row; node = node->left)
                 {
                     node->down->up = node;
                     node->up->down = node;
@@ -453,34 +419,25 @@ namespace solver
         /// @brief Gets the box ID of a given cell
         /// @param r The row of the cell
         /// @param c The column of the cell
-        inline constexpr int GetBoxID(const int r, const int c) noexcept
-        {
-            return (r / 3) * 3 + (c / 3);
-        }
+        [[nodiscard]] constexpr int GetBoxID(const int r, const int c) const noexcept { return (r / 3) * 3 + (c / 3); }
 
         /// @brief Calculates the constraints
         /// @param r The row index
         /// @param c The column index
         /// @param d The digit
         /// @return The constraints
-        inline SudokuConstraints CalculateSudokuConstraints(int r, int c, int d) noexcept
+        [[nodiscard]] constexpr SudokuConstraints CalculateSudokuConstraints(int r, int c, int d) const noexcept
         {
             // Get the digit index (0-based)
-            const int d_idx = d - 1;
+            const int digit = d - 1;
+            const int box = GetBoxID(r, c);
 
-            // Calculate the cell constraints (81 cells in total)
-            int c1 = r * 9 + c;
-
-            // Calculate the row constraints (9 rows x 9 digits = 81 in total)
-            int c2 = 81 + (r * 9 + d_idx);
-
-            // Calculate the columns constraints (9 columns x 9 digits = 81 in total)
-            int c3 = 162 + (c * 9 + d_idx);
-
-            // Calculate the box constraints (9 boxes x 9 digits = 81 in total)
-            int c4 = 243 + (GetBoxID(r, c) * 9 + d_idx);
-
-            return { c1, c2, c3, c4 };
+            return {
+                r * 9 + c,            // cell constraints (81 cells in total)
+                81 + r * 9 + digit,   // row constraints (9 rows x 9 digits = 81 in total)
+                162 + c * 9 + digit,  // columns constraints (9 columns x 9 digits = 81 in total)
+                243 + box * 9 + digit // box constraints (9 boxes x 9 digits = 81 in total)
+            };
         }
 
     private:
@@ -488,13 +445,16 @@ namespace solver
         std::vector<std::vector<int>> _board;
 
         /// @brief The root of the column header
-        ColumnHeader* _root;
+        std::unique_ptr<ColumnHeader> _root;
 
-        /// @brief The columns (constraints)
-        std::vector<ColumnHeader*> _columns;
+        /// @brief The columns in the matrix that represents constraints (owning)
+        std::vector<std::unique_ptr<ColumnHeader>> _columns;
 
-        /// @brief The rows (choices)
-        std::vector<Node*> _rows;
+        /// @brief The rows in the matrix that represents choices (not owning)
+        std::vector<Node *> _rows;
+
+        /// @brief All the nodes in the matrix (owning)
+        std::vector<std::unique_ptr<Node>> _nodes;
 
         /// @brief True if the puzzle is solved
         bool isSolved_ = false;
