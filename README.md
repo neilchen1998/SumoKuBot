@@ -154,6 +154,12 @@ To test if there is memory leak on Mac:
 leaks --atExit -- <test_binary>
 ```
 
+Create a symbolic link such that C++ servers like **clangd** can know the code:
+
+```
+ln -sf build/compile_commands.json compile_commands.json
+```
+
 ## Benchmark
 
 The folllowing table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).

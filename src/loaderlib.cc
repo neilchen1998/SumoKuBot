@@ -2,7 +2,6 @@
 
 #include <expected> // std::expected
 #include <filesystem>   // std::filesystem
-#include <fstream>      // std::ifstream
 #include <numeric>  // std::accumulate
 #include <unordered_set>    // std::unordered_set
 #include <vector>    // std::vector

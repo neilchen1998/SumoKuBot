@@ -11,7 +11,6 @@
 #include <vector>            // std::vector
 
 #include "board/boardlib.hpp" // Point
-#include "math/mathlib.hpp"   // PointHasher
 
 namespace fs = std::filesystem;
 

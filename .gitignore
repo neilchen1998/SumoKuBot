@@ -1,6 +1,9 @@
 # build folder generated from CMake
 build/*
 
+# CMake
+compile_commands.json
+
 # vscode
 .vscode/*
 
