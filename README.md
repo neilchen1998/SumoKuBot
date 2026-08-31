@@ -161,7 +161,7 @@ ln -sf build/compile_commands.json compile_commands.json
 
 ## Benchmark
 
-The folllowing table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).
+The following table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).
 We observed a 25x performance increase, though results fluctuate based on the specific puzzle.
 
 |               ns/op |                op/s |    err% |     total | Sumoku Solver Comparison #1
@@ -184,7 +184,7 @@ We observed a 25x performance increase, though results fluctuate based on the sp
 |        2,000,916.00 |              499.77 |    3.3% |      0.02 | `traditional`
 |           88,583.33 |           11,288.81 |    1.2% |      0.01 | `MRV
 
-The following table shows the latest iteration of the MRV metion solving 3 Killer Sudoku puzzles.
+The following table shows the latest iteration of the MRV method solving 4 Killer Sudoku puzzles.
 The [last puzzle](https://www.calcudoku.org/hardest_logic_number_puzzles/) is considered to be the hardest Killer Sudoku puzzle ever exists.
 
 |               ms/op |                op/s |    err% |     total | Killer Sudoku

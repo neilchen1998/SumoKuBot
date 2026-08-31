@@ -7,9 +7,10 @@
 #include <cstdint>  // uint16_t
 #include <limits>   // std::numeric_limits<size_t>::max
 #include <mdspan>   // std::mdspan
+#include <memory.h> // std::make_unique, std::unique_ptr
 #include <numeric>   // std::iota
-#include <unordered_map>    // std::unordered_map
 #include <optional> // std::optional
+#include <unordered_map>    // std::unordered_map
 #include <vector>   // std::vector
 
 #ifndef __GNUC__

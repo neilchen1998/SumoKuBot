@@ -6,7 +6,7 @@
 #include <fstream>           // std::ifstream
 #include <nlohmann/json.hpp> // nlohmann::json
 #include <optional>          // std::optional
-#include <string>            // std::string
+#include <ranges>            // std::ranges::sort
 #include <string_view>       // std::string_view
 #include <vector>            // std::vector
 
@@ -120,6 +120,7 @@ template <typename T> std::optional<T> LoadPuzzle(std::string_view path)
     catch (const nlohmann::json::exception& e)
     {
         fmt::print(stderr, "JSON error: {}\n", e.what());
+        return std::nullopt;
     }
 }
 
