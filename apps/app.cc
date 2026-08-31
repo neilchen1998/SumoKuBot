@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
     app.name(SUMOKUBOT_PROJECT_NAME);
 
     SolverType solverType {SolverType::SumokuMRV};
-    fs::path filePath {"./tests/data/killer_sudoku/puzzle_p4.json"};
+    fs::path filePath;
     fs::path dirPath;
     bool verbose = false;
     bool benchmark = false;
@@ -117,6 +117,11 @@ int main(int argc, char* argv[])
     {
         app.parse(argc, argv);
 
+        if (filePath.empty() && dirPath.empty())
+        {
+            filePath = fs::path{GetTestDataPath()} / "puzzle_p4.json";
+        }
+
         if (!filePath.empty() && verbose)
         {
             fmt::println("Loading puzzle from: '{}'.", filePath);
@@ -142,7 +147,7 @@ int main(int argc, char* argv[])
     std::vector<SumokuPuzzleData> puzzles;
     if (!filePath.empty())
     {
-        if (auto puzzle = LoadPuzzle<SumokuPuzzleData>(dirPath.string()); puzzle)
+        if (auto puzzle = LoadPuzzle<SumokuPuzzleData>(filePath.string()); puzzle)
         {
             puzzles.push_back(*puzzle);
         }
