@@ -112,12 +112,6 @@ To run the solver with custom directory (will solve all puzzles under the given 
 ./build/apps/app -d <directory>
 ```
 
-To build and test:
-
-```zsh
-cmake --build build -DCMAKE_BUILD_TYPE=Test && cmake --build build --target test
-```
-
 Run a specific tag:
 
 ```zsh

@@ -140,9 +140,26 @@ int main(int argc, char* argv[])
 
     // Load the puzzle(s) to a vector
     std::vector<SumokuPuzzleData> puzzles;
-    if (!dirPath.empty())
+    if (!filePath.empty())
+    {
+        if (auto puzzle = LoadPuzzle<SumokuPuzzleData>(dirPath.string()); puzzle)
+        {
+            puzzles.push_back(*puzzle);
+        }
+        else
+        {
+            return EXIT_FAILURE;
+        }
+    }
+    else if (!dirPath.empty())
     {
         puzzles = LoadAllPuzzles<SumokuPuzzleData>(dirPath.string());
+    }
+
+    if (puzzles.empty())
+    {
+        fmt::println(stderr, "No valid puzzle files were loaded.");
+        return EXIT_FAILURE;
     }
 
     // Loop through all puzzles and solve them
