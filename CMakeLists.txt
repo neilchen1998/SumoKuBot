@@ -111,6 +111,7 @@ configure_file(
 
 # The compiled library subdirectory
 add_subdirectory(src)
+add_subdirectory(modules/solvers/sudoku)
 
 if(PROJECT_IS_TOP_LEVEL AND PROJECT_BUILD_APPS)
   # The executable subdirectory
