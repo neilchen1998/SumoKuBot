@@ -14,7 +14,7 @@ namespace sudoku
 class SudokuDLXSolver
 {
   public:
-    SudokuDLXSolver(const SudokuBoard& board);
+    SudokuDLXSolver(SudokuBoard board);
     ~SudokuDLXSolver() = default;
 
     SudokuDLXSolver(const SudokuDLXSolver&) = delete;

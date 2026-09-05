@@ -2,13 +2,14 @@
 
 #include <cstddef>  // size_t
 #include <memory.h> // std::make_unique, std::unique_ptr
+#include <utility>  // std::move
 
 #include "board/boardlib.hpp" // Point, SudokuBoard, SUDOKU_SZ
 
 namespace sudoku
 {
-SudokuDLXSolver::SudokuDLXSolver(const SudokuBoard& board)
-    : _board(board), _root(std::make_unique<ColumnHeader>(-1)), _columns(TOTAL_NUM_OF_CONSTRAINTS)
+SudokuDLXSolver::SudokuDLXSolver(SudokuBoard board)
+    : _board(std::move(board)), _root(std::make_unique<ColumnHeader>(-1)), _columns(TOTAL_NUM_OF_CONSTRAINTS)
 {
     _root->left = _root.get();
     _root->right = _root.get();

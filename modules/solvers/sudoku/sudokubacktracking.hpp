@@ -4,7 +4,6 @@
 #include <cstddef>  // size_t
 #include <memory.h> // std::make_unique, std::unique_ptr
 #include <optional> // std::optional
-#include <vector>   // std::vector
 
 #include "board/boardlib.hpp" // Point, SudokuBoard, SUDOKU_SZ
 

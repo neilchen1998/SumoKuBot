@@ -34,7 +34,7 @@ struct Point
 namespace sudoku
 {
     /// @brief The size of a standard sudoku
-    constexpr size_t SUDOKU_SZ = 9;
+    inline constexpr size_t SUDOKU_SZ = 9;
 }
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
