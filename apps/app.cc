@@ -1,32 +1,38 @@
-#include <chrono>   // std::chrono::high_resolution_clock
-#include <cstdlib> // EXIT_SUCCESS, EXIT_FAILURE
-#include <filesystem>   // std::filesystem
-#include <map>  // std::map
-#include <string>   // std::string
-#include <vector>  // std::vector
+#include <CLI/CLI.hpp>     // CLI::App, CLI::ParseError
+#include <array>           // std::array
+#include <chrono>          // std::chrono::high_resolution_clock
+#include <cstdint>         // std::uint8_t
+#include <cstdlib>         // EXIT_SUCCESS, EXIT_FAILURE
+#include <filesystem>      // std::filesystem
+#include <fmt/core.h>      // fmt::print
+#include <fmt/ostream.h>   // fmt::streamed
+#include <fmt/std.h>       // fmt::println for filesystem
+#include <spdlog/spdlog.h> // spdlog::set_level, spdlog::info
+#include <string>          // std::string
+#include <string_view>     // std::string_view
+#include <vector>          // std::vector
 
-#include <CLI/CLI.hpp>  // CLI::App, CLI::ParseError
-#include <fmt/core.h>   // fmt::print
-#include <fmt/ostream.h>    // fmt::streamed
-#include <fmt/std.h>    // fmt::println for filesystem
-
-#include "board/boardlib.hpp"
-#include "loader/loaderlib.hpp"
-#include "solver/solverlib.hpp"
-#include "version.h"    // SUMOKUBOT_PROJECT_NAME, SUMOKUBOT_PROJECT_VERSION
+#include "board/boardlib.hpp"   //  PrintBoard
+#include "loader/loaderlib.hpp" // LoadAllPuzzles, LoadPuzzle
+#include "solver/solverlib.hpp" // SolverType::SumokuSolver, etc.
+#include "version.h"            // SUMOKUBOT_PROJECT_NAME, SUMOKUBOT_PROJECT_VERSION
 
 namespace fs = std::filesystem;
 
 /// @brief The solver type
-enum class SolverType { SumokuSolver, SumokuMRV, SumokuOrdering };
+enum class SolverType : std::uint8_t // packs this enum inside a single byte type
+{
+    SumokuSolver,
+    SumokuMRV,
+    SumokuOrdering
+};
 
 /// @brief A map for all the solver types
-static const std::map<std::string, SolverType> solverMap
-{
+constexpr std::array<std::pair<std::string_view, SolverType>, 3> solverMap {{
     {"Basic", SolverType::SumokuSolver},
     {"SumokuMRV", SolverType::SumokuMRV},
     {"SumokuOrdering", SolverType::SumokuOrdering},
-};
+}};
 
 /// @brief Overloads the stream insertion operator to convert Solvers enum value to string
 /// @param os The output stream
@@ -36,7 +42,10 @@ std::ostream& operator<<(std::ostream& os, const SolverType& s)
 {
     for (const auto& [name, solver] : solverMap)
     {
-        if (solver == s)    return os << name;
+        if (solver == s)
+        {
+            return os << name;
+        }
     }
 
     return os << "Unknown";
@@ -47,8 +56,7 @@ std::ostream& operator<<(std::ostream& os, const SolverType& s)
 /// @param s The solver instance
 /// @param puzzle The puzzle data
 /// @param benchmark True if the user wants to print the timing info
-template <typename T>
-void RunSolver(T& s, const SumokuPuzzleData& puzzle, bool benchmark)
+template <typename T> void RunSolver(T& s, const SumokuPuzzleData& puzzle, bool benchmark)
 {
     auto start = std::chrono::high_resolution_clock::now();
     s.Solve();
@@ -77,6 +85,14 @@ void RunSolver(T& s, const SumokuPuzzleData& puzzle, bool benchmark)
 
 int main(int argc, char* argv[])
 {
+#ifndef NDEBUG
+    spdlog::set_level(spdlog::level::debug);
+#else
+    spdlog::set_level(spdlog::level::info);
+#endif
+
+    spdlog::info("Application started");
+
     CLI::App app {"Options:"};
     app.name(SUMOKUBOT_PROJECT_NAME);
 
@@ -88,19 +104,17 @@ int main(int argc, char* argv[])
 
     // The solver
     app.add_option("-s,--solver", solverType, "The solver type")
-        ->transform(CLI::CheckedTransformer(solverMap, CLI::ignore_case))
+        ->transform(CLI::CheckedTransformer(solverMap))
         ->option_text("{Basic, SumokuMRV, SumokuOrdering}")
         ->capture_default_str();
 
     // Souce of the puzzle (directory or file)
     auto group = app.add_option_group("Puzzle source", "Specify either a file or directory");
-    group->add_option("-f,--file", filePath, "Path to the puzzle file")
-       ->check(CLI::ExistingFile);
+    group->add_option("-f,--file", filePath, "Path to the puzzle file")->check(CLI::ExistingFile);
 
-    group->add_option("-d,--dir", dirPath, "Path to the puzzle directory")
-       ->check(CLI::ExistingDirectory);
+    group->add_option("-d,--dir", dirPath, "Path to the puzzle directory")->check(CLI::ExistingDirectory);
 
-    group->require_option(0, 1);    // at most one option from this group
+    group->require_option(0, 1); // at most one option from this group
 
     // Verbose
     app.add_flag("--verbose", verbose, "Enable verbose mode");
@@ -119,23 +133,38 @@ int main(int argc, char* argv[])
 
         if (filePath.empty() && dirPath.empty())
         {
-            filePath = fs::path{GetTestDataPath()} / "puzzle_p4.json";
+            filePath = fs::path {GetTestDataPath()} / "puzzle_p4.json";
+
+            spdlog::debug("No puzzle source specified; using default puzzle: '{}'", filePath.string());
         }
 
-        if (!filePath.empty() && verbose)
+        if (!filePath.empty())
         {
-            fmt::println("Loading puzzle from: '{}'.", filePath);
-            fmt::println("File size: {} bytes.", fs::file_size(filePath));
+            spdlog::debug("Puzzle file selected: '{}'", filePath.string());
+
+            if (verbose)
+            {
+                fmt::println("Loading puzzle from: '{}'.", filePath);
+                fmt::println("File size: {} bytes.", fs::file_size(filePath));
+            }
         }
-        else if (!dirPath.empty() && verbose)
+        else if (!dirPath.empty())
         {
-            fmt::println("Loading puzzle from: '{}'.", dirPath);
+            spdlog::debug("Puzzle directory selected: '{}'", dirPath.string());
+
+            if (verbose)
+            {
+                fmt::println("Loading puzzles from: '{}'.", dirPath);
+            }
         }
     }
     catch (const CLI::ParseError& e)
     {
+        spdlog::debug("Command-line parsing failed");
         return app.exit(e);
     }
+
+    spdlog::debug("Solver selected: {}", fmt::streamed(solverType));
 
     // Print out the solver
     if (verbose)
@@ -147,51 +176,68 @@ int main(int argc, char* argv[])
     std::vector<SumokuPuzzleData> puzzles;
     if (!filePath.empty())
     {
+        spdlog::debug("Loading puzzle from '{}'", filePath.string());
+
         if (auto puzzle = LoadPuzzle<SumokuPuzzleData>(filePath.string()); puzzle)
         {
             puzzles.push_back(*puzzle);
+
+            spdlog::debug("Successfully loaded puzzle");
         }
         else
         {
+            spdlog::error("Failed to load puzzle from '{}'", filePath.string());
             return EXIT_FAILURE;
         }
     }
     else if (!dirPath.empty())
     {
+        spdlog::debug("Loading puzzles from directory '{}'", dirPath.string());
         puzzles = LoadAllPuzzles<SumokuPuzzleData>(dirPath.string());
+
+        spdlog::debug("Loaded {} puzzle(s)", puzzles.size());
     }
 
     if (puzzles.empty())
     {
+        spdlog::error("No valid puzzle files were loaded.");
         fmt::println(stderr, "No valid puzzle files were loaded.");
         return EXIT_FAILURE;
     }
 
+    spdlog::info("Loaded {} puzzle(s)", puzzles.size());
+
     // Loop through all puzzles and solve them
     for (const auto& p : puzzles)
     {
+        spdlog::debug("Solving puzzle with N = {}", p.N);
         switch (solverType)
         {
-            case SolverType::SumokuSolver:
-            {
-                solver::SumokuSolver s {p.N, p.boxes, p.sums};
-                RunSolver(s, p, benchmark);
-                break;
-            }
-            case SolverType::SumokuMRV:
-            {
-                solver::SumokuMRV s {p.N, p.boxes, p.sums};
-                RunSolver(s, p, benchmark);
-                break;
-            }
-            case SolverType::SumokuOrdering:
-            {
-                solver::SumokuOrdering s {p.N, p.boxes, p.sums};
-                RunSolver(s, p, benchmark);
-                break;
-            }
+        case SolverType::SumokuSolver:
+        {
+            spdlog::debug("Using SumokuSolver");
+            solver::SumokuSolver s {p.N, p.boxes, p.sums};
+            RunSolver(s, p, benchmark);
+            break;
+        }
+        case SolverType::SumokuMRV:
+        {
+            spdlog::debug("Using SumokuMRV");
+            solver::SumokuMRV s {p.N, p.boxes, p.sums};
+            RunSolver(s, p, benchmark);
+            break;
+        }
+        case SolverType::SumokuOrdering:
+        {
+            spdlog::debug("Using SumokuOrdering");
+            solver::SumokuOrdering s {p.N, p.boxes, p.sums};
+            RunSolver(s, p, benchmark);
+            break;
+        }
         }
     }
+
+    spdlog::info("Application finished successfully");
 
     return EXIT_SUCCESS;
 }

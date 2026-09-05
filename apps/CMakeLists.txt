@@ -12,12 +12,26 @@ else()
     FetchContent_MakeAvailable(CLI11)
 endif()
 
+find_package(spdlog CONFIG 1.16.0 QUIET)
+
+if (spdlog_FOUND)
+    message(STATUS "Found spdlog version: ${spdlog_VERSION}")
+else()
+    message(STATUS "spdlog could not be found or version is too old, downloading via FetchContent...")
+    FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG        v1.16.0
+    )
+    FetchContent_MakeAvailable(spdlog)
+endif()
+
 add_executable(app app.cc)
 
 target_include_directories(app PRIVATE "${CMAKE_BINARY_DIR}/generated")
 
 # Link required libraries
-target_link_libraries(app PRIVATE CLI11::CLI11 fmt::fmt board_library solver_library loader_library project_options)
+target_link_libraries(app PRIVATE CLI11::CLI11 fmt::fmt board_library solver_library loader_library project_options spdlog::spdlog)
 
 # Install the binary into the 'bin' directory
 install(TARGETS app DESTINATION bin)
