@@ -45,4 +45,4 @@ target_include_directories(solver_library INTERFACE
 target_link_libraries(board_library INTERFACE fmt::fmt project_options)
 target_link_libraries(loader_library PUBLIC nlohmann_json::nlohmann_json board_library math_library project_options)
 target_link_libraries(math_library INTERFACE project_options)
-target_link_libraries(solver_library INTERFACE fmt::fmt math_library project_options)
+target_link_libraries(solver_library INTERFACE fmt::fmt math_library spdlog::spdlog project_options)

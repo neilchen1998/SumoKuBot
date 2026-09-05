@@ -44,6 +44,7 @@ The requirements are:
 - [Git](https://git-scm.com/)
 - [json](https://github.com/nlohmann/json.git) 3.0 or higher (will automatically install if not present)
 - [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
+- [spdlog](https://github.com/gabime/spdlog.git) 1.16 or higher (will automatically install if not present)
 
 ## Instructions
 

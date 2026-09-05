@@ -17,7 +17,7 @@ add_executable(app app.cc)
 target_include_directories(app PRIVATE "${CMAKE_BINARY_DIR}/generated")
 
 # Link required libraries
-target_link_libraries(app PRIVATE CLI11::CLI11 fmt::fmt board_library solver_library loader_library project_options)
+target_link_libraries(app PRIVATE CLI11::CLI11 fmt::fmt board_library solver_library loader_library project_options spdlog::spdlog)
 
 # Install the binary into the 'bin' directory
 install(TARGETS app DESTINATION bin)
