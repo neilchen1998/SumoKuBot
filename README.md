@@ -47,22 +47,34 @@ The requirements are:
 
 ## Instructions
 
-To generate the build system:
+To generate the build system with release config:
 
 ```zsh
-cmake -S . -B build -Wno-dev
+cmake --preset release
+```
+
+To generate the build system debug config:
+
+```zsh
+cmake --preset debug
+```
+
+To see all presets:
+
+```zsh
+cmake --list-presets
 ```
 
 To generate the build system with unit tests enabled (**tests** subdirectory):
 
 ```zsh
-cmake -S . -B build -DPROJECT_BUILD_TESTS=ON -Wno-dev
+cmake --preset debug-tests
 ```
 
 To generate the build system with benchmarks enabled (**benchmarks** subdirectory):
 
 ```zsh
-cmake -S . -B build -DPROJECT_BUILD_BENCHMARKS=ON -Wno-dev
+cmake --preset release-benchmarks
 ```
 
 For 64-bit Linux systems:
@@ -78,43 +90,43 @@ Add `-GNinja` if you want to use Ninja.
 To build with release configuration:
 
 ```zsh
-cmake --build build --config Release --parallel
+cmake --build --preset release
 ```
 
 To build with debug configuration:
 
 ```zsh
-cmake --build build --config Debug --parallel
+cmake --build --preset debug
 ```
 
-To test (`--target` can be written as `-t` in CMake 3.15+):
+To test:
 
 ```zsh
-cmake --build build --target test
+ctest --preset debug-tests
 ```
 
 To run the solver with the default example puzzle:
 
 ```zsh
-./build/apps/app
+./_build-release/apps/app
 ```
 
 To run the solver with custom file:
 
 ```zsh
-./build/apps/app -f <file_path>
+./_build-release/apps/app -f <file_path>
 ```
 
 To run the solver with custom directory (will solve all puzzles under the given directory):
 
 ```zsh
-./build/apps/app -d <directory>
+./_build-release/apps/app -d <directory>
 ```
 
 Run a specific tag:
 
 ```zsh
-./build/tests/solvertestlib "[<tag>]"
+./_build-release/tests/solvertestlib "[<tag>]"
 ```
 
 To build docs (requires Doxygen, output in `build/docs/html`):
@@ -126,13 +138,7 @@ cmake --build build --target docs
 Run benchmarks:
 
 ```zsh
-cmake --build build --target benchmarks
-```
-
-To build and generate **compile_commands.json** (which clang-tidy relies on):
-
-```zsh
-cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+cmake --build _build-release-benchmarks --target benchmarks
 ```
 
 To run clang-tidy:
@@ -144,7 +150,7 @@ run-clang-tidy -p build/ '.*/(apps|benchmarks|tests)/.*'
 To package the binary file into a compressed tarball:
 
 ```zsh
-cmake --build build --target package
+cmake --build _build-release --target package
 ```
 
 To test if there is memory leak on Mac:
@@ -155,8 +161,8 @@ leaks --atExit -- <test_binary>
 
 Create a symbolic link such that C++ servers like **clangd** can know the code:
 
-```
-ln -sf build/compile_commands.json compile_commands.json
+```zsh
+ln -sf _build-release/compile_commands.json compile_commands.json
 ```
 
 ## Benchmark
