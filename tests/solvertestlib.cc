@@ -1,19 +1,20 @@
 #define CATCH_CONFIG_MAIN
 
-#include <algorithm>  // std::ranges::all_of
-#include <cmath> // std::sqrt
-#include <concepts> // concept
-#include <numeric>  // std::iota
-#include <vector>    // std::vector
+#include <algorithm>                                  // std::ranges::all_of
+#include <catch2/catch_template_test_macros.hpp>      // TestType
+#include <catch2/catch_test_macros.hpp>               // TEST_CASE, SECTION, REQUIRE
+#include <catch2/generators/catch_generators_all.hpp> // Catch::Generators::values
+#include <catch2/matchers/catch_matchers_all.hpp>     // Catch::Matchers::Equals
+#include <cmath>                                      // std::sqrt
+#include <concepts>                                   // concept
+#include <numeric>                                    // std::iota
+#include <vector>                                     // std::vector
 
-#include <catch2/catch_template_test_macros.hpp>    // TestType
-#include <catch2/catch_test_macros.hpp> // TEST_CASE, SECTION, REQUIRE
-#include <catch2/generators/catch_generators_all.hpp>   // Catch::Generators::values
-#include <catch2/matchers/catch_matchers_all.hpp>   // Catch::Matchers::Equals
-
-#include "board/boardlib.hpp"   // BoardType
-#include "loader/loaderlib.hpp" // GetTestDataPath
-#include "solver/solverlib.hpp" // solver::SumokuMRV
+#include "board/boardlib.hpp"                    // BoardType
+#include "loader/loaderlib.hpp"                  // GetTestDataPath
+#include "solver/solverlib.hpp"                  // solver::SumokuMRV
+#include "solvers/sudoku/sudokubacktracking.hpp" // sudoku::SudokuBacktracking
+#include "solvers/sudoku/sudokudlx.hpp"          // sudoku::SudokuDLXSolver
 
 /// @brief Converts a character digit or integer to an int
 /// @tparam T Must be char or int
@@ -134,7 +135,7 @@ void validate_sukodu_row_column_box_constraints(const std::vector<std::vector<T>
     }
 }
 
-TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", solver::SudokuSolver, solver::SudokuDLXSolver )
+TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", sudoku::SudokuDLXSolver, sudoku::SudokuBacktracking )
 {
     // Load all the test cases
     static std::string folder = GetTestDataPath() + "/sudoku";
@@ -155,7 +156,7 @@ TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", solver::SudokuSolver, solver::
         auto ret = s.GetSolution();
         REQUIRE (ret);
 
-        std::vector<std::vector<int>> solution = *ret;
+        SudokuBoard solution = *ret;
 
         REQUIRE (solution.size() == puzzle.N);
         validate_boad_is_square(solution);

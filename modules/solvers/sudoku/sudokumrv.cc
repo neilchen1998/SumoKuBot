@@ -1,14 +1,14 @@
 #include "sudokumrv.hpp"
 
-#include <bit>             // std::popcount
 #include <cstddef>         // size_t
 #include <cstdint>         // uint16_t
 #include <limits>          // std::numeric_limits<size_t>::max
-#include <mdspan>          // std::mdspan
 #include <memory.h>        // std::make_unique, std::unique_ptr
 #include <optional>        // std::optional
 #include <spdlog/spdlog.h> // spdlog::debug, spdlog::trace
 #include <vector>          // std::vector
+
+#include "board/boardlib.hpp" // Point, SudokuBoard, SUDOKU_SZ
 
 namespace sudoku
 {
@@ -29,7 +29,7 @@ SudokuMRV::SudokuMRV(const std::vector<std::vector<char>>& board)
     }
 }
 
-SudokuMRV::SudokuMRV(const std::vector<std::vector<size_t>>& board)
+SudokuMRV::SudokuMRV(const SudokuBoard& board)
     : N_(SUDOKU_SZ), board_(N_ * N_, 0), boardView_(board_.data(), N_, N_), rowMask_(N_, 0), colMask_(N_, 0), gridMask_(N_, 0)
 {
     for (size_t r = 0; r < N_; ++r)

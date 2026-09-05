@@ -21,7 +21,7 @@ class SudokuMRV
   public:
     SudokuMRV(const std::vector<std::vector<char>>& board);
 
-    SudokuMRV(const std::vector<std::vector<size_t>>& board);
+    SudokuMRV(const SudokuBoard& board);
 
     void Solve();
 
