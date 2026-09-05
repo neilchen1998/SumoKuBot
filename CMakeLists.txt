@@ -94,6 +94,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG        v1.16.0
+  FIND_PACKAGE_ARGS CONFIG 1.16.0
+)
+FetchContent_MakeAvailable(spdlog)
+
 # Configure the SW version file
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/include/project/version.h.in"

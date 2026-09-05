@@ -1,21 +1,19 @@
 #ifndef INCLUDE_SOLVER_SOLVERLIB_H_
 #define INCLUDE_SOLVER_SOLVERLIB_H_
 
-#include <algorithm>// std::algorithm
-#include <array>    // std::array
-#include <cstddef>  // size_t
-#include <cstdint>  // uint16_t
-#include <limits>   // std::numeric_limits<size_t>::max
-#include <mdspan>   // std::mdspan
-#include <memory.h> // std::make_unique, std::unique_ptr
-#include <numeric>   // std::iota
-#include <optional> // std::optional
-#include <unordered_map>    // std::unordered_map
-#include <vector>   // std::vector
-
-#ifndef __GNUC__
-#include <bit>  // std::popcount
-#endif
+#include <algorithm>       // std::algorithm
+#include <array>           // std::array
+#include <bit>             // std::popcount
+#include <cstddef>         // size_t
+#include <cstdint>         // uint16_t
+#include <limits>          // std::numeric_limits<size_t>::max
+#include <mdspan>          // std::mdspan
+#include <memory.h>        // std::make_unique, std::unique_ptr
+#include <numeric>         // std::iota
+#include <optional>        // std::optional
+#include <spdlog/spdlog.h> // spdlog::debug, spdlog::trace
+#include <unordered_map>   // std::unordered_map
+#include <vector>          // std::vector
 
 #include "board/boardlib.hpp"   // Point, SudokuBoard
 #include "math/mathlib.hpp"   // PointHasher
@@ -1183,18 +1181,16 @@ namespace solver
 
     class SumokuMRV
     {
-    public:
+      public:
+        /// @brief Constructs a Sumoku solver using the minimum remaining values (MRV) heuristic.
+        /// @param N The size of the board (N x N).
+        /// @param boxes The groups of cells that make up each Sumoku box.
+        /// @param sums The target sum for each corresponding box.
         SumokuMRV(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
-        : N_(N),
-        board_(N * N, 0),
-        boardView_(board_.data(), N, N),
-        rowMask_(N, 0),
-        colMask_(N, 0),
-        boxMask_(boxes.size(), 0),
-        boxID_(N, std::vector<size_t>(N, 0)),
-        boxRemainingSum_(sums.begin(), sums.end()),
-        boxRemainingCells_(sums.size(), 0)
+            : N_(N), board_(N * N, 0), boardView_(board_.data(), N, N), rowMask_(N, 0), colMask_(N, 0), boxMask_(boxes.size(), 0),
+              boxID_(N, std::vector<size_t>(N, 0)), boxRemainingSum_(sums.begin(), sums.end()), boxRemainingCells_(sums.size(), 0)
         {
+            spdlog::info("Starting Sumoku solver");
             for (size_t i = 0; i < boxes.size(); ++i)
             {
                 boxRemainingCells_[i] = boxes[i].size();
@@ -1206,15 +1202,20 @@ namespace solver
             }
         }
 
+        /// @brief Solves the board.
         void Solve()
         {
-            solved_ = Backtrack();
+            solved_ = Backtrack(0);
+            spdlog::info("SumokuMRV::Solve() finished, solved={}", solved_);
         }
 
+        /// @brief Returns the solved Sudoku board if a solution was found.
+        /// @return The solved Sudoku board, or std::nullopt if the puzzle has no solution.
         [[nodiscard]] std::optional<SudokuBoard> GetSolution() const
         {
             if (!solved_)
             {
+                spdlog::debug("GetSolution() called but solver has no solution");
                 return std::nullopt;
             }
 
@@ -1231,7 +1232,7 @@ namespace solver
             return ret;
         }
 
-    private:
+      private:
         /// @brief The selection
         struct Selection
         {
@@ -1245,12 +1246,12 @@ namespace solver
             bool deadEnd = false;
         };
 
-        /// @brief Finds the next best cell that has the least candidates (most constrainted cell)
-        /// @return The next best cell
-        inline Selection FindNextBestCell()
+        /// @brief Finds the next best cell that has the least candidates (most constrainted cell).
+        /// @return The next best cell.
+        Selection FindNextBestCell()
         {
             Selection ret;
-            int curMinCnt = static_cast<int>(N_) + 1;
+            int curMinCnt = std::numeric_limits<int>::max();
 
             // Loop through the entire board to find the next best cell
             for (size_t r = 0; r < N_; ++r)
@@ -1266,23 +1267,36 @@ namespace solver
                         uint16_t sumMask = GetPossibleNumbersMask(boxRemainingSum_[id], boxRemainingCells_[id]);
                         uint16_t candidates = ~(rowMask_[r] | colMask_[c] | boxMask_[id]) & sumMask;
 
+#ifdef __GNUC__
+                        int curNumOfCandidates = __builtin_popcount(candidates);
+#else
+                        int curNumOfCandidates = std::popcount(candidates);
+#endif
+
+                        spdlog::trace("MRV check: cell=({}, {}), box={}, remainingSum={}, "
+                                      "remainingCells={}, sumMask=0x{:04x}, candidates=0x{:04x}, "
+                                      "candidateCount={}",
+                                      r, c, id, boxRemainingSum_[id], boxRemainingCells_[id], sumMask, candidates, curNumOfCandidates);
+
                         // Early return if there is only a single candidate based on the box
-                        if (std::popcount(sumMask) == 1)
+                        if (curNumOfCandidates == 1)
                         {
+                            spdlog::debug("MRV selected cell=({}, {}) due to single sum candidate, "
+                                          "mask=0x{:04x}",
+                                          r, c, candidates);
+
                             return {.r = r, .c = c, .mask = candidates};
                         }
 
                         // If there is no candidate available that means we hit a dead end and this tree needs to be pruned
                         if (candidates == 0) [[unlikely]]
                         {
+                            spdlog::debug("MRV dead end at cell=({}, {}), box={}, "
+                                          "remainingSum={}, remainingCells={}",
+                                          r, c, id, boxRemainingSum_[id], boxRemainingCells_[id]);
+
                             return Selection {.deadEnd = true};
                         }
-
-                        #ifdef __GNUC__
-                        int curNumOfCandidates = __builtin_popcount(candidates);
-                        #else
-                        int curNumOfCandidates = std::popcount(candidates);
-                        #endif
 
                         // Update the return value when the current number of candidates is smaller than the previous one
                         if (curNumOfCandidates < curMinCnt)
@@ -1291,6 +1305,10 @@ namespace solver
                             ret.r = r;
                             ret.c = c;
                             ret.mask = candidates;
+
+                            spdlog::debug("MRV new best: cell=({}, {}), box={}, candidates=0x{:04x}, "
+                                          "count={}",
+                                          r, c, id, candidates, curNumOfCandidates);
 
                             // If there is only one candidate then we return the current value early
                             if (curNumOfCandidates == 1)
@@ -1302,49 +1320,68 @@ namespace solver
                 }
             }
 
+            if (ret.r == std::numeric_limits<size_t>::max())
+            {
+                spdlog::debug("MRV found no empty cells");
+            }
+
             return ret;
         }
 
-        /// @brief Solves the given Sumoku using backtracking technique
-        /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack
-        bool Backtrack()
+        /// @brief Solves the given Sumoku using backtracking technique.
+        /// @param depth The current recursion depth of the search.
+        /// @return TRUE if a valid solution is found from the current state, FALSE if no valid solution exists, triggering a backtrack.
+        bool Backtrack(size_t depth)
         {
             Selection next = FindNextBestCell();
 
             // If the next best cell is illegal, that means backtracking fails
             if (next.deadEnd)
             {
+                spdlog::debug("Backtrack: dead end at depth={}, returning false", depth);
+
                 return false;
             }
 
             // If there is no next best cell and we are not hitting a dead end that means we have finished the entire board
-            if (next.r == std::numeric_limits<size_t>::max() &&
-    next.c == std::numeric_limits<size_t>::max())
+            if (next.r == std::numeric_limits<size_t>::max() && next.c == std::numeric_limits<size_t>::max())
             {
+                spdlog::debug("Backtrack: solution found at depth={}", depth);
                 return true;
             }
+
+            spdlog::debug("Backtrack: depth={}, selected cell=({}, {}), mask=0x{:04x}", depth, next.r, next.c, next.mask);
 
             // Loop from number 1 to N
             for (size_t digit = 1; digit <= N_; ++digit)
             {
                 if (next.mask & (1U << digit))
                 {
+                    spdlog::trace("Backtrack: depth={}, trying digit {} at cell=({}, {})", depth, digit, next.r, next.c);
+
                     Place(next.r, next.c, digit);
-                    if (Backtrack())
+                    if (Backtrack(depth + 1))
                     {
+                        spdlog::debug("Backtrack: depth={}, digit {} at cell=({}, {}) succeeded", depth, digit, next.r, next.c);
+
                         return true;
                     }
+
+                    spdlog::trace("Backtrack: depth={}, digit {} at cell=({}, {}) failed, undoing", depth, digit, next.r, next.c);
+
                     Undo(next.r, next.c, digit);
                 }
             }
 
+            spdlog::debug("Backtrack: all candidates exhausted at depth={}", depth);
+
             return false;
         }
 
-        /// @brief Places a number on the board in a given cell
-        /// @param r The row of the given cell
-        /// @param c The column of the given cell
-        /// @param digit The given number
+        /// @brief Places a number on the board in a given cell.
+        /// @param r The row of the given cell.
+        /// @param c The column of the given cell.
+        /// @param digit The given number.
         void Place(size_t r, size_t c, size_t digit)
         {
             size_t id = boxID_[r][c];
@@ -1357,10 +1394,10 @@ namespace solver
             --boxRemainingCells_[id];
         }
 
-        /// @brief Undoes a number on the board in a given cell (the exact opposite of what Place func does)
-        /// @param r The row of the given cell
-        /// @param c The column of the given cell
-        /// @param digit The given number
+        /// @brief Undoes a number on the board in a given cell (the exact opposite of what Place func does).
+        /// @param r The row of the given cell.
+        /// @param c The column of the given cell.
+        /// @param digit The given number.
         void Undo(size_t r, size_t c, size_t digit)
         {
             size_t id = boxID_[r][c];
@@ -1373,14 +1410,35 @@ namespace solver
             ++boxRemainingCells_[id];
         }
 
-    private:
+      private:
+        /// @brief The size of the board (N x N).
         size_t N_;
+
+        /// @brief TRUE if the solver has found a valid solution.
         bool solved_ = false;
+
+        /// @brief Flat storage for the Sudoku board.
         std::vector<size_t> board_;
+
+        /// @brief 2D view over the flat board storage.
         std::mdspan<size_t, std::dextents<size_t, 2>> boardView_;
-        std::vector<uint16_t> rowMask_, colMask_, boxMask_;
+
+        /// @brief Bitmask of digits already used in each row.
+        std::vector<uint16_t> rowMask_;
+
+        /// @brief Bitmask of digits already used in each column.
+        std::vector<uint16_t> colMask_;
+
+        /// @brief Bitmask of digits already used in each box.
+        std::vector<uint16_t> boxMask_;
+
+        /// @brief Maps each board cell to its corresponding box ID.
         SudokuBoard boxID_;
+
+        /// @brief Remaining target sum for each box.
         std::vector<size_t> boxRemainingSum_;
+
+        /// @brief Number of unfilled cells remaining in each box.
         std::vector<size_t> boxRemainingCells_;
     };
 
