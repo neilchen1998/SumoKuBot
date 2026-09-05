@@ -8,25 +8,22 @@ project(
   LANGUAGES CXX
 )
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Options
+option(PROJECT_BUILD_APPS "Build applications" ON)
+option(PROJECT_BUILD_TESTS "Build tests" OFF)
+option(PROJECT_BUILD_BENCHMARKS "Build benchmarks" OFF)
 
 # Export compile commands
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Ensure -std=c++xx instead of -std=g++xx for protability purposes
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Ensure -std=c++xx instead of -std=g++xx for portability purposes
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Compiler flags
-add_library(project_options INTERFACE)
-
-# Options
-option(PROJECT_BUILD_TESTS "Build tests" OFF)
-option(PROJECT_BUILD_BENCHMARKS "Build benchmarks" OFF)
-
 # Check if we are at the top level
-# NOTE: PROJECT_IS_TOP_LEVEL is available after CMake 3.21
 if(PROJECT_IS_TOP_LEVEL)
 
   # Set the default build type if not provided
@@ -35,8 +32,15 @@ if(PROJECT_IS_TOP_LEVEL)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
   endif()
 
+  # Compiler flags
+  add_library(project_options INTERFACE)
+
   # Flags for all build types
-  target_compile_options(project_options INTERFACE -Wall -Wextra -Wpedantic)
+  target_compile_options(project_options INTERFACE
+    $<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>:-Wall>
+    $<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>:-Wextra>
+    $<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>:-Wpedantic>
+  )
 
   # Flags based on the specified build type
   target_compile_options(project_options INTERFACE
@@ -50,7 +54,7 @@ if(PROJECT_IS_TOP_LEVEL)
 
   # Linker flags
   target_link_options(project_options INTERFACE
-    $<$<CONFIG:Debug>:-fsanitize=address,undefined>
+    $<$<AND:$<CONFIG:Debug>,$<LINK_LANG_AND_ID:CXX,GNU,Clang,AppleClang>>:-fsanitize=address,undefined>
   )
 
   # Check if IPO/LTO is supported
@@ -67,7 +71,7 @@ if(PROJECT_IS_TOP_LEVEL)
   endif()
 
   # Docs only available in the main app
-  find_package(Doxygen)
+  find_package(Doxygen QUIET)
   if(Doxygen_FOUND)
     add_subdirectory(docs)
   else()
@@ -100,7 +104,7 @@ configure_file(
 # The compiled library subdirectory
 add_subdirectory(src)
 
-if(PROJECT_IS_TOP_LEVEL)
+if(PROJECT_IS_TOP_LEVEL AND PROJECT_BUILD_APPS)
   # The executable subdirectory
   add_subdirectory(apps)
 endif()

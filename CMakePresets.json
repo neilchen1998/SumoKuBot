@@ -1,36 +1,59 @@
 {
-  "version": 6,
+  "version": 10,
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 24,
     "patch": 0
   },
+
   "configurePresets": [
     {
       "name": "base",
       "hidden": true,
       "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/_build-${presetName}",
       "warnings": {
         "dev": false
       }
     },
     {
       "name": "debug",
+      "displayName": "Debug",
       "inherits": "base",
-      "binaryDir": "${sourceDir}/_build-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
     },
+
     {
       "name": "release",
+      "displayName": "Release",
       "inherits": "base",
-      "binaryDir": "${sourceDir}/_build-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+
+    {
+      "name": "debug-tests",
+      "displayName": "Debug + Tests",
+      "inherits": "debug",
+      "cacheVariables": {
+        "PROJECT_BUILD_APPS": "OFF",
+        "PROJECT_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "release-benchmarks",
+      "displayName": "Release + Benchmarks",
+      "inherits": "release",
+      "cacheVariables": {
+        "PROJECT_BUILD_APPS": "OFF",
+        "PROJECT_BUILD_BENCHMARKS": "ON"
+      }
     }
   ],
+
   "buildPresets": [
     {
       "name": "debug",
@@ -41,6 +64,29 @@
       "name": "release",
       "configurePreset": "release",
       "jobs": 0
+    },
+    {
+      "name": "debug-tests",
+      "configurePreset": "debug-tests",
+      "jobs": 0
+    },
+    {
+      "$comment": "Will run benchmarks immediately afterwards",
+      "name": "release-benchmarks",
+      "configurePreset": "release-benchmarks",
+      "jobs": 0,
+      "targets": [
+        "benchmarks"
+      ]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "debug-tests",
+      "configurePreset": "debug-tests",
+      "output": {
+        "outputOnFailure": true
+      }
     }
   ]
 }

@@ -68,13 +68,13 @@ cmake --list-presets
 To generate the build system with unit tests enabled (**tests** subdirectory):
 
 ```zsh
-cmake -S . -B build -DPROJECT_BUILD_TESTS=ON -Wno-dev
+cmake --preset debug-tests
 ```
 
 To generate the build system with benchmarks enabled (**benchmarks** subdirectory):
 
 ```zsh
-cmake -S . -B build -DPROJECT_BUILD_BENCHMARKS=ON -Wno-dev
+cmake --preset release-benchmarks
 ```
 
 For 64-bit Linux systems:
@@ -99,10 +99,10 @@ To build with debug configuration:
 cmake --build --preset debug
 ```
 
-To test (`--target` can be written as `-t` in CMake 3.15+):
+To test:
 
 ```zsh
-cmake --build build --target test
+ctest --preset debug-tests
 ```
 
 To run the solver with the default example puzzle:
@@ -138,7 +138,7 @@ cmake --build build --target docs
 Run benchmarks:
 
 ```zsh
-cmake --build build --target benchmarks
+cmake --build _build-release-benchmarks --target benchmarks
 ```
 
 To build and generate **compile_commands.json** (which clang-tidy relies on):
