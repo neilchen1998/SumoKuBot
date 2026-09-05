@@ -1,5 +1,5 @@
 # build folder generated from CMake
-build/*
+_build*/*
 
 # CMake
 compile_commands.json

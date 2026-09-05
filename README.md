@@ -47,10 +47,22 @@ The requirements are:
 
 ## Instructions
 
-To generate the build system:
+To generate the build system with release config:
 
 ```zsh
-cmake -S . -B build -Wno-dev
+cmake --preset release
+```
+
+To generate the build system debug config:
+
+```zsh
+cmake --preset debug
+```
+
+To see all presets:
+
+```zsh
+cmake --list-presets
 ```
 
 To generate the build system with unit tests enabled (**tests** subdirectory):
@@ -78,13 +90,13 @@ Add `-GNinja` if you want to use Ninja.
 To build with release configuration:
 
 ```zsh
-cmake --build build --config Release --parallel
+cmake --build --preset release
 ```
 
 To build with debug configuration:
 
 ```zsh
-cmake --build build --config Debug --parallel
+cmake --build --preset debug
 ```
 
 To test (`--target` can be written as `-t` in CMake 3.15+):
