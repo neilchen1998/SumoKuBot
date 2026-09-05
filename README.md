@@ -35,16 +35,15 @@ The requirements are:
 
 - CMake 3.24 or better; 4.0+ highly recommended
 - A C++23 compatible compiler ([gcc](https://gcc.gnu.org/) or [llvm](https://llvm.org/))
-- [Git](https://git-scm.com/)
-- [abseil](https://github.com/abseil/abseil-cpp.git) 20250512.1 or newer (will automatically install if not present)
 - [Boost](https://www.boost.org/) 1.67 or higher (will automatically install if not present)
 - [Catch2](https://github.com/catchorg/Catch2) 3.8 or higher (will automatically install if not present)
-- [CLI11](https://github.com/CLIUtils/CLI11.git) v2.4.1 or higher (will automatically install if not present)
-- [fmt](https://github.com/fmtlib/fmt) 12.0 or higher (will automatically install if not present)
-- [json](https://github.com/nlohmann/json.git) 3.0.0 or higher (will automatically install if not present)
-- [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
 - [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) (optional, highly recommended)
+- [CLI11](https://github.com/CLIUtils/CLI11.git) v2.4.1 or higher (will automatically install if not present)
 - [Doxygen](https://www.doxygen.nl/) (optional, highly recommended)
+- [fmt](https://github.com/fmtlib/fmt) 12.0 or higher (will automatically install if not present)
+- [Git](https://git-scm.com/)
+- [json](https://github.com/nlohmann/json.git) 3.0 or higher (will automatically install if not present)
+- [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
 
 ## Instructions
 
@@ -112,12 +111,6 @@ To run the solver with custom directory (will solve all puzzles under the given 
 ./build/apps/app -d <directory>
 ```
 
-To build and test:
-
-```zsh
-cmake --build build -DCMAKE_BUILD_TYPE=Test && cmake --build build --target test
-```
-
 Run a specific tag:
 
 ```zsh
@@ -160,9 +153,15 @@ To test if there is memory leak on Mac:
 leaks --atExit -- <test_binary>
 ```
 
+Create a symbolic link such that C++ servers like **clangd** can know the code:
+
+```
+ln -sf build/compile_commands.json compile_commands.json
+```
+
 ## Benchmark
 
-The folllowing table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).
+The following table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).
 We observed a 25x performance increase, though results fluctuate based on the specific puzzle.
 
 |               ns/op |                op/s |    err% |     total | Sumoku Solver Comparison #1
@@ -185,7 +184,7 @@ We observed a 25x performance increase, though results fluctuate based on the sp
 |        2,000,916.00 |              499.77 |    3.3% |      0.02 | `traditional`
 |           88,583.33 |           11,288.81 |    1.2% |      0.01 | `MRV
 
-The following table shows the latest iteration of the MRV metion solving 3 Killer Sudoku puzzles.
+The following table shows the latest iteration of the MRV method solving 4 Killer Sudoku puzzles.
 The [last puzzle](https://www.calcudoku.org/hardest_logic_number_puzzles/) is considered to be the hardest Killer Sudoku puzzle ever exists.
 
 |               ms/op |                op/s |    err% |     total | Killer Sudoku

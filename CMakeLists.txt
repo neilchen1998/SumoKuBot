@@ -12,6 +12,9 @@ project(
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Export compile commands
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Ensure -std=c++xx instead of -std=g++xx for protability purposes
 set(CMAKE_CXX_EXTENSIONS OFF)
 

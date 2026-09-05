@@ -1,9 +1,10 @@
 #include "loader/loaderlib.hpp"
 
+// #include <algorithm>
 #include <expected> // std::expected
 #include <filesystem>   // std::filesystem
-#include <fstream>      // std::ifstream
 #include <numeric>  // std::accumulate
+#include <ranges>   // std::ranges::any_of
 #include <unordered_set>    // std::unordered_set
 #include <vector>    // std::vector
 
@@ -24,9 +25,19 @@ std::expected<void, std::string> ValidateSudokuPuzzle(const SudokuPuzzleData& pu
 {
     const size_t N = puzzle.N;
 
+    if (N == 0)
+    {
+        return std::unexpected(fmt::format("The board size must be greater than zero."));
+    }
+
     if (puzzle.board.empty())
     {
         return std::unexpected(fmt::format("The board is empty."));
+    }
+
+    if (puzzle.board.size() != N)
+    {
+        return std::unexpected(fmt::format("The board contains {} row(s), but N is {}", puzzle.board.size(), N));
     }
 
     for (const auto& row : puzzle.board)
@@ -34,6 +45,12 @@ std::expected<void, std::string> ValidateSudokuPuzzle(const SudokuPuzzleData& pu
         if (N != row.size())
         {
             return std::unexpected(fmt::format("The board is not square ({} != {}).", N, row.size()));
+        }
+
+        // Check if any of the element inside the board is out of bound
+        if (std::ranges::any_of(row, [N](int val) { return val < 0 || val > static_cast<int>(N); } ))
+        {
+            return std::unexpected(fmt::format("The board contains a value out of range."));
         }
     }
 
@@ -54,8 +71,18 @@ std::expected<void, std::string> ValidateSumokuPuzzle(const SumokuPuzzleData& pu
     std::unordered_set<Point, PointHasher> s;
     for (const auto& box : puzzle.boxes)
     {
+        if (box.empty())
+        {
+            return std::unexpected(fmt::format("A box is empty"));
+        }
+
         for (const auto& ele : box)
         {
+            if (ele.x >= N || ele.y >= N)
+            {
+                return std::unexpected(fmt::format("The board contains a value out of range."));
+            }
+
             if (s.contains(ele))
             {
                 return std::unexpected(fmt::format("({}, {}) appears twice.", ele.x, ele.y));

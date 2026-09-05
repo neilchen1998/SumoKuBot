@@ -1,8 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
 #include <array>    // std::array
-#include <vector>    // std::vector
-#include <unordered_set>    // std::unordered_set
 
 #include <catch2/catch_all.hpp> // GENERATE
 #include <catch2/catch_test_macros.hpp> // TEST_CASE, SECTION, REQUIRE
