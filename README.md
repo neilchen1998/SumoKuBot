@@ -108,25 +108,25 @@ ctest --preset debug-tests
 To run the solver with the default example puzzle:
 
 ```zsh
-./build/apps/app
+./_build-release/apps/app
 ```
 
 To run the solver with custom file:
 
 ```zsh
-./build/apps/app -f <file_path>
+./_build-release/apps/app -f <file_path>
 ```
 
 To run the solver with custom directory (will solve all puzzles under the given directory):
 
 ```zsh
-./build/apps/app -d <directory>
+./_build-release/apps/app -d <directory>
 ```
 
 Run a specific tag:
 
 ```zsh
-./build/tests/solvertestlib "[<tag>]"
+./_build-release/tests/solvertestlib "[<tag>]"
 ```
 
 To build docs (requires Doxygen, output in `build/docs/html`):
@@ -141,12 +141,6 @@ Run benchmarks:
 cmake --build _build-release-benchmarks --target benchmarks
 ```
 
-To build and generate **compile_commands.json** (which clang-tidy relies on):
-
-```zsh
-cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-```
-
 To run clang-tidy:
 
 ```zsh
@@ -156,7 +150,7 @@ run-clang-tidy -p build/ '.*/(apps|benchmarks|tests)/.*'
 To package the binary file into a compressed tarball:
 
 ```zsh
-cmake --build build --target package
+cmake --build _build-release --target package
 ```
 
 To test if there is memory leak on Mac:
@@ -167,8 +161,8 @@ leaks --atExit -- <test_binary>
 
 Create a symbolic link such that C++ servers like **clangd** can know the code:
 
-```
-ln -sf build/compile_commands.json compile_commands.json
+```zsh
+ln -sf _build-release/compile_commands.json compile_commands.json
 ```
 
 ## Benchmark
