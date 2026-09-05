@@ -14,8 +14,6 @@
 
 namespace sudoku
 {
-/// @brief The size of a standard sudoku
-constexpr size_t SUDOKU_SZ = 9;
 
 /// @brief Solves standard 9x9 Sudoku puzzles using minimum remaining values (MRV)
 class SudokuMRV
