@@ -42,7 +42,7 @@ The requirements are:
 - [Doxygen](https://www.doxygen.nl/) (optional, highly recommended)
 - [fmt](https://github.com/fmtlib/fmt) 12.0 or higher (will automatically install if not present)
 - [Git](https://git-scm.com/)
-- [json](https://github.com/nlohmann/json.git) 3. or higher (will automatically install if not present)
+- [json](https://github.com/nlohmann/json.git) 3.0 or higher (will automatically install if not present)
 - [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
 
 ## Instructions
