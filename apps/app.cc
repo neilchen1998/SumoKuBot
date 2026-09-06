@@ -15,7 +15,7 @@
 #include "board/boardlib.hpp"   // PrintBoard
 #include "loader/loaderlib.hpp" // LoadAllPuzzles, LoadPuzzle
 #include "solver/solverlib.hpp" // SolverType::SumokuSolver, etc.
-#include "solvers/sumoku/sumokubacktracking.hpp" // sumoku::SumokuBacktracking
+#include "solvers/sumoku/sumokubacktrackingsolver.hpp" // sumoku::SumokuBacktracking
 #include "version.h"            // SUMOKUBOT_PROJECT_NAME, SUMOKUBOT_PROJECT_VERSION
 
 namespace fs = std::filesystem;
@@ -224,14 +224,14 @@ int main(int argc, char* argv[])
         case SolverType::SumokuMRV:
         {
             spdlog::debug("Using SumokuMRV");
-            solver::SumokuMRV s {p.N, p.boxes, p.sums};
+            solver::SumokuMRVSolver s {p.N, p.boxes, p.sums};
             RunSolver(s, p, benchmark);
             break;
         }
         case SolverType::SumokuOrdering:
         {
             spdlog::debug("Using SumokuOrdering");
-            solver::SumokuOrdering s {p.N, p.boxes, p.sums};
+            solver::SumokuOrderingSolver s {p.N, p.boxes, p.sums};
             RunSolver(s, p, benchmark);
             break;
         }

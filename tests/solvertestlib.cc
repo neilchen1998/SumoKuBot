@@ -1,3 +1,4 @@
+#include <csignal>
 #define CATCH_CONFIG_MAIN
 
 #include <algorithm>                                  // std::ranges::all_of
@@ -15,6 +16,7 @@
 #include "solver/solverlib.hpp"                        // solver::SumokuMRV
 #include "solvers/sudoku/sudokubacktracking.hpp"       // sudoku::SudokuBacktracking
 #include "solvers/sudoku/sudokudlx.hpp"                // sudoku::SudokuDLXSolver
+#include "solvers/sudoku/killersudokumrvsolver.hpp"    // killer_sudoku::KillerSudokuMRVSolver
 #include "solvers/sumoku/sumokubacktrackingsolver.hpp" // sumoku::SudokuBacktrackingSolver
 
 /// @brief Converts a character digit or integer to an int
@@ -173,7 +175,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {0, 1}}, {{1, 0}, {1, 1}}};
         const std::vector<int> sums {3, 3};
 
-        solver::SumokuOrdering s {N, boxes, sums};
+        solver::SumokuOrderingSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -193,7 +195,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}}, {{0, 1}, {0, 2}}, {{1, 1}, {1, 2}}, {{2, 0}, {2, 1}}, {{2, 2}}};
         const std::vector<int> sums {3, 5, 4, 5, 1};
 
-        solver::SumokuOrdering s {N, boxes, sums};
+        solver::SumokuOrderingSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -213,7 +215,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}}, {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}}, {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
         const std::vector<int> sums {6, 4, 5, 5, 1, 8, 6, 5};
 
-        solver::SumokuOrdering s {N, boxes, sums};
+        solver::SumokuOrderingSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -253,7 +255,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
             9, 13
         };
 
-        solver::SumokuOrdering s {N, boxes, sums};
+        solver::SumokuOrderingSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -293,7 +295,7 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
             10, 11, 4
         };
 
-        solver::SumokuOrdering s {N, boxes, sums};
+        solver::SumokuOrderingSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -316,7 +318,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {0, 1}}, {{1, 0}, {1, 1}}};
         const std::vector<int> sums {3, 3};
 
-        solver::SumokuOrderingWithBitMask s {N, boxes, sums};
+        solver::SumokBitMaskSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -336,7 +338,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}}, {{0, 1}, {0, 2}}, {{1, 1}, {1, 2}}, {{2, 0}, {2, 1}}, {{2, 2}}};
         const std::vector<int> sums {3, 5, 4, 5, 1};
 
-        solver::SumokuOrderingWithBitMask s {N, boxes, sums};
+        solver::SumokBitMaskSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -356,7 +358,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}}, {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}}, {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
         const std::vector<int> sums {6, 4, 5, 5, 1, 8, 6, 5};
 
-        solver::SumokuOrderingWithBitMask s {N, boxes, sums};
+        solver::SumokBitMaskSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -396,7 +398,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
             9, 13
         };
 
-        solver::SumokuOrderingWithBitMask s {N, boxes, sums};
+        solver::SumokBitMaskSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -436,7 +438,7 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
             10, 11, 4
         };
 
-        solver::SumokuOrderingWithBitMask s {N, boxes, sums};
+        solver::SumokBitMaskSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -459,7 +461,7 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {0, 1}}, {{1, 0}, {1, 1}}};
         const std::vector<int> sums {3, 3};
 
-        solver::SumokuMRV s {N, boxes, sums};
+        solver::SumokuMRVSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -479,7 +481,7 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}}, {{0, 1}, {0, 2}}, {{1, 1}, {1, 2}}, {{2, 0}, {2, 1}}, {{2, 2}}};
         const std::vector<int> sums {3, 5, 4, 5, 1};
 
-        solver::SumokuMRV s {N, boxes, sums};
+        solver::SumokuMRVSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -499,7 +501,7 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}}, {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}}, {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
         const std::vector<int> sums {6, 4, 5, 5, 1, 8, 6, 5};
 
-        solver::SumokuMRV s {N, boxes, sums};
+        solver::SumokuMRVSolver s {N, boxes, sums};
 
         s.Solve();
 
@@ -560,7 +562,7 @@ TEST_CASE("Sumoku Solver: SumokuMRV", "[SumokuMRV]")
     // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
     {
-        solver::SumokuMRV s {data.N, data.boxes, data.sums};
+        solver::SumokuMRVSolver s {data.N, data.boxes, data.sums};
 
         s.Solve();
 
@@ -591,7 +593,7 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
     // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
     {
-        solver::KillerSudokuMRV solver {data.N, data.boxes, data.sums};
+        killer_sudoku::KillerSudokuMRVSolver solver {data.N, data.boxes, data.sums};
 
         solver.Solve();
 

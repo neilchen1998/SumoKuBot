@@ -1,11 +1,9 @@
-#ifndef MODULES_SOLVERS_SUDOKU_SUDOKUMRV_HPP
-#define MODULES_SOLVERS_SUDOKU_SUDOKUMRV_HPP
+#ifndef MODULES_SOLVERS_SUDOKU_KILLERSUDOKUMRVSOLVER_HPP
+#define MODULES_SOLVERS_SUDOKU_KILLERSUDOKUMRVSOLVER_HPP
 
 #include <cstddef>         // size_t
 #include <cstdint>         // uint16_t
-#include <limits>          // std::numeric_limits<size_t>::max
 #include <mdspan>          // std::mdspan
-#include <memory.h>        // std::make_unique, std::unique_ptr
 #include <optional>        // std::optional
 #include <spdlog/spdlog.h> // spdlog::debug, spdlog::trace
 #include <vector>          // std::vector
@@ -13,16 +11,12 @@
 #include "board/boardlib.hpp" // Point, SudokuBoard
 #include "selection.hpp"      // Selection
 
-namespace sudoku
+namespace killer_sudoku
 {
-
-/// @brief Solves standard 9x9 Sudoku puzzles using minimum remaining values (MRV)
-class SudokuMRV
+class KillerSudokuMRVSolver
 {
   public:
-    SudokuMRV(const std::vector<std::vector<char>>& board);
-
-    SudokuMRV(const SudokuBoard& board);
+    KillerSudokuMRVSolver(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums);
 
     void Solve();
 
@@ -43,20 +37,23 @@ class SudokuMRV
     /// @param digit The given number
     void Place(size_t r, size_t c, size_t digit);
 
-    /// @brief Undoes a number on the board in a given cell (the exact opposite of what Place
-    /// func does)
+    /// @brief Undoes a number on the board in a given cell (the exact opposite of what Place func does)
     /// @param r The row of the given cell
     /// @param c The column of the given cell
     /// @param digit The given number
     void Undo(size_t r, size_t c, size_t digit);
 
-    const size_t N_;
+  private:
+    size_t N_;
     bool solved_ = false;
     std::vector<size_t> board_;
     std::mdspan<size_t, std::dextents<size_t, 2>> boardView_;
-    std::vector<uint16_t> rowMask_, colMask_, gridMask_;
+    std::vector<uint16_t> rowMask_, colMask_, boxMask_, gridMask_;
+    SudokuBoard boxID_;
+    std::vector<size_t> boxRemainingSum_;
+    std::vector<size_t> boxRemainingCells_;
 };
 
-} // namespace sudoku
+} // namespace killer_sudoku
 
-#endif // MODULES_SOLVERS_SUDOKU_SUDOKUMRV_HPP
+#endif // MODULES_SOLVERS_SUDOKU_KILLERSUDOKUMRVSOLVER_HPP
