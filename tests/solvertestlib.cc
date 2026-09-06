@@ -14,6 +14,7 @@
 #include "loader/loaderlib.hpp"                  // GetTestDataPath
 #include "solver/solverlib.hpp"                  // solver::SumokuMRV
 #include "solvers/sudoku/sudokubacktracking.hpp" // sudoku::SudokuBacktracking
+#include "solvers/sumoku/sumokubacktracking.hpp" // sumoku::SumokuBacktracking
 #include "solvers/sudoku/sudokudlx.hpp"          // sudoku::SudokuDLXSolver
 
 /// @brief Converts a character digit or integer to an int
@@ -528,7 +529,7 @@ TEST_CASE("Sumoku Solver: Naive", "[Sumoku]")
     // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
     {
-        solver::SumokuSolver s {data.N, data.boxes, data.sums};
+        sumoku::SumokuBacktracking s {data.N, data.boxes, data.sums};
 
         s.Solve();
 

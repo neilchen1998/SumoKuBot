@@ -20,7 +20,7 @@ add_executable(boardtestlib boardtestlib.cc)
 
 target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library project_options)
 target_link_libraries(mathtestlib PRIVATE Catch2::Catch2WithMain math_library board_library boost_math_library project_options)
-target_link_libraries(solvertestlib PRIVATE sudoku::solver Catch2::Catch2WithMain loader_library solver_library project_options)
+target_link_libraries(solvertestlib PRIVATE sudoku::solver sumoku::solver Catch2::Catch2WithMain loader_library solver_library project_options)
 
 # Disable the Catch2 noise for each test library
 target_compile_options(boardtestlib PRIVATE -Wno-c2y-extensions)

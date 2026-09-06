@@ -12,9 +12,10 @@
 #include <string_view>     // std::string_view
 #include <vector>          // std::vector
 
-#include "board/boardlib.hpp"   //  PrintBoard
+#include "board/boardlib.hpp"   // PrintBoard
 #include "loader/loaderlib.hpp" // LoadAllPuzzles, LoadPuzzle
 #include "solver/solverlib.hpp" // SolverType::SumokuSolver, etc.
+#include "solvers/sumoku/sumokubacktracking.hpp" // sumoku::SumokuBacktracking
 #include "version.h"            // SUMOKUBOT_PROJECT_NAME, SUMOKUBOT_PROJECT_VERSION
 
 namespace fs = std::filesystem;
@@ -216,7 +217,7 @@ int main(int argc, char* argv[])
         case SolverType::SumokuSolver:
         {
             spdlog::debug("Using SumokuSolver");
-            solver::SumokuSolver s {p.N, p.boxes, p.sums};
+            sumoku::SumokuBacktracking s {p.N, p.boxes, p.sums};
             RunSolver(s, p, benchmark);
             break;
         }
