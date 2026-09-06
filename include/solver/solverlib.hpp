@@ -1,14 +1,11 @@
 #ifndef INCLUDE_SOLVER_SOLVERLIB_H_
 #define INCLUDE_SOLVER_SOLVERLIB_H_
 
-#include <algorithm>       // std::algorithm
-#include <array>           // std::array
 #include <bit>             // std::popcount
 #include <cstddef>         // size_t
 #include <cstdint>         // uint16_t
 #include <limits>          // std::numeric_limits<size_t>::max
 #include <mdspan>          // std::mdspan
-#include <memory.h>        // std::make_unique, std::unique_ptr
 #include <numeric>         // std::iota
 #include <optional>        // std::optional
 #include <spdlog/spdlog.h> // spdlog::debug, spdlog::trace

@@ -1,7 +1,7 @@
 #include "sudokudlx.hpp"
 
 #include <cstddef>  // size_t
-#include <memory.h> // std::make_unique, std::unique_ptr
+#include <memory> // std::make_unique, std::unique_ptr
 #include <utility>  // std::move
 
 #include "board/boardlib.hpp" // Point, SudokuBoard, SUDOKU_SZ

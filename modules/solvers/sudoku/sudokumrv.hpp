@@ -3,9 +3,7 @@
 
 #include <cstddef>         // size_t
 #include <cstdint>         // uint16_t
-#include <limits>          // std::numeric_limits<size_t>::max
 #include <mdspan>          // std::mdspan
-#include <memory.h>        // std::make_unique, std::unique_ptr
 #include <optional>        // std::optional
 #include <spdlog/spdlog.h> // spdlog::debug, spdlog::trace
 #include <vector>          // std::vector
