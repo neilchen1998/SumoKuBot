@@ -1,4 +1,4 @@
-add_library(sumoku_solver sumokubacktrackingsolver.cc sumokubitmasksolver.cc)
+add_library(sumoku_solver sumokubacktrackingsolver.cc sumokubitmaskorderingsolver.cc sumokubitmasksolver.cc sumokumrvsolver.cc sumokuorderingsolver.cc)
 
 target_include_directories(sumoku_solver PUBLIC ${PROJECT_SOURCE_DIR}/modules)
 

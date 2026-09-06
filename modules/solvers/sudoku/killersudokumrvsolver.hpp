@@ -8,8 +8,8 @@
 #include <spdlog/spdlog.h> // spdlog::debug, spdlog::trace
 #include <vector>          // std::vector
 
-#include "board/boardlib.hpp" // Point, SudokuBoard
-#include "selection.hpp"      // Selection
+#include "board/boardlib.hpp"    // Point, SudokuBoard
+#include "solvers/selection.hpp" // Selction
 
 namespace killer_sudoku
 {
