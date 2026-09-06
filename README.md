@@ -130,10 +130,10 @@ Run a specific tag:
 ./_build-release/tests/solvertestlib "[<tag>]"
 ```
 
-To build docs (requires Doxygen, output in `build/docs/html`):
+To build docs (requires Doxygen, output in `_build-release/docs/html`):
 
 ```zsh
-cmake --build build --target docs
+cmake --build _build-release --target docs
 ```
 
 Run benchmarks:
