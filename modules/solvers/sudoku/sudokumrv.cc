@@ -1,10 +1,10 @@
 #include "sudokumrv.hpp"
 
-#include <cstddef>         // size_t
-#include <cstdint>         // uint16_t
-#include <limits>          // std::numeric_limits<size_t>::max
-#include <optional>        // std::optional
-#include <vector>          // std::vector
+#include <cstddef>  // size_t
+#include <cstdint>  // uint16_t
+#include <limits>   // std::numeric_limits<size_t>::max
+#include <optional> // std::optional
+#include <vector>   // std::vector
 
 #include "board/boardlib.hpp" // Point, SudokuBoard, SUDOKU_SZ
 

@@ -2,7 +2,7 @@
 #define MODULES_SOLVERS_SUDOKU_SUDOKUDLX_HPP
 
 #include <cstddef>  // size_t
-#include <memory> // std::make_unique, std::unique_ptr
+#include <memory>   // std::make_unique, std::unique_ptr
 #include <optional> // std::optional
 #include <vector>   // std::vector
 

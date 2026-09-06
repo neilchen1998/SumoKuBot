@@ -102,15 +102,31 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(spdlog)
 
+find_package(nlohmann_json 3 QUIET)
+
+if (nlohmann_json_FOUND)
+  message(STATUS "Found nlohmann_json version: ${nlohmann_json_VERSION}")
+else()
+  message(STATUS "nlohmann_json not found or version is too old, downloading via FetchContent...")
+  FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG        v3.12.0
+  )
+  FetchContent_MakeAvailable(json)
+endif()
+
 # Configure the SW version file
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/include/project/version.h.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/modules/project/version.h.in"
   "${CMAKE_BINARY_DIR}/generated/version.h"
   @ONLY
 )
 
 # The compiled library subdirectory
-add_subdirectory(src)
+add_subdirectory(modules/board)
+add_subdirectory(modules/loader)
+add_subdirectory(modules/math)
 add_subdirectory(modules/solvers/sudoku)
 add_subdirectory(modules/solvers/sumoku)
 
@@ -121,9 +137,6 @@ endif()
 
 # Optional modules
 if(PROJECT_IS_TOP_LEVEL AND (PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS))
-
-  # This subdirectory contains files needed by tests and benchmarks
-  add_subdirectory(shared)
 
   # The unit test subdirectory
   if(PROJECT_BUILD_TESTS)

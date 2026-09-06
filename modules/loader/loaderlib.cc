@@ -1,18 +1,14 @@
-#include "loader/loaderlib.hpp"
+#include "loaderlib.hpp"
 
 // #include <algorithm>
-#include <expected> // std::expected
-#include <filesystem>   // std::filesystem
-#include <numeric>  // std::accumulate
-#include <ranges>   // std::ranges::any_of
-#include <unordered_set>    // std::unordered_set
-#include <vector>    // std::vector
-
-#include <nlohmann/json.hpp>    // nlohmann::json
+#include <expected>          // std::expected
+#include <nlohmann/json.hpp> // nlohmann::json
+#include <numeric>           // std::accumulate
+#include <ranges>            // std::ranges::any_of
+#include <unordered_set>     // std::unordered_set
+#include <vector>            // std::vector
 
 #include "math/mathlib.hpp" // PointHasher
-
-namespace fs = std::filesystem;
 
 /// @brief Gets the directory of the test data
 /// @return Test data directory
@@ -48,7 +44,7 @@ std::expected<void, std::string> ValidateSudokuPuzzle(const SudokuPuzzleData& pu
         }
 
         // Check if any of the element inside the board is out of bound
-        if (std::ranges::any_of(row, [N](int val) { return val < 0 || val > static_cast<int>(N); } ))
+        if (std::ranges::any_of(row, [N](int val) { return val < 0 || val > static_cast<int>(N); }))
         {
             return std::unexpected(fmt::format("The board contains a value out of range."));
         }
@@ -95,11 +91,11 @@ std::expected<void, std::string> ValidateSumokuPuzzle(const SumokuPuzzleData& pu
     // Check if the number of elements is correct
     if (s.size() != (N * N))
     {
-        return std::unexpected(fmt::format("Only {} element(s) instead of {}.", s.size(),( N * N)));
+        return std::unexpected(fmt::format("Only {} element(s) instead of {}.", s.size(), (N * N)));
     }
 
     // Check if the total sum is correct
-    const int expected_sum = ((1 + N) * N / 2) * N;   // There are N rows
+    const int expected_sum = ((1 + N) * N / 2) * N; // There are N rows
     int sum = std::accumulate(std::cbegin(puzzle.sums), std::cend(puzzle.sums), 0);
     if (expected_sum != sum)
     {

@@ -28,8 +28,11 @@ endif()
 add_library(boost_math_library INTERFACE)
 
 target_include_directories(boost_math_library INTERFACE
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
-  "$<INSTALL_INTERFACE:include>"
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+  $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(boost_math_library INTERFACE Boost::boost board_library project_options)
+target_link_libraries(boost_math_library INTERFACE
+  Boost::boost
+  board_library
+)

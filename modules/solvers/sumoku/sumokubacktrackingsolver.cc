@@ -1,9 +1,9 @@
 #include "sumokubacktrackingsolver.hpp"
 
-#include <cstddef>         // size_t
-#include <optional>        // std::optional
-#include <unordered_map>   // std::unordered_map
-#include <vector>          // std::vector
+#include <cstddef>       // size_t
+#include <optional>      // std::optional
+#include <unordered_map> // std::unordered_map
+#include <vector>        // std::vector
 
 #include "board/boardlib.hpp" // Point, SudokuBoard
 
