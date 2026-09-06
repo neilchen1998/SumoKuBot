@@ -58,7 +58,7 @@ void KillerSudokuMRVSolver::Solve()
 Selection KillerSudokuMRVSolver::FindNextBestCell()
 {
     Selection ret;
-    int curMinCnt = static_cast<int>(N_) + 1;
+    int curMinCnt = sudoku::SUDOKU_SZ + 1;
 
     // Loop through the entire board to find the next best cell
     for (size_t r = 0; r < N_; ++r)

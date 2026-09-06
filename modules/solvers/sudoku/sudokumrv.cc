@@ -37,7 +37,7 @@ SudokuMRV::SudokuMRV(const SudokuBoard& board)
         for (size_t c = 0; c < N_; ++c)
         {
             auto val = board[r][c];
-            if ((val >= 1) && (val <= 9))
+            if ((val >= 1) && (val <= SUDOKU_SZ))
             {
                 Place(r, c, board[r][c]);
             }
@@ -70,14 +70,14 @@ void SudokuMRV::Solve()
     return ret;
 }
 
-SudokuMRV::Selection SudokuMRV::FindNextBestCell()
+Selection SudokuMRV::FindNextBestCell()
 {
     Selection ret;
-    int curMinCnt = std::numeric_limits<int>::max();
+    int curMinCnt = sudoku::SUDOKU_SZ + 1;
 
-    for (size_t r = 0; r < 9; ++r)
+    for (size_t r = 0; r < SUDOKU_SZ; ++r)
     {
-        for (size_t c = 0; c < 9; ++c)
+        for (size_t c = 0; c < SUDOKU_SZ; ++c)
         {
             if (boardView_[r, c] == 0)
             {
@@ -132,7 +132,7 @@ bool SudokuMRV::Backtrack()
     }
 
     // Loop from number 1 to 9 (inclusive)
-    for (size_t digit = 1; digit <= 9; ++digit)
+    for (size_t digit = 1; digit <= SUDOKU_SZ; ++digit)
     {
         if (next.mask & (1U << digit))
         {

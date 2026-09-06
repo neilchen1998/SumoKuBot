@@ -188,7 +188,7 @@ namespace solver
         std::vector<Point> visitOrder_;
     };
 
-    class SumokBitMaskSolver : public SumokuOrderingSolver
+    class SumokBitMaskSolver final : public SumokuOrderingSolver
     {
     public:
         SumokBitMaskSolver(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
