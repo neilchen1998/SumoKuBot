@@ -30,7 +30,6 @@ target_link_libraries(mathtestlib PRIVATE
 
   # targets
   boost_math_library
-  math_library
 )
 target_link_libraries(mathtestlib PRIVATE project_options)
 target_link_libraries(solvertestlib PRIVATE

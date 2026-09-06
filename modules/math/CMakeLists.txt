@@ -26,14 +26,13 @@ else()
 endif()
 
 add_library(boost_math_library INTERFACE)
-add_library(math_library INTERFACE ${BOARD_HEADER_LIST})
-
 
 target_include_directories(boost_math_library INTERFACE
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
-  "$<INSTALL_INTERFACE:include>"
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+  $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(boost_math_library INTERFACE Boost::boost board_library)
-target_link_libraries(boost_math_library INTERFACE project_options)
-target_link_libraries(math_library INTERFACE project_options)
+target_link_libraries(boost_math_library INTERFACE
+  Boost::boost
+  board_library
+)

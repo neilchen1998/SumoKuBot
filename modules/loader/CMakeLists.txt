@@ -12,5 +12,5 @@ target_include_directories(loader_library PUBLIC
 )
 
 # Link all the libraries & flags that are required
-target_link_libraries(loader_library PRIVATE nlohmann_json::nlohmann_json board_library math_library)
+target_link_libraries(loader_library PRIVATE board_library nlohmann_json::nlohmann_json)
 target_link_libraries(loader_library PRIVATE project_options)
