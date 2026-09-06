@@ -18,7 +18,7 @@ namespace fs = std::filesystem;
 struct SudokuPuzzleData
 {
     size_t N;
-    std::vector<std::vector<int>> board;
+    SudokuBoard board;
     std::string label;
 };
 

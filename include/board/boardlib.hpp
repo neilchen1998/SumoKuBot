@@ -31,6 +31,12 @@ struct Point
     bool operator==(const Point&) const = default;
 };
 
+namespace sudoku
+{
+    /// @brief The size of a standard sudoku
+    inline constexpr size_t SUDOKU_SZ = 9;
+}
+
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
 
 /// @brief Print a Sudoku board
