@@ -13,17 +13,17 @@
 
 namespace sumoku
 {
-class SumokuBacktracking
+class SumokuBacktrackingSolver
 {
   public:
-    SumokuBacktracking(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums);
+    SumokuBacktrackingSolver(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums);
 
-    virtual ~SumokuBacktracking() = default;
+    virtual ~SumokuBacktrackingSolver() = default;
 
-    SumokuBacktracking(const SumokuBacktracking&) = delete;
-    SumokuBacktracking& operator=(const SumokuBacktracking&) = delete;
-    SumokuBacktracking(SumokuBacktracking&&) = delete;
-    SumokuBacktracking& operator=(SumokuBacktracking&&) = delete;
+    SumokuBacktrackingSolver(const SumokuBacktrackingSolver&) = delete;
+    SumokuBacktrackingSolver& operator=(const SumokuBacktrackingSolver&) = delete;
+    SumokuBacktrackingSolver(SumokuBacktrackingSolver&&) = delete;
+    SumokuBacktrackingSolver& operator=(SumokuBacktrackingSolver&&) = delete;
 
     void Solve();
 

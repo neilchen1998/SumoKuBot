@@ -10,12 +10,12 @@
 #include <numeric>                                    // std::iota
 #include <vector>                                     // std::vector
 
-#include "board/boardlib.hpp"                    // BoardType
-#include "loader/loaderlib.hpp"                  // GetTestDataPath
-#include "solver/solverlib.hpp"                  // solver::SumokuMRV
-#include "solvers/sudoku/sudokubacktracking.hpp" // sudoku::SudokuBacktracking
-#include "solvers/sumoku/sumokubacktracking.hpp" // sumoku::SumokuBacktracking
-#include "solvers/sudoku/sudokudlx.hpp"          // sudoku::SudokuDLXSolver
+#include "board/boardlib.hpp"                          // BoardType
+#include "loader/loaderlib.hpp"                        // GetTestDataPath
+#include "solver/solverlib.hpp"                        // solver::SumokuMRV
+#include "solvers/sudoku/sudokubacktracking.hpp"       // sudoku::SudokuBacktracking
+#include "solvers/sudoku/sudokudlx.hpp"                // sudoku::SudokuDLXSolver
+#include "solvers/sumoku/sumokubacktrackingsolver.hpp" // sumoku::SudokuBacktrackingSolver
 
 /// @brief Converts a character digit or integer to an int
 /// @tparam T Must be char or int
@@ -529,7 +529,7 @@ TEST_CASE("Sumoku Solver: Naive", "[Sumoku]")
     // The section
     DYNAMIC_SECTION("Puzzle: " << data.label)
     {
-        sumoku::SumokuBacktracking s {data.N, data.boxes, data.sums};
+        sumoku::SumokuBacktrackingSolver s {data.N, data.boxes, data.sums};
 
         s.Solve();
 

@@ -1,21 +1,21 @@
-#include "sumokubacktrackingbitmask.hpp"
+#include "sumokubitmasksolver.hpp"
 
 #include <cstddef> // size_t
 #include <vector>  // std::vector
 
-#include "board/boardlib.hpp"     // Point, SudokuBoard
-#include "sumokubacktracking.hpp" // SumokuBacktracking
+#include "board/boardlib.hpp"           // Point, SudokuBoard
+#include "sumokubacktrackingsolver.hpp" // SumokuBacktracking
 
 namespace sumoku
 {
 
-SumokuSolverWithBitMask::SumokuSolverWithBitMask(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
-    : SumokuBacktracking(N, boxes, sums), // let the base class constructor handle
+SumokuBitMaskSolver::SumokuBitMaskSolver(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
+    : SumokuBacktrackingSolver(N, boxes, sums), // let the base class constructor handle
       colMasks_(N, 0), rowMasks_(N, 0)
 {
 }
 
-bool SumokuSolverWithBitMask::Backtrack(size_t x, size_t y)
+bool SumokuBitMaskSolver::Backtrack(size_t x, size_t y)
 {
     // If we reach the last column, then we start from the next row
     if (y == N_)
@@ -66,7 +66,7 @@ bool SumokuSolverWithBitMask::Backtrack(size_t x, size_t y)
     return false;
 }
 
-bool SumokuSolverWithBitMask::Check(size_t x, size_t y, size_t digit)
+bool SumokuBitMaskSolver::Check(size_t x, size_t y, size_t digit)
 {
     // Check if the box matches the sum
     bool isFilled = true;

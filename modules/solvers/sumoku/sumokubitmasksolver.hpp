@@ -6,15 +6,15 @@
 #include <vector>  // std::vector
 
 #include "board/boardlib.hpp" // Point, SudokuBoard
-#include "sumokubacktracking.hpp"
+#include "sumokubacktrackingsolver.hpp"
 
 namespace sumoku
 {
 
-class SumokuSolverWithBitMask final : public SumokuBacktracking
+class SumokuBitMaskSolver final : public SumokuBacktrackingSolver
 {
   public:
-    SumokuSolverWithBitMask(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums);
+    SumokuBitMaskSolver(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums);
 
   private:
     /// @brief Solves the given Sudoku using backtracking technique

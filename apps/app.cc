@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
         case SolverType::SumokuSolver:
         {
             spdlog::debug("Using SumokuSolver");
-            sumoku::SumokuBacktracking s {p.N, p.boxes, p.sums};
+            sumoku::SumokuBacktrackingSolver s {p.N, p.boxes, p.sums};
             RunSolver(s, p, benchmark);
             break;
         }

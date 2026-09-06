@@ -1,4 +1,4 @@
-#include "sumokubacktracking.hpp"
+#include "sumokubacktrackingsolver.hpp"
 
 #include <cstddef>         // size_t
 #include <memory.h>        // std::make_unique, std::unique_ptr
@@ -11,7 +11,7 @@
 
 namespace sumoku
 {
-SumokuBacktracking::SumokuBacktracking(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
+SumokuBacktrackingSolver::SumokuBacktrackingSolver(size_t N, const std::vector<std::vector<Point>>& boxes, const std::vector<int>& sums)
     : board_(N, std::vector<size_t>(N, 0)), N_(N), solved_(false)
 {
     // Create the adjacent list
@@ -40,22 +40,22 @@ SumokuBacktracking::SumokuBacktracking(size_t N, const std::vector<std::vector<P
     }
 }
 
-void SumokuBacktracking::Solve()
+void SumokuBacktrackingSolver::Solve()
 {
     solved_ = Backtrack();
 }
 
-[[nodiscard]] std::optional<SudokuBoard> SumokuBacktracking::GetSolution() const
+[[nodiscard]] std::optional<SudokuBoard> SumokuBacktrackingSolver::GetSolution() const
 {
     return solved_ ? std::optional<SudokuBoard> {board_} : std::nullopt;
 }
 
-void SumokuBacktracking::PrintBoard() const
+void SumokuBacktrackingSolver::PrintBoard() const
 {
     ::PrintBoard(board_);
 }
 
-bool SumokuBacktracking::Backtrack(size_t x, size_t y)
+bool SumokuBacktrackingSolver::Backtrack(size_t x, size_t y)
 {
     // If we reach the last column, then we start from the next row
     if (y == N_)
@@ -98,7 +98,7 @@ bool SumokuBacktracking::Backtrack(size_t x, size_t y)
     return false;
 }
 
-bool SumokuBacktracking::Check(size_t x, size_t y, size_t digit)
+bool SumokuBacktrackingSolver::Check(size_t x, size_t y, size_t digit)
 {
     // Check if there is any duplicate row-wise
     for (size_t i = 0; i < N_; ++i)
