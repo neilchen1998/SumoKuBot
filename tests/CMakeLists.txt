@@ -14,19 +14,42 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
+add_executable(boardtestlib boardtestlib.cc)
 add_executable(solvertestlib solvertestlib.cc)
 add_executable(mathtestlib mathtestlib.cc)
-add_executable(boardtestlib boardtestlib.cc)
 
-target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library project_options)
-target_link_libraries(mathtestlib PRIVATE Catch2::Catch2WithMain math_library board_library boost_math_library project_options)
-target_link_libraries(solvertestlib PRIVATE killer_sudoku::solver sudoku::solver sumoku::solver Catch2::Catch2WithMain loader_library solver_library project_options)
+target_include_directories(boardtestlib PUBLIC ${PROJECT_SOURCE_DIR}/modules)
+target_include_directories(mathtestlib PUBLIC ${PROJECT_SOURCE_DIR}/modules)
+target_include_directories(solvertestlib PUBLIC ${PROJECT_SOURCE_DIR}/modules)
+
+target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library)
+target_link_libraries(boardtestlib PRIVATE project_options)
+target_link_libraries(mathtestlib PRIVATE
+  board_library
+  Catch2::Catch2WithMain
+
+  # targets
+  boost_math_library
+  math_library
+)
+target_link_libraries(mathtestlib PRIVATE project_options)
+target_link_libraries(solvertestlib PRIVATE
+  board_library
+  Catch2::Catch2WithMain
+  loader_library
+
+  # targets
+  killer_sudoku::solver
+  sudoku::solver
+  sumoku::solver
+)
+target_link_libraries(solvertestlib PRIVATE project_options)
 
 # Disable the Catch2 noise for each test library
 target_compile_options(boardtestlib PRIVATE -Wno-c2y-extensions)
 target_compile_options(mathtestlib PRIVATE -Wno-c2y-extensions)
 target_compile_options(solvertestlib PRIVATE -Wno-c2y-extensions)
 
-catch_discover_tests(solvertestlib)
-catch_discover_tests(mathtestlib)
 catch_discover_tests(boardtestlib)
+catch_discover_tests(mathtestlib)
+catch_discover_tests(solvertestlib)

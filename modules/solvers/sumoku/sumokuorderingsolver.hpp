@@ -44,12 +44,25 @@ class SumokuOrderingSolver
     virtual bool IsValid(size_t x, size_t y, size_t digit);
 
   protected:
+    /// @brief The Sudoku board containing the current puzzle state.
     SudokuBoard board_;
+
+    /// @brief Collection of boxes (subgrids), with each box represented by its points.
     std::vector<std::vector<Point>> boxes_;
+
+    /// @brief Maps each point to the points belonging to the same box.
     std::unordered_map<Point, std::vector<Point>, PointHasher> boxMembers_;
+
+    /// @brief Dimension of the Sudoku board (e.g., 9 for a 9x9 board).
     size_t N_;
+
+    /// @brief Tracks the current sum/value associated with each point during solving.
     std::unordered_map<Point, size_t, PointHasher> sum_;
+
+    /// @brief Indicates whether the puzzle has been successfully solved.
     bool solved_;
+
+    /// @brief Order in which points are visited during the solving process.
     std::vector<Point> visitOrder_;
 };
 } // namespace sumoku

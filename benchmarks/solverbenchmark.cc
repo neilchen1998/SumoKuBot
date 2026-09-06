@@ -1,12 +1,14 @@
-#include <chrono>   // std::chrono::milliseconds
-#include <fstream>  // std::ofstream
-#include <vector>   // std::vector
+#include <chrono>      // std::chrono::milliseconds
+#include <fmt/core.h>  // fmt::format
+#include <fstream>     // std::ofstream
+#include <nanobench.h> // ankerl::nanobench::Bench
+#include <vector>      // std::vector
 
-#include <fmt/core.h>   // fmt::format
-#include <nanobench.h>  // ankerl::nanobench::Bench
-
-#include "loader/loaderlib.hpp" // GetTestDataPath, LoadAllPuzzles<>
-#include "solver/solverlib.hpp"   // SumokuSolver, SumokuOrdering, etc.
+#include "loader/loaderlib.hpp"                           // GetTestDataPath, LoadAllPuzzles<>
+#include "solvers/sudoku/killersudokumrvsolver.hpp"       // killer_sudoku::KillerSudokuMRVSolver
+#include "solvers/sumoku/sumokubacktrackingsolver.hpp"    // sumoku::SumokuBacktracking
+#include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
+#include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuBacktracking
 
 int main()
 {
@@ -20,24 +22,38 @@ int main()
     for (const auto& p : all_puzzles)
     {
         bench.title(fmt::format("Sumoku Solver Comparison #{}", p.label))
-            .run("traditional", [&]
+            .run("backtracking", [&]
         {
-            solver::SumokuSolver s {p.N, p.boxes, p.sums};
+            sumoku::SumokuBacktrackingSolver s {p.N, p.boxes, p.sums};
+
+            s.Solve();
+            ankerl::nanobench::doNotOptimizeAway(s);
+        })
+            .run("ordering", [&]
+        {
+            sumoku::SumokuOrderingSolver s {p.N, p.boxes, p.sums};
+
+            s.Solve();
+            ankerl::nanobench::doNotOptimizeAway(s);
+        })
+            .run("bitmask ordering", [&]
+        {
+            sumoku::SumokuBitMaskOrderingSolver s {p.N, p.boxes, p.sums};
 
             s.Solve();
             ankerl::nanobench::doNotOptimizeAway(s);
         })
             .run("MRV", [&]
         {
-            solver::SumokuMRV s {p.N, p.boxes, p.sums};
+            sumoku::SumokuMRVSolver s {p.N, p.boxes, p.sums};
 
             s.Solve();
             ankerl::nanobench::doNotOptimizeAway(s);
         });
     }
 
+    // Killer Sudoku
     {
-        // Killer Sudoku
         std::ofstream killerSudokuFile("./build/benchmarks/killer-sudoku-results.csv");
         ankerl::nanobench::Bench bench;
         bench.title("Killer Sudoku")
@@ -51,7 +67,7 @@ int main()
         {
             bench.run(fmt::format("MRV - #{}", p.label), [&]
             {
-                solver::KillerSudokuMRV s {p.N, p.boxes, p.sums};
+                killer_sudoku::KillerSudokuMRVSolver s {p.N, p.boxes, p.sums};
 
                 s.Solve();
                 ankerl::nanobench::doNotOptimizeAway(s);

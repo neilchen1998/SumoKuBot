@@ -1,5 +1,5 @@
-#ifndef INCLUDE_BOARD_BOARDLIB_H_
-#define INCLUDE_BOARD_BOARDLIB_H_
+#ifndef MODULES_BOARD_BOARDLIB_HPP
+#define MODULES_BOARD_BOARDLIB_HPP
 
 #include <array>    // std::array
 #include <concepts> // std::integral, std::same_as
@@ -8,18 +8,16 @@
 #include <vector>   // std::vector
 
 #ifndef __GNUC__
-#include <bit>  // std::popcount
+#include <bit> // std::popcount
 #endif
 
-#include <fmt/core.h>   // fmt::print
-#include <fmt/ranges.h> // fmt::print for std::array
-#include <nlohmann/json.hpp>    // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE
-
-using json = nlohmann::json;
+#include <fmt/core.h>        // fmt::print
+#include <fmt/ranges.h>      // fmt::print for std::array
+#include <nlohmann/json.hpp> // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE
 
 using SudokuBoard = std::vector<std::vector<size_t>>;
 
-template<typename T>
+template <typename T>
 concept BoardType = std::integral<T> && !std::same_as<T, bool>;
 
 struct Point
@@ -33,17 +31,16 @@ struct Point
 
 namespace sudoku
 {
-    /// @brief The size of a standard sudoku
-    inline constexpr size_t SUDOKU_SZ = 9;
-}
+/// @brief The size of a standard sudoku
+inline constexpr size_t SUDOKU_SZ = 9;
+} // namespace sudoku
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
 
 /// @brief Print a Sudoku board
 /// @tparam T The element type of the board (must support << operator)
 /// @param board The given Sudoku board
-template <BoardType T>
-inline void PrintBoard(const std::vector<std::vector<T>>& board)
+template <BoardType T> inline void PrintBoard(const std::vector<std::vector<T>>& board)
 {
     for (const auto& row : board)
     {
@@ -125,7 +122,8 @@ struct CombinationsLUT
     /// @return The total number of unique combinations
     [[nodiscard]] constexpr int get(int target, int k) const
     {
-        if (target < 0 || target > 45 || k < 0 || k > 9) return 0;
+        if (target < 0 || target > 45 || k < 0 || k > 9)
+            return 0;
         return data[k][target];
     }
 };
@@ -142,7 +140,7 @@ constexpr int CountCombinations(int target, int k)
 
 struct PossibleNumbersTable
 {
-    static constexpr int MAX_SUM   = 45;
+    static constexpr int MAX_SUM = 45;
     static constexpr int MAX_COUNT = 9;
 
     std::array<std::array<uint16_t, MAX_SUM + 1>, MAX_COUNT + 1> table {};
@@ -157,24 +155,24 @@ struct PossibleNumbersTable
         {
             // Get the count of the numbers
             int cnt = 0;
-            #ifdef __GNUC__
+#ifdef __GNUC__
             cnt = __builtin_popcount(i);
-            #else
+#else
             cnt = std::popcount(i);
-            #endif
+#endif
 
             uint16_t sum = 0;
             uint16_t tmp = i;
             while (tmp)
             {
-                // Convert to number and add to the current sum
-                #ifdef __GNUC__
+// Convert to number and add to the current sum
+#ifdef __GNUC__
                 sum += __builtin_ctz(tmp) + 1;
-                #else
+#else
                 sum += std::countr_zero(tmp) + 1;
-                #endif
+#endif
 
-                tmp &= (tmp - 1);   // removes the rightmost 1 bit
+                tmp &= (tmp - 1); // removes the rightmost 1 bit
             }
 
             // Store the current count and the sum into the table
@@ -188,7 +186,8 @@ struct PossibleNumbersTable
     /// @return All the candidates in mask format
     [[nodiscard]] constexpr uint16_t get(size_t target, size_t count) const
     {
-        if (count > MAX_COUNT || target > MAX_SUM)  return 0;
+        if (count > MAX_COUNT || target > MAX_SUM)
+            return 0;
 
         return table[count][target];
     }
@@ -200,8 +199,8 @@ struct PossibleNumbersTable
 /// @return All the candidates in mask format
 constexpr uint16_t GetPossibleNumbersMask(size_t target, size_t count)
 {
-    static constexpr PossibleNumbersTable table{};
+    static constexpr PossibleNumbersTable table {};
     return table.get(target, count);
 }
 
-#endif // INCLUDE_BOARD_BOARDLIB_H_
+#endif // MODULES_BOARD_BOARDLIB_HPP

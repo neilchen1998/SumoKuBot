@@ -5,7 +5,7 @@
 
 #include "board/boardlib.hpp"   // Point
 #include "math/mathlib.hpp"        // PointHasher
-#include "shared/boostmathlib.hpp" // BoostPointHasher
+#include "math/boostmathlib.hpp" // BoostPointHasher
 
 TEMPLATE_TEST_CASE("Unordered Map w/ Hashers", "[unordered_map][hasher]", PointHasher, BoostPointHasher)
 {

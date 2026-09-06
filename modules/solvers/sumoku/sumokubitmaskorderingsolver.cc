@@ -1,17 +1,12 @@
 #include "sumokubitmaskorderingsolver.hpp"
 
-#include <bit>             // std::popcount
 #include <cstddef>         // size_t
 #include <cstdint>         // uint16_t
-#include <limits>          // std::numeric_limits<size_t>::max
-#include <mdspan>          // std::mdspan
-#include <optional>        // std::optional
 #include <spdlog/spdlog.h> // spdlog::debug, spdlog::trace
 #include <unordered_map>   // std::unordered_map
 #include <vector>          // std::vector
 
-#include "board/boardlib.hpp"    // Point, SudokuBoard
-#include "solvers/selection.hpp" // Selction
+#include "board/boardlib.hpp" // Point, SudokuBoard
 
 namespace sumoku
 {

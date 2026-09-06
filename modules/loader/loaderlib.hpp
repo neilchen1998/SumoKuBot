@@ -1,5 +1,5 @@
-#ifndef TESTS_COMMON_LOADERLIB_H_
-#define TESTS_COMMON_LOADERLIB_H_
+#ifndef MODULES_LOADER_LOADERLIB_HPP
+#define MODULES_LOADER_LOADERLIB_HPP
 
 #include <expected>          // std::expected
 #include <filesystem>        // std::filesystem
@@ -87,7 +87,7 @@ template <> struct PuzzleTraits<SumokuPuzzleData> : PuzzleTraitsBase<SumokuPuzzl
 /// @return The loaded and validated puzzle on success, or std::nullopt on failure.
 template <typename T> std::optional<T> LoadPuzzle(std::string_view path)
 {
-    const fs::path filePath{path};
+    const fs::path filePath {path};
 
     if (!fs::exists(filePath))
     {
@@ -164,4 +164,4 @@ template <typename T> std::vector<T> LoadAllPuzzles(std::string_view dir)
     return puzzles;
 }
 
-#endif // TESTS_COMMON_LOADERLIB_H_
+#endif // MODULES_LOADER_LOADERLIB_HPP

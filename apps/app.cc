@@ -16,7 +16,6 @@
 #include "loader/loaderlib.hpp" // LoadAllPuzzles, LoadPuzzle
 #include "solvers/sumoku/sumokubacktrackingsolver.hpp" // sumoku::SumokuBacktracking
 #include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
-#include "solvers/sumoku/sumokubitmasksolver.hpp" // sumoku::SumokuBacktracking
 #include "solvers/sumoku/sumokuorderingsolver.hpp" // sumoku::SumokuBacktracking
 #include "version.h"            // SUMOKUBOT_PROJECT_NAME, SUMOKUBOT_PROJECT_VERSION
 

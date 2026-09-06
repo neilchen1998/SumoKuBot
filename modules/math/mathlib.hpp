@@ -1,26 +1,24 @@
-#ifndef INCLUDE_MATH_MATHLIB_H_
-#define INCLUDE_MATH_MATHLIB_H_
+#ifndef MODULES_MATH_MATHLIB_HPP
+#define MODULES_MATH_MATHLIB_HPP
 
 #include <cstddef>    // size_t
 #include <functional> // std::hash
 
-#include "board/boardlib.hpp"   // Point
+#include "board/boardlib.hpp" // Point
 
 /// @brief Defines a type that is hashable
-template<typename T>
-concept Hashable = requires (T a)
-{
-    { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
+template <typename T>
+concept Hashable = requires(T a) {
+    { std::hash<T> {}(a) } -> std::convertible_to<std::size_t>;
 };
 
 /// @brief Hashes a value with a seed
 /// @tparam T Hashable
 /// @param seed The seed
 /// @param v The value
-template <Hashable T>
-void hash_combine(std::size_t& seed, const T& v)
+template <Hashable T> void hash_combine(std::size_t& seed, const T& v)
 {
-    seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<T> {}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
 struct PointHasher
@@ -34,4 +32,4 @@ struct PointHasher
     }
 };
 
-#endif // INCLUDE_MATH_MATHLIB_H_
+#endif // MODULES_MATH_MATHLIB_HPP

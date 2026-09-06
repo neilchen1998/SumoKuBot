@@ -1,12 +1,10 @@
 #ifndef MODULES_SOLVERS_SUDOKU_KILLERSUDOKUMRVSOLVER_HPP
 #define MODULES_SOLVERS_SUDOKU_KILLERSUDOKUMRVSOLVER_HPP
 
-#include <cstddef>         // size_t
-#include <cstdint>         // uint16_t
-#include <mdspan>          // std::mdspan
-#include <optional>        // std::optional
-#include <spdlog/spdlog.h> // spdlog::debug, spdlog::trace
-#include <vector>          // std::vector
+#include <cstddef> // size_t
+#include <cstdint> // uint16_t
+#include <mdspan>  // std::mdspan
+#include <vector>  // std::vector
 
 #include "board/boardlib.hpp"    // Point, SudokuBoard
 #include "solvers/selection.hpp" // Selction
