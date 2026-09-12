@@ -139,32 +139,95 @@ void validate_sukodu_row_column_box_constraints(const std::vector<std::vector<T>
     }
 }
 
+/// @brief Loads an unsolvable puzzle from the given path.
+/// @tparam T The trait of the puzzle.
+/// @param dir The directory of the puzzle.
+/// @return The loaded and validated puzzle on success, or std::nullopt on failure.
+template <typename T> std::optional<T> LoadUnsolvablePuzzle(std::string_view path)
+{
+    const fs::path filePath {path};
+
+    if (!fs::exists(filePath))
+    {
+        fmt::println(stderr, "Error: {} does not exist.", path);
+        return std::nullopt;
+    }
+
+    std::ifstream ifstrm(filePath);
+    if (!ifstrm)
+    {
+        fmt::println(stderr, "Error: Could not open file at {}.", path);
+        return std::nullopt;
+    }
+
+    try
+    {
+        nlohmann::json j;
+        ifstrm >> j;
+
+        T puzzle = j.get<T>();
+
+        return puzzle;
+    }
+    catch (const nlohmann::json::exception& e)
+    {
+        fmt::print(stderr, "JSON error: {}\n", e.what());
+        return std::nullopt;
+    }
+}
+
 TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", sudoku::SudokuDLXSolver, sudoku::SudokuBacktracking )
 {
-    // Load all the test cases
-    static std::string folder = GetTestDataPath() + "/sudoku";
-    static std::vector<SudokuPuzzleData> puzzles = LoadAllPuzzles<SudokuPuzzleData>(folder);
-
-    INFO("No Sudoku puzzles were loaded from: " << folder);
-    REQUIRE_FALSE(puzzles.empty());
-
-    for (auto& puzzle : puzzles)
+    SECTION("Solvable puzzles", "[main]")
     {
-        // Print out the label in case it fails
-        CAPTURE(puzzle.label);
+        // Load all the test cases
+        static std::string folder = GetTestDataPath() + "/sudoku/solvable";
+        static std::vector<SudokuPuzzleData> puzzles = LoadAllPuzzles<SudokuPuzzleData>(folder);
 
-        TestType s {puzzle.board};
+        INFO("No Sudoku puzzles were loaded from: " << folder);
+        REQUIRE_FALSE(puzzles.empty());
 
-        s.Solve();
+        for (auto& puzzle : puzzles)
+        {
+            // Print out the label in case it fails
+            CAPTURE(puzzle.label);
 
-        auto ret = s.GetSolution();
-        REQUIRE (ret);
+            TestType s {puzzle.board};
 
-        SudokuBoard solution = *ret;
+            s.Solve();
 
-        REQUIRE (solution.size() == puzzle.N);
-        validate_boad_is_square(solution);
-        validate_sukodu_row_column_box_constraints(solution);
+            auto ret = s.GetSolution();
+            REQUIRE (ret);
+
+            SudokuBoard solution = *ret;
+
+            REQUIRE (solution.size() == puzzle.N);
+            validate_boad_is_square(solution);
+            validate_sukodu_row_column_box_constraints(solution);
+        }
+    }
+
+    SECTION("Unsolvable puzzles", "[main]")
+    {
+        // Load all the test cases
+        static std::string folder = GetTestDataPath() + "/sudoku/unsolvable";
+        static std::vector<SudokuPuzzleData> puzzles = LoadAllPuzzles<SudokuPuzzleData>(folder);
+
+        INFO("No Sudoku puzzles were loaded from: " << folder);
+        REQUIRE_FALSE(puzzles.empty());
+
+        for (auto& puzzle : puzzles)
+        {
+            // Print out the label in case it fails
+            CAPTURE(puzzle.label);
+
+            TestType s {puzzle.board};
+
+            s.Solve();
+
+            auto ret = s.GetSolution();
+            REQUIRE_FALSE (ret);
+        }
     }
 }
 
@@ -581,31 +644,50 @@ TEST_CASE("Sumoku Solver: SumokuMRV", "[SumokuMRV]")
 
 TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
 {
-    // Load all the test cases
-    static std::string folder = GetTestDataPath() + "/killer_sudoku";
-    static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
-
-    // Check the vector to make sure it contains at least one test case
-    INFO("No Sumoku puzzles were loaded from: " << folder);
-    REQUIRE_FALSE(all_puzzles.empty());
-
-    const SumokuPuzzleData& data = GENERATE(from_range(all_puzzles));
-
-    // The section
-    DYNAMIC_SECTION("Puzzle: " << data.label)
+    SECTION("Solvable")
     {
+        // Load all the test cases
+        static std::string folder = GetTestDataPath() + "/killer_sudoku/solvable";
+        static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
+
+        // Check the vector to make sure it contains at least one test case
+        INFO("No Sumoku puzzles were loaded from: " << folder);
+        REQUIRE_FALSE(all_puzzles.empty());
+
+        const SumokuPuzzleData& data = GENERATE(from_range(all_puzzles));
+
+        // The section
+        DYNAMIC_SECTION("Puzzle: " << data.label)
+        {
+            killer_sudoku::KillerSudokuMRVSolver solver {data.N, data.boxes, data.sums};
+
+            solver.Solve();
+
+            auto ret = solver.GetSolution();
+            REQUIRE (ret != std::nullopt);
+
+            std::vector<std::vector<size_t>> solution = *ret;
+
+            REQUIRE (solution.size() == data.N);
+            validate_boad_is_square(solution);
+            validate_sukodu_row_column_box_constraints(solution);
+            validate_sumoku_constraints(solution, data.boxes, data.sums);
+        }
+    }
+
+    SECTION("Unsolvable")
+    {
+        static std::string file = GetTestDataPath() + "/killer_sudoku/unsolvable/killer_sudoku_puzzle_unsolvable_p1.json";
+        auto puzzle = LoadUnsolvablePuzzle<SumokuPuzzleData>(file);
+
+        REQUIRE(puzzle.has_value());
+
+        static SumokuPuzzleData data = *puzzle;
         killer_sudoku::KillerSudokuMRVSolver solver {data.N, data.boxes, data.sums};
 
         solver.Solve();
 
         auto ret = solver.GetSolution();
-        REQUIRE (ret != std::nullopt);
-
-        std::vector<std::vector<size_t>> solution = *ret;
-
-        REQUIRE (solution.size() == data.N);
-        validate_boad_is_square(solution);
-        validate_sukodu_row_column_box_constraints(solution);
-        validate_sumoku_constraints(solution, data.boxes, data.sums);
+        REQUIRE_FALSE (ret);
     }
 }

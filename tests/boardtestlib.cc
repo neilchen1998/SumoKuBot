@@ -1,9 +1,9 @@
 #define CATCH_CONFIG_MAIN
 
-#include <array>    // std::array
-
-#include <catch2/catch_all.hpp> // GENERATE
+#include <array>                        // std::array
+#include <catch2/catch_all.hpp>         // GENERATE
 #include <catch2/catch_test_macros.hpp> // TEST_CASE, SECTION, REQUIRE
+#include <ranges>                       // std::views::iota
 
 #include "board/boardlib.hpp"
 
@@ -70,7 +70,7 @@ constexpr int CountCombinationFourNumbers(int target)
 /// @brief Gets all the candidate that can sum up to a given target with two numbers O(N^2)
 /// @param target The target
 /// @return All the candidates in mask format
-constexpr uint16_t GetCandiateMaskWithTwoNumbers(int target)
+constexpr uint16_t GetCandidateMaskWithTwoNumbers(int target)
 {
     uint16_t ret = 0U;
     for (int i = 1; i <= 9; ++i)
@@ -113,21 +113,51 @@ constexpr uint16_t GetCandidateMaskWithThreeNumbers(int target)
     return ret;
 }
 
+/// @brief Gets all the candidate that can sum up to a given target with four numbers O(N^3)
+/// @param target The target
+/// @return All the candidates in mask format
+constexpr uint16_t GetCandidateMaskWithFourNumbers(int target)
+{
+    uint16_t ret = 0U;
+    for (int i : std::views::iota(1, 10))
+    {
+        for (int j : std::views::iota(i + 1, 10))
+        {
+            for (int k : std::views::iota(j + 1, 10))
+            {
+                for (int l : std::views::iota(k + 1, 10))
+                {
+                    if ((i + j + k + l) != target)
+                    {
+                        continue;
+                    }
+
+                    ret |= (1U << i);
+                    ret |= (1U << j);
+                    ret |= (1U << k);
+                    ret |= (1U << l);
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+
 /// @brief Generates the mask that contains all candidates
 /// @tparam ...Args The type of the digit
 /// @param ...digit The digit(s)
 /// @return The candidates in mask format
 template <typename... Args>
-requires (std::same_as<Args, int>&&...)
+requires(std::same_as<Args, int> && ...)
 uint16_t GenerateCandidateMask(Args... digit)
 {
     return ((1U << digit) | ... | 0);
 }
 
-TEST_CASE( "Combinations (Recursive)", "[main]" )
+TEST_CASE("Combinations (Recursive)", "[main]")
 {
-    constexpr std::array<int, 18> cache = []()
-    {
+    constexpr std::array<int, 18> cache = []() {
         std::array<int, 18> arr {};
         for (size_t i = 0; i < 18; ++i)
         {
@@ -135,55 +165,54 @@ TEST_CASE( "Combinations (Recursive)", "[main]" )
         }
 
         return arr;
-    }();    // () invokes the lambda immediately
+    }(); // () invokes the lambda immediately
 
     SECTION("Lower section")
     {
-        REQUIRE (cache[0] == 0);
-        REQUIRE (cache[1] == 0);
-        REQUIRE (cache[2] == 0);
+        REQUIRE(cache[0] == 0);
+        REQUIRE(cache[1] == 0);
+        REQUIRE(cache[2] == 0);
 
         // Combinations: {1, 2}
-        REQUIRE (cache[3] == 1);
-    }
+        REQUIRE(cache[3] == 1);
 
-    SECTION("Middle section")
-    {
-        // Combinations: {1, 8}, {2, 7}, {3, 6}, {4, 5}
-        REQUIRE (cache[9]  == 4);
+        // Combinations: {1, 3}
+        REQUIRE(cache[4] == 1);
 
-        // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
-        REQUIRE (cache[10] == 4);
-
-        // Combinations: {2, 9}, {3, 8}, {4, 7}, {5 ,6}
-        REQUIRE (cache[11] == 4);
-    }
-
-    SECTION("Upper section")
-    {
-        // Combinations: {7, 9}
-        REQUIRE (cache[16] == 1);
-
-        // Combinations: {8, 9}
-        REQUIRE (cache[17] == 1);
-    }
-
-    SECTION("No duplicates (a != b)")
-    {
-        // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
-        REQUIRE (cache[10] == 4);
+        // Combinations: {1, 4}, {2, 3}
+        REQUIRE(cache[5] == 2);
 
         // Combinations: {1, 5}, {2, 4}
-        REQUIRE (cache[6] == 2);
+        REQUIRE(cache[6] == 2);
+
+        // Combinations: {1, 6}, {2, 5}, {3, 4}
+        REQUIRE(cache[7] == 3);
+
+        // Combinations: {1, 7}, {2, 6}, {3, 5}
+        REQUIRE(cache[8] == 3);
+
+        // Combinations: {1, 8}, {2, 7}, {3, 6}, {4, 5}
+        REQUIRE(cache[9] == 4);
+
+        // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
+        REQUIRE(cache[10] == 4);
+
+        // Combinations: {2, 9}, {3, 8}, {4, 7}, {5 ,6}
+        REQUIRE(cache[11] == 4);
+
+        // Combinations: {7, 9}
+        REQUIRE(cache[16] == 1);
+
+        // Combinations: {8, 9}
+        REQUIRE(cache[17] == 1);
     }
 }
 
-TEST_CASE( "Combinations (Dynamic Programming)", "[main]" )
+TEST_CASE("Combinations (Dynamic Programming)", "[main]")
 {
     SECTION("Two numbers sum up to a target")
     {
-        constexpr std::array<int, 18> cache = []()
-        {
+        constexpr std::array<int, 18> cache = []() {
             std::array<int, 18> arr {};
             for (size_t i = 0; i < 18; ++i)
             {
@@ -195,7 +224,7 @@ TEST_CASE( "Combinations (Dynamic Programming)", "[main]" )
 
         for (size_t i = 0; i < 18; ++i)
         {
-            REQUIRE (CountCombinations(i, 2) == cache[i]);
+            REQUIRE(CountCombinations(i, 2) == cache[i]);
         }
     }
 
@@ -203,7 +232,7 @@ TEST_CASE( "Combinations (Dynamic Programming)", "[main]" )
     {
         auto i = GENERATE(range(6, 25));
 
-        REQUIRE (CountCombinations(i, 3) == CountCombinationThreeNumbers(i));
+        REQUIRE(CountCombinations(i, 3) == CountCombinationThreeNumbers(i));
     }
 
     SECTION("Four numbers sum up to a target")
@@ -216,50 +245,65 @@ TEST_CASE( "Combinations (Dynamic Programming)", "[main]" )
         // Print the values if the REQUIRE fails
         CAPTURE(i, res, ans);
 
-        REQUIRE (res == ans);
+        REQUIRE(res == ans);
+    }
+
+    SECTION("Invalid Inputs")
+    {
+        // The targets are invalid
+        REQUIRE(CountCombinations(-1, 2) == 0);
+        REQUIRE(CountCombinations(46, 2) == 0);
+
+        // The numbers of digits are invalid
+        REQUIRE(CountCombinations(10, -1) == 0);
+        REQUIRE(CountCombinations(10, 10) == 0);
+
+        // Both inputs are invalid
+        REQUIRE(CountCombinations(-1, -1) == 0);
+        REQUIRE(CountCombinations(46, 10) == 0);
     }
 }
 
-TEST_CASE( "Get Possible Numbers In Mask", "[main]" )
+TEST_CASE("Get Possible Numbers In Mask", "[main]")
 {
     SECTION("Lower section")
     {
-        REQUIRE (GetPossibleNumbersMask(0, 2) == 0);
-        REQUIRE (GetPossibleNumbersMask(1, 2) == 0);
-        REQUIRE (GetPossibleNumbersMask(2, 2) == 0);
+        REQUIRE(GetPossibleNumbersMask(0, 2) == 0);
+        REQUIRE(GetPossibleNumbersMask(1, 2) == 0);
+        REQUIRE(GetPossibleNumbersMask(2, 2) == 0);
 
         // Combinations: {1, 2}
-        REQUIRE (GetPossibleNumbersMask(3, 2) == GenerateCandidateMask(1, 2));
+        REQUIRE(GetPossibleNumbersMask(3, 2) == GenerateCandidateMask(1, 2));
     }
 
     SECTION("Middle section")
     {
         // Combinations: {1, 8}, {2, 7}, {3, 6}, {4, 5}
-        REQUIRE (GetPossibleNumbersMask(9, 2)  == GenerateCandidateMask(1, 8, 2, 7, 3, 6, 4, 5));
+        REQUIRE(GetPossibleNumbersMask(9, 2) == GenerateCandidateMask(1, 8, 2, 7, 3, 6, 4, 5));
 
         // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
-        REQUIRE (GetPossibleNumbersMask(10, 2) == GenerateCandidateMask(1, 9, 2, 8, 3, 7, 4, 6));
+        REQUIRE(GetPossibleNumbersMask(10, 2) == GenerateCandidateMask(1, 9, 2, 8, 3, 7, 4, 6));
 
         // Combinations: {2, 9}, {3, 8}, {4, 7}, {5 ,6}
-        REQUIRE (GetPossibleNumbersMask(11, 2) == GenerateCandidateMask(2, 9, 3, 8, 4, 7, 5, 6));
+        REQUIRE(GetPossibleNumbersMask(11, 2) == GenerateCandidateMask(2, 9, 3, 8, 4, 7, 5, 6));
     }
 
     SECTION("Upper section")
     {
         // Combinations: {7, 9}
-        REQUIRE (GetPossibleNumbersMask(16, 2) == GenerateCandidateMask(7, 9));
+        REQUIRE(GetPossibleNumbersMask(16, 2) == GenerateCandidateMask(7, 9));
 
         // Combinations: {8, 9}
-        REQUIRE (GetPossibleNumbersMask(17, 2) == GenerateCandidateMask(8, 9));
+        REQUIRE(GetPossibleNumbersMask(17, 2) == GenerateCandidateMask(8, 9));
     }
 
     SECTION("No duplicates (a != b)")
     {
         // Combinations: {1, 9}, {2, 8}, {3, 7}, {4, 6}
-        REQUIRE (GetPossibleNumbersMask(10, 2) == GenerateCandidateMask(1, 9, 2, 8, 3, 7, 4, 6));
+        REQUIRE(GetPossibleNumbersMask(10, 2) == GenerateCandidateMask(1, 9, 2, 8, 3, 7, 4, 6));
 
         // Combinations: {1, 5}, {2, 4}
-        REQUIRE (GetPossibleNumbersMask(6, 2) == GenerateCandidateMask(1, 5, 2, 4));
+        REQUIRE(GetPossibleNumbersMask(6, 2) == GenerateCandidateMask(1, 5, 2, 4));
     }
 
     SECTION("Two numbers sum up to a target")
@@ -267,14 +311,23 @@ TEST_CASE( "Get Possible Numbers In Mask", "[main]" )
         auto target = GENERATE(range(3, 45));
 
         uint16_t res = GetPossibleNumbersMask(target, 2);
-        uint16_t ans = GetCandiateMaskWithTwoNumbers(target);
+        uint16_t ans = GetCandidateMaskWithTwoNumbers(target);
 
         // Print the values if the REQUIRE fails
         CAPTURE(target, res, ans);
 
-        REQUIRE (res == ans);
+        REQUIRE(res == ans);
     }
 
+    SECTION("Invalid inputs")
+    {
+        REQUIRE(GetPossibleNumbersMask(10, 10) == 0U);
+        REQUIRE(GetPossibleNumbersMask(46, 2) == 0U);
+    }
+}
+
+TEST_CASE("Get Possible Numbers In Mask [Three Numbers]", "[mask]")
+{
     SECTION("Three numbers sum up to a target")
     {
         auto target = GENERATE(range(6, 45));
@@ -285,6 +338,31 @@ TEST_CASE( "Get Possible Numbers In Mask", "[main]" )
         // Print the values if the REQUIRE fails
         CAPTURE(target, res, ans);
 
-        REQUIRE (res == ans);
+        REQUIRE(res == ans);
+    }
+}
+
+TEST_CASE("Get Possible Numbers In Mask [Four Numbers]", "[mask]")
+{
+    auto target = GENERATE(range(10, 45));
+
+    const auto res = GetPossibleNumbersMask(target, 4);
+    const auto ans = GetCandidateMaskWithFourNumbers(target);
+
+    CAPTURE(target, res, ans);
+
+    REQUIRE(res == ans);
+}
+
+TEST_CASE("GetPossibleNumbersMask [Invalid Inputs]", "[mask]")
+{
+    SECTION("Count is too large")
+    {
+        REQUIRE(GetPossibleNumbersMask(10, 10) == 0U);
+    }
+
+    SECTION("Target is too large")
+    {
+        REQUIRE(GetPossibleNumbersMask(46, 2) == 0U);
     }
 }
