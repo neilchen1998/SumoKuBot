@@ -1,19 +1,15 @@
 #ifndef MODULES_BOARD_BOARDLIB_HPP
 #define MODULES_BOARD_BOARDLIB_HPP
 
-#include <array>    // std::array
-#include <concepts> // std::integral, std::same_as
-#include <cstddef>  // size_t
-#include <cstdint>  // uint16_t
-#include <vector>   // std::vector
-
-#ifndef __GNUC__
-#include <bit> // std::popcount
-#endif
-
+#include <array>             // std::array
+#include <bit>               // std::popcount
+#include <concepts>          // std::integral, std::same_as
+#include <cstddef>           // size_t
+#include <cstdint>           // uint16_t
 #include <fmt/core.h>        // fmt::print
 #include <fmt/ranges.h>      // fmt::print for std::array
 #include <nlohmann/json.hpp> // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE
+#include <vector>            // std::vector
 
 using SudokuBoard = std::vector<std::vector<size_t>>;
 
@@ -40,7 +36,8 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Point, x, y) // for nlohmann::json
 /// @brief Print a Sudoku board
 /// @tparam T The element type of the board (must support << operator)
 /// @param board The given Sudoku board
-template <BoardType T> inline void PrintBoard(const std::vector<std::vector<T>>& board)
+template <BoardType T>
+inline void PrintBoard(const std::vector<std::vector<T>>& board)
 {
     for (const auto& row : board)
     {

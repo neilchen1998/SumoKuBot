@@ -228,7 +228,8 @@ cmake --workflow --preset coverage
 Merge all profiles into one report:
 
 ```zsh
-/opt/homebrew/opt/llvm/bin/llvm-profdata merge -sparse $(find _build-coverage -name '*.profraw') \
+/opt/homebrew/opt/llvm/bin/llvm-profdata merge -sparse \
+  $(find _build-coverage -name '*.profraw') \
   -o _build-coverage/coverage.profdata
 ```
 
@@ -239,7 +240,8 @@ Generate a coverage report:
   _build-coverage/tests/solvertestlib \
   -object _build-coverage/tests/mathtestlib \
   -object _build-coverage/tests/boardtestlib \
-  -instr-profile=_build-coverage/coverage.profdata
+  -instr-profile=_build-coverage/coverage.profdata \
+  -ignore-filename-regex='(^|/)tests/'
 ```
 
 Generate an HTML report:
@@ -253,32 +255,30 @@ rm -rf _build-coverage/html
   -object _build-coverage/tests/boardtestlib \
   -instr-profile=_build-coverage/coverage.profdata \
   -format=html \
-  -output-dir=_build-coverage/html
+  -output-dir=_build-coverage/html \
+  -ignore-filename-regex='(^|/)tests/'
 ```
 
 ```text
-Filename                                                Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-modules/board/boardlib.hpp                                   23                 6    73.91%           7                 2    71.43%          51                34    33.33%          16                10    37.50%
-modules/loader/loaderlib.cc                                  45                11    75.56%           4                 0   100.00%          69                33    52.17%          34                14    58.82%
-modules/loader/loaderlib.hpp                                 34                12    64.71%           4                 0   100.00%          59                22    62.71%          18                 7    61.11%
-modules/math/boostmathlib.hpp                                 1                 0   100.00%           1                 0   100.00%           6                 0   100.00%           0                 0         -
-modules/math/mathlib.hpp                                      2                 0   100.00%           2                 0   100.00%           9                 0   100.00%           0                 0         -
-modules/solvers/sudoku/killersudokumrvsolver.cc              63                 1    98.41%           7                 0   100.00%         111                 3    97.30%          34                 2    94.12%
-modules/solvers/sudoku/sudokubacktracking.cc                 48                 1    97.92%           5                 0   100.00%          65                 0   100.00%          28                 1    96.43%
-modules/solvers/sudoku/sudokudlx.cc                          76                16    78.95%           9                 1    88.89%         152                28    81.58%          46                12    73.91%
-modules/solvers/sudoku/sudokudlx.hpp                         10                 0   100.00%           5                 0   100.00%          10                 0   100.00%           0                 0         -
-modules/solvers/sumoku/sumokubacktrackingsolver.cc           67                 3    95.52%           6                 1    83.33%          90                 6    93.33%          46                 2    95.65%
-modules/solvers/sumoku/sumokubacktrackingsolver.hpp           1                 0   100.00%           1                 0   100.00%           1                 0   100.00%           0                 0         -
-modules/solvers/sumoku/sumokubitmasksolver.cc                40                 1    97.50%           3                 0   100.00%          56                 3    94.64%          28                 1    96.43%
-modules/solvers/sumoku/sumokumrvsolver.cc                    67                 2    97.01%           7                 0   100.00%         119                 6    94.96%          38                 3    92.11%
-modules/solvers/sumoku/sumokuorderingsolver.cc               67                 4    94.03%           7                 1    85.71%         101                 9    91.09%          44                 3    93.18%
-modules/solvers/sumoku/sumokuorderingsolver.hpp               1                 0   100.00%           1                 0   100.00%           1                 0   100.00%           0                 0         -
-tests/boardtestlib.cc                                       664                28    95.78%           9                 1    88.89%         184                12    93.48%          87                 0   100.00%
-tests/mathtestlib.cc                                        183                10    94.54%           1                 0   100.00%          31                 0   100.00%          17                 1    94.12%
-tests/solvertestlib.cc                                      996                44    95.58%          13                 0   100.00%         409                 0   100.00%          94                 3    96.81%
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-TOTAL                                                      2388               139    94.18%          92                 6    93.48%        1524               156    89.76%         530                59    88.87%
+Filename                                        Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+board/boardlib.hpp                                   23                 4    82.61%           7                 2    71.43%          51                32    37.25%          16                 4    75.00%
+loader/loaderlib.cc                                  45                11    75.56%           4                 0   100.00%          69                33    52.17%          34                14    58.82%
+loader/loaderlib.hpp                                 34                12    64.71%           4                 0   100.00%          59                22    62.71%          18                 7    61.11%
+math/boostmathlib.hpp                                 1                 0   100.00%           1                 0   100.00%           6                 0   100.00%           0                 0         -
+math/mathlib.hpp                                      2                 0   100.00%           2                 0   100.00%           9                 0   100.00%           0                 0         -
+solvers/sudoku/killersudokumrvsolver.cc              63                 1    98.41%           7                 0   100.00%         111                 3    97.30%          34                 2    94.12%
+solvers/sudoku/sudokubacktracking.cc                 48                 0   100.00%           5                 0   100.00%          65                 0   100.00%          28                 0   100.00%
+solvers/sudoku/sudokudlx.cc                          76                 0   100.00%           9                 0   100.00%         152                 0   100.00%          46                 1    97.83%
+solvers/sudoku/sudokudlx.hpp                         10                 0   100.00%           5                 0   100.00%          10                 0   100.00%           0                 0         -
+solvers/sumoku/sumokubacktrackingsolver.cc           67                 3    95.52%           6                 1    83.33%          90                 6    93.33%          46                 2    95.65%
+solvers/sumoku/sumokubacktrackingsolver.hpp           1                 0   100.00%           1                 0   100.00%           1                 0   100.00%           0                 0         -
+solvers/sumoku/sumokubitmasksolver.cc                40                 1    97.50%           3                 0   100.00%          56                 3    94.64%          28                 1    96.43%
+solvers/sumoku/sumokumrvsolver.cc                    67                 2    97.01%           7                 0   100.00%         119                 6    94.96%          38                 3    92.11%
+solvers/sumoku/sumokuorderingsolver.cc               67                 4    94.03%           7                 1    85.71%         101                 9    91.09%          44                 3    93.18%
+solvers/sumoku/sumokuorderingsolver.hpp               1                 0   100.00%           1                 0   100.00%           1                 0   100.00%           0                 0         -
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                               545                38    93.03%          69                 4    94.20%         900               114    87.33%         332                37    88.86%
 ```
 
 ## Notes
