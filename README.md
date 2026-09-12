@@ -219,6 +219,12 @@ LLVM_PROFILE_FILE="$PWD/_build-coverage/coverage-%p.profraw" \
   ctest --preset coverage
 ```
 
+Or just run the workflow by:
+
+```zsh
+cmake --workflow --preset coverage
+```
+
 Merge all profiles into one report:
 
 ```zsh

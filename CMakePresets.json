@@ -114,9 +114,33 @@
     {
       "name": "coverage",
       "configurePreset": "coverage",
+      "environment": {
+        "LLVM_PROFILE_FILE": "${sourceDir}/_build-coverage/coverage-%p.profraw"
+      },
       "output": {
         "outputOnFailure": true
       }
+    }
+  ],
+
+  "workflowPresets": [
+    {
+      "name": "coverage",
+      "displayName": "Coverage",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "coverage"
+        },
+        {
+          "type": "build",
+          "name": "coverage"
+        },
+        {
+          "type": "test",
+          "name": "coverage"
+        }
+      ]
     }
   ]
 }
