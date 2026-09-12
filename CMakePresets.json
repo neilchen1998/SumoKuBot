@@ -38,7 +38,6 @@
         "PROJECT_BUILD_BENCHMARKS": "OFF"
       }
     },
-
     {
       "name": "release",
       "displayName": "Release",
@@ -55,6 +54,19 @@
         "PROJECT_BUILD_APPS": "OFF",
         "PROJECT_BUILD_TESTS": "OFF",
         "PROJECT_BUILD_BENCHMARKS": "ON"
+      }
+    },
+    {
+      "name": "coverage",
+      "displayName": "Coverage",
+      "inherits": "debug-tests",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/opt/homebrew/opt/llvm/bin/clang",
+        "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
+        "CMAKE_C_FLAGS": "-fprofile-instr-generate -fcoverage-mapping",
+        "CMAKE_CXX_FLAGS": "-fprofile-instr-generate -fcoverage-mapping",
+        "CMAKE_EXE_LINKER_FLAGS": "-fprofile-instr-generate",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fprofile-instr-generate"
       }
     }
   ],
@@ -75,7 +87,6 @@
       "configurePreset": "release",
       "jobs": 0
     },
-
     {
       "$comment": "Will run benchmarks immediately afterwards",
       "name": "release-benchmarks",
@@ -84,6 +95,11 @@
       "targets": [
         "benchmarks"
       ]
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "jobs": 0
     }
   ],
 
@@ -94,6 +110,37 @@
       "output": {
         "outputOnFailure": true
       }
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "environment": {
+        "LLVM_PROFILE_FILE": "${sourceDir}/_build-coverage/coverage-%p.profraw"
+      },
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ],
+
+  "workflowPresets": [
+    {
+      "name": "coverage",
+      "displayName": "Coverage",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "coverage"
+        },
+        {
+          "type": "build",
+          "name": "coverage"
+        },
+        {
+          "type": "test",
+          "name": "coverage"
+        }
+      ]
     }
   ]
 }
