@@ -263,11 +263,11 @@ rm -rf _build-coverage/html
 Filename                                        Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 board/boardlib.hpp                                   23                 4    82.61%           7                 2    71.43%          51                32    37.25%          16                 4    75.00%
-loader/loaderlib.cc                                  45                11    75.56%           4                 0   100.00%          69                33    52.17%          34                14    58.82%
-loader/loaderlib.hpp                                 34                12    64.71%           4                 0   100.00%          59                22    62.71%          18                 7    61.11%
+loader/loaderlib.cc                                  45                 9    80.00%           4                 0   100.00%          69                27    60.87%          34                12    64.71%
+loader/loaderlib.hpp                                 34                10    70.59%           4                 0   100.00%          59                18    69.49%          18                 5    72.22%
 math/boostmathlib.hpp                                 1                 0   100.00%           1                 0   100.00%           6                 0   100.00%           0                 0         -
 math/mathlib.hpp                                      2                 0   100.00%           2                 0   100.00%           9                 0   100.00%           0                 0         -
-solvers/sudoku/killersudokumrvsolver.cc              63                 1    98.41%           7                 0   100.00%         111                 3    97.30%          34                 2    94.12%
+solvers/sudoku/killersudokumrvsolver.cc              63                 0   100.00%           7                 0   100.00%         111                 0   100.00%          34                 1    97.06%
 solvers/sudoku/sudokubacktracking.cc                 48                 0   100.00%           5                 0   100.00%          65                 0   100.00%          28                 0   100.00%
 solvers/sudoku/sudokudlx.cc                          76                 0   100.00%           9                 0   100.00%         152                 0   100.00%          46                 1    97.83%
 solvers/sudoku/sudokudlx.hpp                         10                 0   100.00%           5                 0   100.00%          10                 0   100.00%           0                 0         -
@@ -278,7 +278,7 @@ solvers/sumoku/sumokumrvsolver.cc                    67                 2    97.
 solvers/sumoku/sumokuorderingsolver.cc               67                 4    94.03%           7                 1    85.71%         101                 9    91.09%          44                 3    93.18%
 solvers/sumoku/sumokuorderingsolver.hpp               1                 0   100.00%           1                 0   100.00%           1                 0   100.00%           0                 0         -
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-TOTAL                                               545                38    93.03%          69                 4    94.20%         900               114    87.33%         332                37    88.86%
+TOTAL                                               545                33    93.94%          69                 4    94.20%         900               101    88.78%         332                32    90.36%
 ```
 
 ## Notes

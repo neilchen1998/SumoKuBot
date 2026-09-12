@@ -683,7 +683,6 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
         REQUIRE(puzzle.has_value());
 
         static SumokuPuzzleData data = *puzzle;
-
         killer_sudoku::KillerSudokuMRVSolver solver {data.N, data.boxes, data.sums};
 
         solver.Solve();
