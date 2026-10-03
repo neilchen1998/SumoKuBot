@@ -15,17 +15,20 @@ jobs:
       - name: Install Clang and libc++
         run: |
             sudo apt-get update
-            sudo apt-get install -y clang libc++-dev libc++abi-dev
+            sudo apt-get install -y \
+              clang-19 \
+              libc++-19-dev \
+              libc++abi-19-dev
 
       - name: Check compiler
         run: |
-          clang++ --version
-          clang++ -std=c++23 -stdlib=libc++ -xc++ -E -v /dev/null
+          clang++-19 --version
+          clang++-19 -std=c++23 -stdlib=libc++ -E -x c++ /dev/null
 
       - name: Configure
         run: |
-          CC=clang \
-          CXX="clang++ -stdlib=libc++" \
+          CC=clang-19 \
+          CXX="clang++-19 -stdlib=libc++" \
           CI_BUILD_NUMBER=${{ github.run_number }} cmake --preset ci-release
 
       - name: Build
