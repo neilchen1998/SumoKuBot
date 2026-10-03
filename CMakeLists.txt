@@ -89,8 +89,8 @@ include(FetchContent)
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG        12.1.0
-  FIND_PACKAGE_ARGS CONFIG 12.0...<13.0
+  GIT_TAG        11.2.0
+  FIND_PACKAGE_ARGS CONFIG 11.0...<13.0
 )
 FetchContent_MakeAvailable(fmt)
 
