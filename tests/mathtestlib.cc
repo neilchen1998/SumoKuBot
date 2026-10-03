@@ -2,6 +2,7 @@
 
 #include <catch2/catch_all.hpp>         // GENERATE
 #include <catch2/catch_test_macros.hpp> // TEST_CASE, SECTION, REQUIRE, REQUIRE_THROWS_AS
+#include <stdexcept>                    // std::out_of_range
 
 #include "board/boardlib.hpp" // Point
 #include "math/mathlib.hpp"   // PointHasher

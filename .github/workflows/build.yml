@@ -28,7 +28,7 @@ jobs:
       - name: Configure
         run: |
           CC=clang-19 \
-          CXX="clang++-19 -stdlib=libc++" \
+          CXX="clang++-19 \
           cmake --preset debug-tests
 
       - name: Build
