@@ -1,0 +1,19 @@
+name: Build C++
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: CI_BUILD_NUMBER=${{ github.run_number }} cmake --preset ci-release
+
+      - name: Build
+        run: cmake --build --preset ci-release
