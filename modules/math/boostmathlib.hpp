@@ -1,4 +1,4 @@
-#include <boost/container_hash/hash.hpp> // boost::hash_combine
+#include <boost/container_hash/hash_combine.hpp> // boost::hash_combine
 
 #include "board/boardlib.hpp" // Point
 
