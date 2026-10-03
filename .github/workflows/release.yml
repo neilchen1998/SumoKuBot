@@ -2,8 +2,8 @@ name: Build and Release
 
 on:
   push:
-    # tags:
-    #   - 'v*' # triggers the workflow if and only if a version tag (e.g., v1.0.0) is pushed
+    tags:
+      - 'v*' # triggers the workflow if and only if a version tag (e.g., v1.0.0) is pushed
 
 jobs:
   release:
