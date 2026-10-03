@@ -39,4 +39,4 @@ jobs:
           ./_build-ci-release/apps/app -v
 
       - name: Create Package (CPack)
-        run: cmake --build build --target package
+        run: cpack --preset ci-release
