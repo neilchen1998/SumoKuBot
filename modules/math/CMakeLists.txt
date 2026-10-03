@@ -5,6 +5,16 @@ if(Boost_FOUND)
 else()
     message(STATUS "Boost not found or version is too old, downloading via FetchContent...")
     FetchContent_Declare(
+      boost_config
+      GIT_REPOSITORY https://github.com/boostorg/config.git
+      GIT_TAG        boost-1.67.0
+    )
+    FetchContent_Declare(
+      boost_assert
+      GIT_REPOSITORY https://github.com/boostorg/assert.git
+      GIT_TAG        boost-1.67.0
+    )
+    FetchContent_Declare(
       boost_hash
       GIT_REPOSITORY https://github.com/boostorg/container_hash.git
       GIT_TAG        boost-1.67.0
@@ -20,6 +30,8 @@ else()
     # Create an interface target so your code treats it like a system library
     add_library(Boost::boost INTERFACE IMPORTED)
     target_include_directories(Boost::boost INTERFACE
+      ${boost_config_SOURCE_DIR}/include
+      ${boost_assert_SOURCE_DIR}/include
       ${boost_hash_SOURCE_DIR}/include
       ${boost_core_SOURCE_DIR}/include
     )
