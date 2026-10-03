@@ -12,16 +12,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install GCC
+      - name: Install Clang and libc++
         run: |
             sudo apt-get update
-            sudo apt-get install -y g++-14
+            sudo apt-get install -y clang libc++-dev libc++abi-dev
 
       - name: Check compiler
-        run: g++-14 --version
+        run: |
+          clang++ --version
+          clang++ -std=c++23 -stdlib=libc++ -xc++ -E -v /dev/null
 
       - name: Configure
-        run: CXX=g++-14 CC=gcc-14 CI_BUILD_NUMBER=${{ github.run_number }} cmake --preset ci-release
+        run: |
+          CC=clang \
+          CXX="clang++ -stdlib=libc++" \
+          CI_BUILD_NUMBER=${{ github.run_number }} cmake --preset ci-release
 
       - name: Build
         run: cmake --build --preset ci-release
