@@ -33,3 +33,7 @@ jobs:
 
       - name: Build
         run: cmake --build --preset ci-release
+
+      - name: Run Application
+        run: |
+          ./_build-ci-release/apps/app -v
