@@ -40,6 +40,7 @@ target_link_libraries(solvertestlib PRIVATE
   board_library
   Catch2::Catch2WithMain
   loader_library
+  spdlog::spdlog
 
   # targets
   killer_sudoku::solver

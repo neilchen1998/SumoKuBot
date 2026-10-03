@@ -1,13 +1,13 @@
 #define CATCH_CONFIG_MAIN
 
-#include <catch2/catch_all.hpp> // GENERATE
+#include <catch2/catch_all.hpp>         // GENERATE
 #include <catch2/catch_test_macros.hpp> // TEST_CASE, SECTION, REQUIRE, REQUIRE_THROWS_AS
+#include <stdexcept>                    // std::out_of_range
 
-#include "board/boardlib.hpp"   // Point
-#include "math/mathlib.hpp"        // PointHasher
-#include "math/boostmathlib.hpp" // BoostPointHasher
+#include "board/boardlib.hpp" // Point
+#include "math/mathlib.hpp"   // PointHasher
 
-TEMPLATE_TEST_CASE("Unordered Map w/ Hashers", "[unordered_map][hasher]", PointHasher, BoostPointHasher)
+TEMPLATE_TEST_CASE("Unordered Map w/ Hashers", "[unordered_map][hasher]", PointHasher)
 {
     std::unordered_map<Point, int, TestType> m;
 

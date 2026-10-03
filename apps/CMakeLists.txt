@@ -41,11 +41,3 @@ add_custom_command(
     COMMENT "Display binary size..."
     VERBATIM
 )
-
-# Print out the version from the binary after it is built
-add_custom_command(
-    TARGET app
-    POST_BUILD
-    COMMAND $<TARGET_FILE:app> --version
-    COMMENT "Verifying binary runs and reports the SW version..."
-)

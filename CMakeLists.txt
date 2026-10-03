@@ -89,16 +89,16 @@ include(FetchContent)
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG        12.1.0
-  FIND_PACKAGE_ARGS CONFIG 12.0...<13.0
+  GIT_TAG        11.2.0
+  FIND_PACKAGE_ARGS CONFIG 11.0...<13.0
 )
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(
   spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG        v1.16.0
-  FIND_PACKAGE_ARGS CONFIG 1.16.0
+  GIT_TAG        v1.15.3
+  FIND_PACKAGE_ARGS CONFIG 1.15.3
 )
 FetchContent_MakeAvailable(spdlog)
 
@@ -115,6 +115,25 @@ else()
   )
   FetchContent_MakeAvailable(json)
 endif()
+
+find_package(Git QUIET)
+
+if(GIT_FOUND)
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --short=8 HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE PROJECT_GIT_COMMIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+endif()
+
+if(NOT PROJECT_GIT_COMMIT_HASH)
+    set(PROJECT_GIT_COMMIT_HASH "unknown")
+endif()
+
+# Configure the SW build number
+set(PROJECT_BUILD_NUMBER 0 CACHE STRING "CI build number")
 
 # Configure the SW version file
 configure_file(
@@ -150,31 +169,5 @@ if(PROJECT_IS_TOP_LEVEL AND (PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS))
   endif()
 endif()
 
-if(PROJECT_IS_TOP_LEVEL)
-
-  # The name of the package <PROJECT_NAME>-<PROJECT_VERSION>.tar.gz
-  set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-  set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
-
-  # The location of LICENSE
-  set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-
-  # The location of README
-  set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-
-  # Bundle the package into a compressed tarball
-  set(CPACK_GENERATOR "TGZ")
-
-  # Generate SHA256 for users to verify the integrity of the package
-  set(CPACK_PACKAGE_CHECKSUM "SHA256")
-
-  # Install LICENSE and README into the package
-  install(FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
-    "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
-    DESTINATION .
-  )
-
-  # CPack helps
-  include(CPack)
-endif()
+# Include custom cmake
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPackConfig.cmake")

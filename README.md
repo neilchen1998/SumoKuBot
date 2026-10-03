@@ -166,6 +166,18 @@ Create a symbolic link such that C++ servers like **clangd** can know the code:
 ln -sf _build-release/compile_commands.json compile_commands.json
 ```
 
+To configure this repo with CI:
+
+```zsh
+CI_BUILD_NUMBER=<build_number> cmake --preset ci-release
+```
+
+To build this repo with CI:
+
+```zsh
+cmake --build --preset ci-release
+```
+
 ## Benchmark
 
 The following table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).

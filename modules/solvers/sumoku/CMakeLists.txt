@@ -8,7 +8,7 @@ add_library(sumoku_solver
 
 target_include_directories(sumoku_solver PUBLIC ${PROJECT_SOURCE_DIR}/modules)
 
-target_link_libraries(sumoku_solver PRIVATE board_library spdlog::spdlog)
+target_link_libraries(sumoku_solver PRIVATE spdlog::spdlog board_library)
 target_link_libraries(sumoku_solver PRIVATE project_options)
 
 add_library(sumoku::solver ALIAS sumoku_solver)
