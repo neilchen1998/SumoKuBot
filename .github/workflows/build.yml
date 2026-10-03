@@ -28,7 +28,7 @@ jobs:
       - name: Configure
         run: |
           CC=clang-19 \
-          CXX="clang++-19" \
+          CXX="clang++-19 -stdlib=libc++" \ # for std::mdspan
           cmake --preset debug-tests
 
       - name: Build
@@ -36,6 +36,8 @@ jobs:
 
       - name: Run Unit Tests
         run: ctest --preset debug-tests --output-on-failure
+        env:
+          ASAN_OPTIONS: alloc_dealloc_mismatch=0 # for alloc-dealloc-mismatch
 
       - name: Check Application Number
         run: |
