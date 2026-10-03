@@ -1,4 +1,4 @@
-name: Build C++
+name: Build and Test
 
 on:
   push:
@@ -29,10 +29,13 @@ jobs:
         run: |
           CC=clang-19 \
           CXX="clang++-19 -stdlib=libc++" \
-          CI_BUILD_NUMBER=${{ github.run_number }} cmake --preset ci-release
+          cmake --preset debug-tests
 
       - name: Build
-        run: cmake --build --preset ci-release
+        run: cmake --build --preset debug-tests
+
+      - name: Run Unit Tests
+        run: ctest --preset debug-tests
 
       - name: Check Application Number
         run: |
