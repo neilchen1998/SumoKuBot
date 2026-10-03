@@ -170,4 +170,4 @@ if(PROJECT_IS_TOP_LEVEL AND (PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS))
 endif()
 
 # Include custom cmake
-include(CPackConfig)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPackConfig.cmake")
