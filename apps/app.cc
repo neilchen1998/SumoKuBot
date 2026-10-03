@@ -18,7 +18,7 @@
 #include "solvers/sumoku/sumokubacktrackingsolver.hpp"    // sumoku::SumokuBacktracking
 #include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
 #include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuBacktracking
-#include "version.h"                                      // SUMOKUBOT_PROJECT_NAME, SUMOKUBOT_PROJECT_VERSION
+#include "version.h"                                      // build_info::project_name, build_info::version, etc.
 
 namespace fs = std::filesystem;
 
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
     spdlog::info("Application started");
 
     CLI::App app {"Options:"};
-    app.name(SUMOKUBOT_PROJECT_NAME);
+    app.name(build_info::project_name);
 
     SolverType solverType {SolverType::SumokuMRV};
     fs::path filePath;
@@ -184,8 +184,9 @@ int main(int argc, char* argv[])
     // Benchmark
     app.add_flag("-b,--benchmark", benchmark, "Show benchmark result");
 
-    // Version
-    std::string versionInfo = fmt::format("{}: {}", app.get_name(), SUMOKUBOT_PROJECT_VERSION);
+    // Metadata
+    std::string versionInfo = fmt::format("{}: {}\nBuild #: {}\nCommit: {}\nBuild date: {}", app.get_name(), build_info::version,
+                                          build_info::build_number, build_info::commit_hash, build_info::build_date);
     app.set_version_flag("-v,--version", versionInfo);
 
     // Check if the user inputs are valid

@@ -1,12 +1,20 @@
 #pragma once
 
-#define SUMOKUBOT_PROJECT_NAME "@PROJECT_NAME@"
+#include <string_view>
 
-// SW version
-#define SUMOKUBOT_PROJECT_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
-#define SUMOKUBOT_PROJECT_VERSION_MINOR @PROJECT_VERSION_MINOR@
-#define SUMOKUBOT_PROJECT_VERSION_PATCH @PROJECT_VERSION_PATCH@
-#define SUMOKUBOT_PROJECT_VERSION "@PROJECT_VERSION@"
+namespace build_info
+{
 
-// Build date
-#define PROJECT_BUILD_DATE "@PROJECT_BUILD_DATE@"
+inline constexpr const char* project_name = "@PROJECT_NAME@";
+
+inline constexpr int version_major = @PROJECT_VERSION_MAJOR@;
+inline constexpr int version_minor = @PROJECT_VERSION_MINOR@;
+inline constexpr int version_patch = @PROJECT_VERSION_PATCH@;
+
+inline constexpr int build_number = @PROJECT_BUILD_NUMBER@;
+inline constexpr std::string_view commit_hash = "@PROJECT_GIT_COMMIT_HASH@";
+
+inline constexpr const char* version = "@PROJECT_VERSION@";
+inline constexpr std::string_view build_date = "@PROJECT_BUILD_DATE@";
+
+} // namespace build_info
