@@ -116,6 +116,25 @@ else()
   FetchContent_MakeAvailable(json)
 endif()
 
+find_package(Git QUIET)
+
+if(GIT_FOUND)
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --short=8 HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE PROJECT_GIT_COMMIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+endif()
+
+if(NOT PROJECT_GIT_COMMIT_HASH)
+    set(PROJECT_GIT_COMMIT_HASH "unknown")
+endif()
+
+# Configure the SW build number
+set(PROJECT_BUILD_NUMBER 0 CACHE STRING "CI build number")
+
 # Configure the SW version file
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/modules/project/version.h.in"
