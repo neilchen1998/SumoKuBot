@@ -22,7 +22,7 @@ target_include_directories(boardtestlib PUBLIC ${PROJECT_SOURCE_DIR}/modules)
 target_include_directories(mathtestlib PUBLIC ${PROJECT_SOURCE_DIR}/modules)
 target_include_directories(solvertestlib PUBLIC ${PROJECT_SOURCE_DIR}/modules)
 
-target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain spdlog::spdlog board_library)
+target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library)
 target_link_libraries(boardtestlib PRIVATE project_options)
 target_link_libraries(mathtestlib PRIVATE board_library Catch2::Catch2WithMain)
 target_link_libraries(mathtestlib PRIVATE project_options)
@@ -30,6 +30,7 @@ target_link_libraries(solvertestlib PRIVATE
   board_library
   Catch2::Catch2WithMain
   loader_library
+  spdlog::spdlog
 
   # targets
   killer_sudoku::solver
