@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24...4.0)
 
 project(
   SumoKuBot
-  VERSION 2.1.0
+  VERSION 2.2.0
   DESCRIPTION "A fast C++ CLI that solves Sumoku and Killer Sudoku puzzles"
   LANGUAGES CXX
 )
