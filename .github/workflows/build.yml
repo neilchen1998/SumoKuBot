@@ -35,7 +35,7 @@ jobs:
         run: cmake --build --preset debug-tests
 
       - name: Run Unit Tests
-        run: ctest --preset debug-tests
+        run: ctest --preset debug-tests --output-on-failure
 
       - name: Check Application Number
         run: |
