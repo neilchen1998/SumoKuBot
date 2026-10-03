@@ -7,6 +7,7 @@
 #include <cstddef>           // size_t
 #include <cstdint>           // uint16_t
 #include <fmt/core.h>        // fmt::print
+#include <fmt/format.h>      // fmt::format
 #include <fmt/ranges.h>      // fmt::print for std::array
 #include <nlohmann/json.hpp> // NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE
 #include <vector>            // std::vector
