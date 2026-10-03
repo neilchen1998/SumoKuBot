@@ -3,7 +3,6 @@
 
 #include <cstddef>         // size_t
 #include <optional>        // std::optional
-#include <spdlog/spdlog.h> // spdlog::debug, spdlog::trace
 #include <unordered_map>   // std::unordered_map
 #include <vector>          // std::vector
 
