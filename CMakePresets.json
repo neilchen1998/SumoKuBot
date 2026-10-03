@@ -47,6 +47,15 @@
       }
     },
     {
+      "name": "ci-release",
+      "displayName": "CI",
+      "inherits": "release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "PROJECT_BUILD_NUMBER": "$env{CI_BUILD_NUMBER}"
+      }
+    },
+    {
       "name": "release-benchmarks",
       "displayName": "Release + Benchmarks",
       "inherits": "release",
@@ -72,6 +81,11 @@
   ],
 
   "buildPresets": [
+    {
+      "name": "ci-release",
+      "configurePreset": "ci-release",
+      "jobs": 4
+    },
     {
       "name": "debug",
       "configurePreset": "debug",
