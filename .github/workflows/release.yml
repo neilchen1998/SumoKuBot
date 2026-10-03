@@ -1,0 +1,54 @@
+name: Build and Release
+
+on:
+  push:
+    # tags:
+    #   - 'v*' # triggers the workflow if and only if a version tag (e.g., v1.0.0) is pushed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Clang and libc++
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang-19 \
+            libc++-19-dev \
+            libc++abi-19-dev
+
+      - name: Check Compiler
+        run: |
+          clang++-19 --version
+          clang++-19 -std=c++23 -stdlib=libc++ -E -x c++ /dev/null
+
+      - name: Configure
+        run: |
+          CC=clang-19 \
+          CXX="clang++-19 -stdlib=libc++" \
+          CI_BUILD_NUMBER=${{ github.run_number }} cmake --preset ci-release
+
+      - name: Build
+        run: cmake --build --preset ci-release
+
+      - name: Check Application Number
+        run: |
+          ./_build-ci-release/apps/app -v
+
+      - name: Create Package (CPack)
+        run: cpack --preset ci-release
+
+      - name: Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            _build-ci-release/*.tar.gz
+            _build-ci-release/*.tar.gz.sha256
+          generate_release_notes: true
