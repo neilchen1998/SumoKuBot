@@ -26,9 +26,10 @@ jobs:
           clang++-19 -std=c++23 -stdlib=libc++ -E -x c++ /dev/null
 
       - name: Configure
+        # We need libc++ here to support <mdspan> on Ubuntu
         run: |
           CC=clang-19 \
-          CXX="clang++-19 -stdlib=libc++" \ # for std::mdspan
+          CXX="clang++-19 -stdlib=libc++" \
           cmake --preset debug-tests
 
       - name: Build
