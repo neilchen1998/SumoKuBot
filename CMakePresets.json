@@ -137,6 +137,13 @@
     }
   ],
 
+  "packagePresets": [
+    {
+      "name": "ci-release",
+      "configurePreset": "ci-release"
+    }
+  ],
+
   "workflowPresets": [
     {
       "name": "coverage",
