@@ -1,7 +1,6 @@
 name: Build and Test
 
 on:
-  push:
   pull_request:
 
 jobs:
@@ -39,19 +38,3 @@ jobs:
         run: ctest --preset debug-tests --output-on-failure
         env:
           ASAN_OPTIONS: alloc_dealloc_mismatch=0 # for alloc-dealloc-mismatch
-
-      - name: Check Application Number
-        run: |
-          ./_build-ci-release/apps/app -v
-
-      - name: Create Package (CPack)
-        run: cpack --preset ci-release
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: SumoKuBot
-          path: |
-            _build-ci-release/*.tar.gz
-            _build-ci-release/*.tar.gz.sha256
-          if-no-files-found: warn
