@@ -583,7 +583,7 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
 TEST_CASE("Sumoku Solver: Naive", "[Sumoku]")
 {
     // Load all the test cases
-    static std::string folder = GetTestDataPath();
+    static std::string folder = GetTestDataPath() + "/sumoku/solvable";
     static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
     // Check the vector to make sure it contains at least one test case
@@ -614,7 +614,7 @@ TEST_CASE("Sumoku Solver: Naive", "[Sumoku]")
 TEST_CASE("Sumoku Solver: SumokuMRV", "[SumokuMRV]")
 {
     // Load all the test cases
-    static std::string folder = GetTestDataPath();
+    static std::string folder = GetTestDataPath() + "/sumoku/solvable";
     static std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
     // Check the vector to make sure it contains at least one test case

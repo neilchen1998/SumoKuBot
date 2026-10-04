@@ -271,12 +271,14 @@ rm -rf _build-coverage/html
   -ignore-filename-regex='(^|/)tests/'
 ```
 
+Test coverage for this repo:
+
 ```text
 Filename                                        Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 board/boardlib.hpp                                   23                 4    82.61%           7                 2    71.43%          51                32    37.25%          16                 4    75.00%
-loader/loaderlib.cc                                  45                 9    80.00%           4                 0   100.00%          69                27    60.87%          34                12    64.71%
-loader/loaderlib.hpp                                 34                10    70.59%           4                 0   100.00%          59                18    69.49%          18                 5    72.22%
+loader/loaderlib.cc                                  45                 8    82.22%           4                 0   100.00%          69                24    65.22%          34                10    70.59%
+loader/loaderlib.hpp                                 34                 2    94.12%           4                 0   100.00%          59                 4    93.22%          18                 1    94.44%
 math/boostmathlib.hpp                                 1                 0   100.00%           1                 0   100.00%           6                 0   100.00%           0                 0         -
 math/mathlib.hpp                                      2                 0   100.00%           2                 0   100.00%           9                 0   100.00%           0                 0         -
 solvers/sudoku/killersudokumrvsolver.cc              63                 0   100.00%           7                 0   100.00%         111                 0   100.00%          34                 1    97.06%
@@ -290,7 +292,7 @@ solvers/sumoku/sumokumrvsolver.cc                    67                 2    97.
 solvers/sumoku/sumokuorderingsolver.cc               67                 4    94.03%           7                 1    85.71%         101                 9    91.09%          44                 3    93.18%
 solvers/sumoku/sumokuorderingsolver.hpp               1                 0   100.00%           1                 0   100.00%           1                 0   100.00%           0                 0         -
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-TOTAL                                               545                33    93.94%          69                 4    94.20%         900               101    88.78%         332                32    90.36%
+TOTAL                                               545                24    95.60%          69                 4    94.20%         900                84    90.67%         332                26    92.17%
 ```
 
 ## Notes
@@ -1028,7 +1030,6 @@ add_custom_command(
 )
 ```
 
-
 ### Memory Leak
 
 *new* operator allocates memory on the heap at runtime and *delete* operator frees up memory.
@@ -1117,11 +1118,54 @@ It is also a good practice to generate the SHA256 so that the user can make sure
 set(CPACK_PACKAGE_CHECKSUM "SHA256")
 ```
 
+### Target Commands (PUBLIC vs PRIVATE vs INTERFACE)
+
+#### PRIVATE
+
+```cmake
+target_link_libraries(A PRIVATE B)
+```
+
+This means that A needs B internally, but users of A does NOT need to know B.
+
+### PUBLIC
+
+```cmake
+target_link_libraries(A PUBLIC B)
+```
+
+This means that A needs B internally, and users of A needs to know B.
+For instance, *loadertestlib.cc* includes `#include "loaderlib.hpp"` and *loaderlib.hpp* contains `#include "boardlib.hpp"` that includes `#include <fmt/core.h>`.
+
+```text
+loadertestlib.cc
+    ↓
+loaderlib.hpp
+    ↓
+boardlib.hpp
+    ↓
+fmt/core.h
+```
+
+Then we need to use **PUBLIC** keyword.
+And it becomes:
+
+```cmake
+target_link_libraries(loader_library PUBLIC board_library PRIVATE nlohmann_json::nlohmann_json)
+```
+
+and we can simply use:
+
+```cmake
+target_link_libraries(loadertestlib PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json loader_library)
+```
+
 ## Reference
 
+- [CMake Target Commands](https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-command-scope)
 - [Dancing Links (DLX)](https://en.wikipedia.org/wiki/Dancing_links)
 - [Data-Driven Testing](https://www.leapwork.com/blog/a-short-introduction-to-data-driven-testing)
+- [gprof2dot](https://pypi.org/project/gprof2dot/)
 - [Killer Sudoku Puzzles](https://github.com/tommy-andersen/killer-sudoku-solver/blob/main/expert-1.json)
 - [One of the World's Hardest Killer Sudokus](https://www.calcudoku.org/hardest_logic_number_puzzles/)
 - [Visually Profile C++ Program Performance](https://www.youtube.com/watch?v=zbTtVW64R_I)
-- [gprof2dot](https://pypi.org/project/gprof2dot/)
