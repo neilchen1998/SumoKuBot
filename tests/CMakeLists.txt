@@ -26,13 +26,19 @@ target_include_directories(solvertestlib PUBLIC ${PROJECT_SOURCE_DIR}/modules)
 
 target_link_libraries(boardtestlib PRIVATE Catch2::Catch2WithMain board_library)
 target_link_libraries(boardtestlib PRIVATE project_options)
-target_link_libraries(loadertestlib PRIVATE Catch2::Catch2WithMain loader_library nlohmann_json::nlohmann_json)
+target_link_libraries(loadertestlib PRIVATE
+  Catch2::Catch2WithMain
+  nlohmann_json::nlohmann_json
+
+  # Targets
+  loader_library
+)
 target_link_libraries(loadertestlib PRIVATE project_options)
 target_link_libraries(mathtestlib PRIVATE
   board_library
   Catch2::Catch2WithMain
 
-  # targets
+  # Targets
   boost_math_library
 )
 target_link_libraries(mathtestlib PRIVATE project_options)
@@ -42,7 +48,7 @@ target_link_libraries(solvertestlib PRIVATE
   loader_library
   spdlog::spdlog
 
-  # targets
+  # Targets
   killer_sudoku::solver
   sudoku::solver
   sumoku::solver

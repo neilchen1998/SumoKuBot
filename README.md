@@ -1030,7 +1030,6 @@ add_custom_command(
 )
 ```
 
-
 ### Memory Leak
 
 *new* operator allocates memory on the heap at runtime and *delete* operator frees up memory.
@@ -1119,11 +1118,54 @@ It is also a good practice to generate the SHA256 so that the user can make sure
 set(CPACK_PACKAGE_CHECKSUM "SHA256")
 ```
 
+### Target Commands (PUBLIC vs PRIVATE vs INTERFACE)
+
+#### PRIVATE
+
+```cmake
+target_link_libraries(A PRIVATE B)
+```
+
+This means that A needs B internally, but users of A does NOT need to know B.
+
+### PUBLIC
+
+```cmake
+target_link_libraries(A PUBLIC B)
+```
+
+This means that A needs B internally, and users of A needs to know B.
+For instance, *loadertestlib.cc* includes `#include "loaderlib.hpp"` and *loaderlib.hpp* contains `#include "boardlib.hpp"` that includes `#include <fmt/core.h>`.
+
+```text
+loadertestlib.cc
+    ↓
+loaderlib.hpp
+    ↓
+boardlib.hpp
+    ↓
+fmt/core.h
+```
+
+Then we need to use **PUBLIC** keyword.
+And it becomes:
+
+```cmake
+target_link_libraries(loader_library PUBLIC board_library PRIVATE nlohmann_json::nlohmann_json)
+```
+
+and we can simply use:
+
+```cmake
+target_link_libraries(loadertestlib PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json loader_library)
+```
+
 ## Reference
 
+- [CMake Target Commands](https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-command-scope)
 - [Dancing Links (DLX)](https://en.wikipedia.org/wiki/Dancing_links)
 - [Data-Driven Testing](https://www.leapwork.com/blog/a-short-introduction-to-data-driven-testing)
+- [gprof2dot](https://pypi.org/project/gprof2dot/)
 - [Killer Sudoku Puzzles](https://github.com/tommy-andersen/killer-sudoku-solver/blob/main/expert-1.json)
 - [One of the World's Hardest Killer Sudokus](https://www.calcudoku.org/hardest_logic_number_puzzles/)
 - [Visually Profile C++ Program Performance](https://www.youtube.com/watch?v=zbTtVW64R_I)
-- [gprof2dot](https://pypi.org/project/gprof2dot/)
