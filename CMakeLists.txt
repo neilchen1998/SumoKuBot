@@ -12,6 +12,7 @@ project(
 option(PROJECT_BUILD_APPS "Build applications" ON)
 option(PROJECT_BUILD_TESTS "Build tests" OFF)
 option(PROJECT_BUILD_BENCHMARKS "Build benchmarks" OFF)
+option(PROJECT_NATIVE_OPTIMIZATION "Optimize for the build machine's CPU (not portable)" OFF)
 
 # Export compile commands
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -35,22 +36,24 @@ if(PROJECT_IS_TOP_LEVEL)
   # Compiler flags
   add_library(project_options INTERFACE)
 
-  # Flags for all build types
+  # Flags based on the specified build type
   target_compile_options(project_options INTERFACE
     $<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>:-Wall>
     $<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>:-Wextra>
     $<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>:-Wpedantic>
-  )
-
-  # Flags based on the specified build type
-  target_compile_options(project_options INTERFACE
-    # High performance builds
-    $<$<CONFIG:Release>:-march=native>
-    $<$<CONFIG:RelWithDebInfo>:-march=native>
 
     # Debug builds
-    $<$<CONFIG:Debug>:-fsanitize=address,undefined -fno-omit-frame-pointer>
+    $<$<CONFIG:Debug>:-fsanitize=address,undefined>
+    $<$<AND:$<CONFIG:Debug>, $<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>>:-fno-omit-frame-pointer>
   )
+
+  # Optional flags
+  if(PROJECT_NATIVE_OPTIMIZATION)
+    target_compile_options(project_options INTERFACE
+      $<$<AND:$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>,$<CXX_COMPILER_ID:GNU,Clang,AppleClang>>:-march=native>
+    )
+    message(STATUS "Optimizes for the build machine's CPU")
+  endif()
 
   # Linker flags
   target_link_options(project_options INTERFACE
