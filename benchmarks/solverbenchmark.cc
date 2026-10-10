@@ -1,9 +1,12 @@
-#include <chrono>      // std::chrono::milliseconds
-#include <filesystem>  // std::filesystem
-#include <fmt/core.h>  // fmt::format
-#include <fstream>     // std::ofstream
+#include <chrono>     // std::chrono::milliseconds
+#include <filesystem> // std::filesystem
+#include <fmt/core.h> // fmt::format
+#include <fstream>    // std::ofstream
+#include <istream>
 #include <nanobench.h> // ankerl::nanobench::Bench
-#include <vector>      // std::vector
+#include <sstream>
+#include <string> // std::string
+#include <vector> // std::vector
 
 #include "loader/loaderlib.hpp"                           // GetTestDataPath, LoadAllPuzzles<>
 #include "solvers/sudoku/killersudokumrvsolver.hpp"       // killer_sudoku::KillerSudokuMRVSolver
@@ -28,14 +31,15 @@ int main()
             throw std::runtime_error(fmt::format("Failed to open {}", filename.string()));
         }
 
-        ankerl::nanobench::Bench bench;
-
         // Load the puzzles
         const std::string folder = GetTestDataPath() + "/sumoku/solvable";
         const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
+        bool writeHeader = true;
+
         for (const auto& p : all_puzzles)
         {
+            ankerl::nanobench::Bench bench;
             bench.title(fmt::format("Sumoku Solver Comparison #{}", p.label))
                 .run("backtracking",
                      [&] {
@@ -64,9 +68,37 @@ int main()
                     s.Solve();
                     ankerl::nanobench::doNotOptimizeAway(s);
                 });
+
+            std::ostringstream buffer;
+            bench.render(ankerl::nanobench::templates::csv(), buffer);
+
+            // Render the puzzle's result
+            std::istringstream input(buffer.str());
+            std::string line;
+
+            while (std::getline(input, line))
+            {
+                if (line.empty())
+                {
+                    continue;
+                }
+
+                if (writeHeader)
+                {
+                    file << line << "\n";
+                    writeHeader = false;
+                }
+                else if (!line.starts_with("\"title\";"))
+                {
+                    file << line << "\n";
+                }
+            }
         }
 
-        bench.render(ankerl::nanobench::templates::csv(), file);
+        if (!file)
+        {
+            throw std::runtime_error(fmt::format("Failed to write {}", filename.string()));
+        }
     }
 
     // Killer Sudoku
