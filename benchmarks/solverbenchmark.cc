@@ -1,6 +1,7 @@
 #include <chrono>      // std::chrono::milliseconds
 #include <fmt/core.h>  // fmt::format
 #include <fstream>     // std::ofstream
+#include <filesystem>  // std::filesystem
 #include <nanobench.h> // ankerl::nanobench::Bench
 #include <vector>      // std::vector
 
@@ -10,13 +11,25 @@
 #include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
 #include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuBacktracking
 
+namespace fs = std::filesystem;
+
 int main()
 {
-    std::ofstream file("./build/benchmarks/solver-results.csv");
+    const std::filesystem::path outputDir = "benchmarks";
+    std::filesystem::create_directories(outputDir);
+
+    std::ofstream file(outputDir / "solver-results.csv");
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Failed to open solver-results.csv");
+        fmt::print(stderr, "Failed to open solver-results.csv\n");
+        return 1;
+    }
+
     ankerl::nanobench::Bench bench;
 
     // Load the puzzles
-    const std::string folder = GetTestDataPath();
+    const std::string folder = GetTestDataPath() + "/sumoku/solvable";
     const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
     for (const auto& p : all_puzzles)
@@ -60,7 +73,7 @@ int main()
             .timeUnit(std::chrono::milliseconds(1), "ms");  // uses ms as the unit
 
         // Load the puzzles
-        const std::string folder = GetTestDataPath() + "/killer_sudoku";
+        const std::string folder = GetTestDataPath() + "/killer_sudoku/solvable";
         const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
         for (const auto& p : all_puzzles)
