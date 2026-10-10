@@ -62,7 +62,8 @@
       "cacheVariables": {
         "PROJECT_BUILD_APPS": "OFF",
         "PROJECT_BUILD_TESTS": "OFF",
-        "PROJECT_BUILD_BENCHMARKS": "ON"
+        "PROJECT_BUILD_BENCHMARKS": "ON",
+        "PROJECT_NATIVE_OPTIMIZATION": "ON"
       }
     },
     {
