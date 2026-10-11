@@ -6,7 +6,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(nanobench)
 
 # Create a CMake target
-add_executable(mathbenchmark mathbenchmark.cc)
+# add_executable(mathbenchmark mathbenchmark.cc)
 add_executable(solverbenchmark solverbenchmark.cc)
 
 target_include_directories(mathbenchmark PRIVATE ${PROJECT_SOURCE_DIR}/modules)
