@@ -37,13 +37,14 @@ std::expected<std::fstream, std::string> OpenFile(const fs::path& filePath)
 int main()
 {
     // Output directory
-    const fs::path outputDir = "results";
+    const fs::path outputDir = "./../results";
     fs::create_directories(outputDir);
 
     // Sumoku
     {
-        const fs::path filename {outputDir / "solver-results.csv"};
-        std::ofstream file {filename};
+        // File path and file
+        const fs::path path {outputDir / "sumoku-solver-results.csv"};
+        std::ofstream file {path};
 
         // Load the puzzles
         const std::string folder = GetTestDataPath() + "/sumoku/solvable";
@@ -94,26 +95,19 @@ int main()
             // Go through each line of the buffer
             while (std::getline(input, line))
             {
-                if (line.empty())
+                // Skip adding the line when the line is either empty or there is already a title
+                if (line.empty() || (!writeHeader && line.starts_with("\"title\";")))
                 {
                     continue;
                 }
 
-                // Only write the title once
-                if (writeHeader)
-                {
-                    file << line << "\n";
-                    writeHeader = false;
-                }
-                else if (!line.starts_with("\"title\";"))
-                {
-                    file << line << "\n";
-                }
+                file << line << "\n";
+                writeHeader = false;
             }
         }
 
         // Check if the output file exists
-        if (auto result = OpenFile(filename); !result)
+        if (auto result = OpenFile(path); !result)
         {
             fmt::println(stderr, "{}", result.error());
             return EXIT_FAILURE;
@@ -122,8 +116,9 @@ int main()
 
     // Killer Sudoku
     {
-        const fs::path filename {outputDir / "killer-sudoku-results.csv"};
-        std::ofstream file(filename);
+        // File path and file
+        const fs::path path {outputDir / "killer-sudoku-results.csv"};
+        std::ofstream file(path);
 
         ankerl::nanobench::Bench bench;
         bench.title("Killer Sudoku").timeUnit(std::chrono::milliseconds(1), "ms"); // uses ms as the unit
@@ -145,7 +140,7 @@ int main()
         bench.render(ankerl::nanobench::templates::csv(), file);
 
         // Check if the output file exists
-        if (auto result = OpenFile(filename); !result)
+        if (auto result = OpenFile(path); !result)
         {
             fmt::println(stderr, "{}", result.error());
             return EXIT_FAILURE;
