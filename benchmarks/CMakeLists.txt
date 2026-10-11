@@ -24,10 +24,12 @@ set(SOLVER_TARGETS
 # Link required libraries
 # NOTE: ankerl::nanobench::templates::csv() requires fmt library
 target_link_libraries(mathbenchmark PRIVATE
-  nanobench
-  fmt::fmt
   board_library
   ${MATH_TARGETS}
+
+  nanobench
+  fmt::fmt
+  ${_boost_target}
 )
 target_link_libraries(mathbenchmark PRIVATE project_options)
 target_link_libraries(solverbenchmark PRIVATE
