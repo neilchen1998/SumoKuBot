@@ -1,23 +1,27 @@
-include(FetchContent)
+find_package(Boost 1.67 QUIET)
 
-find_package(Boost QUIET)
+if(Boost_FOUND)
+  message(STATUS "Found Boost version: ${Boost_VERSION}")
+else()
+  message(STATUS "Boost not found or version is too old, downloading via FetchContent...")
 
-FetchContent_Declare(
+  FetchContent_Declare(
     boost
-    URL https://github.com/boostorg/boost/releases/download/boost-1.89.0/boost-1.89.0-cmake.tar.gz
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-)
+    URL "https://github.com/boostorg/boost/releases/download/boost-1.89.0-cmake/boost-1.89.0-cmake.tar.gz"
+    DOWNLOADEXTRACT_TIMESTAMP TRUE
+  )
 
-FetchContent_MakeAvailable(boost)
+  FetchContent_MakeAvailable(boost)
+endif()
 
 add_library(boost_math_library INTERFACE)
 
 target_include_directories(boost_math_library INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
-    $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+  $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(boost_math_library INTERFACE
-    Boost::headers
-    board_library
+  Boost::boost
+  board_library
 )
