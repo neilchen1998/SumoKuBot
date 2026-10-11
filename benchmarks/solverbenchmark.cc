@@ -1,12 +1,12 @@
-#include <chrono>     // std::chrono::milliseconds
-#include <filesystem> // std::filesystem
-#include <fmt/core.h> // fmt::format
-#include <fstream>    // std::ofstream
-#include <istream>
+#include <chrono>      // std::chrono::milliseconds
+#include <cstdlib>     // EXIT_FAILURE, EXIT_SUCCESS
+#include <expected>    // std::expected
+#include <filesystem>  // std::filesystem
+#include <fmt/core.h>  // fmt::format
+#include <fstream>     // std::ofstream
 #include <nanobench.h> // ankerl::nanobench::Bench
-#include <sstream>
-#include <string> // std::string
-#include <vector> // std::vector
+#include <string>      // std::getline, std::string
+#include <vector>      // std::vector
 
 #include "loader/loaderlib.hpp"                           // GetTestDataPath, LoadAllPuzzles<>
 #include "solvers/sudoku/killersudokumrvsolver.hpp"       // killer_sudoku::KillerSudokuMRVSolver
@@ -15,6 +15,24 @@
 #include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuBacktracking
 
 namespace fs = std::filesystem;
+
+namespace
+{
+/// @brief Opens a file from the given file path.
+///
+/// @param filePath The file path.
+/// @return An std::expected containing the opened file stream on success, or an error message on failure.
+std::expected<std::fstream, std::string> OpenFile(const fs::path& filePath)
+{
+    std::fstream file(filePath);
+    if (!file)
+    {
+        return std::unexpected(fmt::format("Failed to open {}", filePath.string()));
+    }
+
+    return file;
+}
+} // namespace
 
 int main()
 {
@@ -25,11 +43,7 @@ int main()
     // Sumoku
     {
         const fs::path filename {outputDir / "solver-results.csv"};
-        std::ofstream file(filename);
-        if (!file.is_open())
-        {
-            throw std::runtime_error(fmt::format("Failed to open {}", filename.string()));
-        }
+        std::ofstream file {filename};
 
         // Load the puzzles
         const std::string folder = GetTestDataPath() + "/sumoku/solvable";
@@ -69,13 +83,15 @@ int main()
                     ankerl::nanobench::doNotOptimizeAway(s);
                 });
 
+            // Render the results to the buffer for further process
             std::ostringstream buffer;
             bench.render(ankerl::nanobench::templates::csv(), buffer);
 
-            // Render the puzzle's result
+            // Store the buffer as input string stream
             std::istringstream input(buffer.str());
             std::string line;
 
+            // Go through each line of the buffer
             while (std::getline(input, line))
             {
                 if (line.empty())
@@ -83,6 +99,7 @@ int main()
                     continue;
                 }
 
+                // Only write the title once
                 if (writeHeader)
                 {
                     file << line << "\n";
@@ -95,9 +112,11 @@ int main()
             }
         }
 
-        if (!file)
+        // Check if the output file exists
+        if (auto result = OpenFile(filename); !result)
         {
-            throw std::runtime_error(fmt::format("Failed to write {}", filename.string()));
+            fmt::println(stderr, "{}", result.error());
+            return EXIT_FAILURE;
         }
     }
 
@@ -105,10 +124,6 @@ int main()
     {
         const fs::path filename {outputDir / "killer-sudoku-results.csv"};
         std::ofstream file(filename);
-        if (!file.is_open())
-        {
-            throw std::runtime_error(fmt::format("Failed to open {}", filename.string()));
-        }
 
         ankerl::nanobench::Bench bench;
         bench.title("Killer Sudoku").timeUnit(std::chrono::milliseconds(1), "ms"); // uses ms as the unit
@@ -128,5 +143,14 @@ int main()
         }
 
         bench.render(ankerl::nanobench::templates::csv(), file);
+
+        // Check if the output file exists
+        if (auto result = OpenFile(filename); !result)
+        {
+            fmt::println(stderr, "{}", result.error());
+            return EXIT_FAILURE;
+        }
     }
+
+    return EXIT_SUCCESS;
 }
