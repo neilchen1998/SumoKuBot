@@ -7,7 +7,7 @@ else()
 
   FetchContent_Declare(
     boost
-    URL "https://github.com/boostorg/boost/releases/download/boost-1.89.0-cmake/boost-1.89.0-cmake.tar.gz"
+    URL "https://github.com/boostorg/boost/releases/download/boost-1.92.0/boost-1.92.0-cmake.tar.gz"
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
   )
 
