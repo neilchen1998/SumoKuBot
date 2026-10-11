@@ -44,7 +44,7 @@ if(PROJECT_IS_TOP_LEVEL)
 
     # Debug builds
     $<$<CONFIG:Debug>:-fsanitize=address,undefined>
-    $<$<AND:$<CONFIG:Debug>, $<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>>:-fno-omit-frame-pointer>
+    $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>>:-fno-omit-frame-pointer>
   )
 
   # Optional flags
