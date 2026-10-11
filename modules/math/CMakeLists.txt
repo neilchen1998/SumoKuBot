@@ -14,6 +14,17 @@ else()
   FetchContent_MakeAvailable(boost)
 endif()
 
+# Fallback: Ensure Boost::boost exists if FetchContent was used
+if(NOT TARGET Boost::boost)
+  if(TARGET Boost::headers)
+    add_library(Boost::boost ALIAS Boost::headers)
+  elseif(TARGET boost_headers)
+    add_library(Boost::boost ALIAS boost_headers)
+  else()
+    add_library(Boost::boost INTERFACE)
+  endif()
+endif()
+
 add_library(boost_math_library INTERFACE)
 
 target_include_directories(boost_math_library INTERFACE
