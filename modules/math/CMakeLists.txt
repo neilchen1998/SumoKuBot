@@ -1,40 +1,45 @@
-find_package(Boost 1.67 QUIET)
+include(FetchContent)
+
+set(BOOST_VERSION 1.67.0)
+set(BOOST_INSTALL_DIR "${CMAKE_BINARY_DIR}/boost-install")
+
+find_package(Boost ${BOOST_VERSION} QUIET)
 
 if(Boost_FOUND)
-  message(STATUS "Found Boost version: ${Boost_VERSION}")
+    message(STATUS "Found Boost version: ${Boost_VERSION}")
 else()
-  message(STATUS "Boost not found or version is too old, downloading via FetchContent...")
-  FetchContent_Declare(
-    boost_assert
-    GIT_REPOSITORY https://github.com/boostorg/assert.git
-    GIT_TAG        boost-1.67.0
-  )
-  FetchContent_Declare(
-    boost_config
-    GIT_REPOSITORY https://github.com/boostorg/config.git
-    GIT_TAG        boost-1.67.0
-  )
-  FetchContent_Declare(
-    boost_core
-    GIT_REPOSITORY https://github.com/boostorg/core.git
-    GIT_TAG        boost-1.67.0
-  )
-  FetchContent_Declare(
-    boost_hash
-    GIT_REPOSITORY https://github.com/boostorg/container_hash.git
-    GIT_TAG        boost-1.67.0
-  )
+    message(STATUS "Boost not found. Downloading full Boost ${BOOST_VERSION}...")
 
-  FetchContent_MakeAvailable(boost_assert boost_config boost_core boost_hash)
+    include(ExternalProject)
 
-  # Create an interface target so your code treats it like a system library
-  add_library(Boost::boost INTERFACE IMPORTED)
-  target_include_directories(Boost::boost INTERFACE
-    ${boost_assert_SOURCE_DIR}/include
-    ${boost_config_SOURCE_DIR}/include
-    ${boost_core_SOURCE_DIR}/include
-    ${boost_hash_SOURCE_DIR}/include
-  )
+    ExternalProject_Add(boost_external
+        URL https://archives.boost.io/release/1.67.0/source/boost_1_67_0.tar.gz
+
+        PREFIX "${CMAKE_BINARY_DIR}/boost-build"
+
+        CONFIGURE_COMMAND
+            <SOURCE_DIR>/bootstrap.sh
+            --prefix=${BOOST_INSTALL_DIR}
+
+        BUILD_COMMAND
+            <SOURCE_DIR>/b2
+            install
+            --prefix=${BOOST_INSTALL_DIR}
+            -j4
+
+        INSTALL_COMMAND ""
+
+        BUILD_IN_SOURCE TRUE
+    )
+
+    set(Boost_ROOT "${BOOST_INSTALL_DIR}")
+    set(Boost_INCLUDE_DIR "${BOOST_INSTALL_DIR}/include")
+    set(Boost_LIBRARY_DIR "${BOOST_INSTALL_DIR}/lib")
+
+    message(STATUS "Boost will be installed to: ${BOOST_INSTALL_DIR}")
+
+    # Ensure Boost is built and installed before your target builds.
+    add_custom_target(install_boost DEPENDS boost_external)
 endif()
 
 add_library(boost_math_library INTERFACE)
