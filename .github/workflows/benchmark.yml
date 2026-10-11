@@ -19,11 +19,6 @@ jobs:
               libc++-19-dev \
               libc++abi-19-dev
 
-      - name: Install Boost
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libboost-dev
-
       - name: Check Compiler
         run: |
           clang++-19 --version
