@@ -26,17 +26,15 @@ set(SOLVER_TARGETS
 target_link_libraries(mathbenchmark PRIVATE
   board_library
   ${MATH_TARGETS}
-
   nanobench
   fmt::fmt
-  ${_boost_target}
 )
 target_link_libraries(mathbenchmark PRIVATE project_options)
 target_link_libraries(solverbenchmark PRIVATE
-  fmt::fmt
-  loader_library
-  nanobench
   ${SOLVER_TARGETS}
+  loader_library
+  fmt::fmt
+  nanobench
 )
 target_link_libraries(solverbenchmark PRIVATE project_options)
 
