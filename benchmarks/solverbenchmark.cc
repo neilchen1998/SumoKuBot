@@ -1,7 +1,11 @@
 #include <chrono>      // std::chrono::milliseconds
+#include <cstdlib>     // EXIT_FAILURE, EXIT_SUCCESS
+#include <expected>    // std::expected
+#include <filesystem>  // std::filesystem
 #include <fmt/core.h>  // fmt::format
 #include <fstream>     // std::ofstream
 #include <nanobench.h> // ankerl::nanobench::Bench
+#include <string>      // std::getline, std::string
 #include <vector>      // std::vector
 
 #include "loader/loaderlib.hpp"                           // GetTestDataPath, LoadAllPuzzles<>
@@ -10,63 +14,122 @@
 #include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
 #include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuBacktracking
 
+namespace fs = std::filesystem;
+
+namespace
+{
+/// @brief Opens a file from the given file path.
+///
+/// @param filePath The file path.
+/// @return An std::expected containing the opened file stream on success, or an error message on failure.
+std::expected<std::fstream, std::string> OpenFile(const fs::path& filePath)
+{
+    std::fstream file(filePath);
+    if (!file)
+    {
+        return std::unexpected(fmt::format("Failed to open {}", filePath.string()));
+    }
+
+    return file;
+}
+} // namespace
+
 int main()
 {
-    std::ofstream file("./build/benchmarks/solver-results.csv");
-    ankerl::nanobench::Bench bench;
+    // Output directory
+    const fs::path outputDir = "./../results";
+    fs::create_directories(outputDir);
 
-    // Load the puzzles
-    const std::string folder = GetTestDataPath();
-    const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
-
-    for (const auto& p : all_puzzles)
+    // Sumoku
     {
-        bench.title(fmt::format("Sumoku Solver Comparison #{}", p.label))
-            .run("backtracking", [&]
-        {
-            sumoku::SumokuBacktrackingSolver s {p.N, p.boxes, p.sums};
+        // File path and file
+        const fs::path path {outputDir / "sumoku-solver-results.csv"};
+        std::ofstream file {path};
 
-            s.Solve();
-            ankerl::nanobench::doNotOptimizeAway(s);
-        })
-            .run("ordering", [&]
-        {
-            sumoku::SumokuOrderingSolver s {p.N, p.boxes, p.sums};
+        // Load the puzzles
+        const std::string folder = GetTestDataPath() + "/sumoku/solvable";
+        const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
-            s.Solve();
-            ankerl::nanobench::doNotOptimizeAway(s);
-        })
-            .run("bitmask ordering", [&]
-        {
-            sumoku::SumokuBitMaskOrderingSolver s {p.N, p.boxes, p.sums};
+        bool writeHeader = true;
 
-            s.Solve();
-            ankerl::nanobench::doNotOptimizeAway(s);
-        })
-            .run("MRV", [&]
+        for (const auto& p : all_puzzles)
         {
-            sumoku::SumokuMRVSolver s {p.N, p.boxes, p.sums};
+            ankerl::nanobench::Bench bench;
+            bench.title(fmt::format("Sumoku Solver Comparison #{}", p.label))
+                .run("backtracking",
+                     [&] {
+                         sumoku::SumokuBacktrackingSolver s {p.N, p.boxes, p.sums};
 
-            s.Solve();
-            ankerl::nanobench::doNotOptimizeAway(s);
-        });
+                         s.Solve();
+                         ankerl::nanobench::doNotOptimizeAway(s);
+                     })
+                .run("ordering",
+                     [&] {
+                         sumoku::SumokuOrderingSolver s {p.N, p.boxes, p.sums};
+
+                         s.Solve();
+                         ankerl::nanobench::doNotOptimizeAway(s);
+                     })
+                .run("bitmask ordering",
+                     [&] {
+                         sumoku::SumokuBitMaskOrderingSolver s {p.N, p.boxes, p.sums};
+
+                         s.Solve();
+                         ankerl::nanobench::doNotOptimizeAway(s);
+                     })
+                .run("MRV", [&] {
+                    sumoku::SumokuMRVSolver s {p.N, p.boxes, p.sums};
+
+                    s.Solve();
+                    ankerl::nanobench::doNotOptimizeAway(s);
+                });
+
+            // Render the results to the buffer for further process
+            std::ostringstream buffer;
+            bench.render(ankerl::nanobench::templates::csv(), buffer);
+
+            // Store the buffer as input string stream
+            std::istringstream input(buffer.str());
+            std::string line;
+
+            // Go through each line of the buffer
+            while (std::getline(input, line))
+            {
+                // Skip adding the line when the line is either empty or there is already a title
+                if (line.empty() || (!writeHeader && line.starts_with("\"title\";")))
+                {
+                    continue;
+                }
+
+                file << line << "\n";
+                writeHeader = false;
+            }
+        }
+
+        // Check if the output file exists
+        if (auto result = OpenFile(path); !result)
+        {
+            fmt::println(stderr, "{}", result.error());
+            return EXIT_FAILURE;
+        }
     }
 
     // Killer Sudoku
     {
-        std::ofstream killerSudokuFile("./build/benchmarks/killer-sudoku-results.csv");
+        // File path and file
+        const fs::path path {outputDir / "killer-sudoku-results.csv"};
+        std::ofstream file(path);
+
         ankerl::nanobench::Bench bench;
-        bench.title("Killer Sudoku")
-            .timeUnit(std::chrono::milliseconds(1), "ms");  // uses ms as the unit
+        bench.title("Killer Sudoku").timeUnit(std::chrono::milliseconds(1), "ms"); // uses ms as the unit
 
         // Load the puzzles
-        const std::string folder = GetTestDataPath() + "/killer_sudoku";
+        const std::string folder = GetTestDataPath() + "/killer_sudoku/solvable";
         const std::vector<SumokuPuzzleData> all_puzzles = LoadAllPuzzles<SumokuPuzzleData>(folder);
 
         for (const auto& p : all_puzzles)
         {
-            bench.run(fmt::format("MRV - #{}", p.label), [&]
-            {
+            bench.run(fmt::format("MRV - #{}", p.label), [&] {
                 killer_sudoku::KillerSudokuMRVSolver s {p.N, p.boxes, p.sums};
 
                 s.Solve();
@@ -74,6 +137,15 @@ int main()
             });
         }
 
-        bench.render(ankerl::nanobench::templates::csv(), killerSudokuFile);
+        bench.render(ankerl::nanobench::templates::csv(), file);
+
+        // Check if the output file exists
+        if (auto result = OpenFile(path); !result)
+        {
+            fmt::println(stderr, "{}", result.error());
+            return EXIT_FAILURE;
+        }
     }
+
+    return EXIT_SUCCESS;
 }
