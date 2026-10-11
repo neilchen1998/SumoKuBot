@@ -14,23 +14,6 @@ else()
   FetchContent_MakeAvailable(boost)
 endif()
 
-# Fallback: Ensure Boost::boost exists if FetchContent was used
-if(NOT TARGET Boost::boost)
-  if(TARGET Boost::headers)
-    get_target_property(_is_alias Boost::headers ALIAS)
-    if(_is_alias)
-      get_target_property(_aliased_target Boost::headers ALIASED_TARGET)
-      add_library(Boost::boost ALIAS ${_aliased_target})
-    else()
-      add_library(Boost::boost ALIAS Boost::headers)
-    endif()
-  elseif(TARGET boost_headers)
-    add_library(Boost::boost ALIAS boost_headers)
-  else()
-    add_library(Boost::boost INTERFACE)
-  endif()
-endif()
-
 add_library(boost_math_library INTERFACE)
 
 target_include_directories(boost_math_library INTERFACE
@@ -38,7 +21,18 @@ target_include_directories(boost_math_library INTERFACE
   $<INSTALL_INTERFACE:include>
 )
 
+# Set _boost_target based on how Boost is installed
+if(TARGET Boost::boost)
+  set(_boost_target Boost::boost)
+elseif(TARGET Boost::headers)
+  set(_boost_target Boost::headers)
+elseif(TARGET boost_headers)
+  set(_boost_target boost_headers)
+else()
+  message(FATAL_ERROR "No suitable Boost headers target was found")
+endif()
+
 target_link_libraries(boost_math_library INTERFACE
-  Boost::boost
+  ${_boost_target}
   board_library
 )
