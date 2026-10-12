@@ -6,13 +6,12 @@
     "minor": 24,
     "patch": 0
   },
-
   "configurePresets": [
     {
       "name": "base",
       "hidden": true,
       "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/_build-${presetName}",
+      "binaryDir": "${sourceDir}/_build/${presetName}",
       "warnings": {
         "dev": false
       },
@@ -48,7 +47,7 @@
     },
     {
       "name": "ci-release",
-      "displayName": "CI",
+      "displayName": "CI Release",
       "inherits": "release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
@@ -69,12 +68,9 @@
     {
       "name": "ci-benchmark",
       "displayName": "CI Benchmark",
-      "inherits": "release",
+      "inherits": "benchmark",
       "cacheVariables": {
-        "PROJECT_BUILD_APPS": "OFF",
-        "PROJECT_BUILD_TESTS": "OFF",
-        "PROJECT_BUILD_BENCHMARKS": "ON",
-        "PROJECT_NATIVE_OPTIMIZATION": "ON",
+        "PROJECT_BUILD_NUMBER": "$env{CI_BUILD_NUMBER}",
         "USE_FETCHED_BOOST": "ON"
       }
     },
@@ -92,41 +88,46 @@
       }
     }
   ],
-
   "buildPresets": [
     {
-      "name": "ci-benchmark",
-      "configurePreset": "ci-benchmark",
-      "jobs": 4,
-      "targets": [
-        "benchmarks"
-      ]
-    },
-    {
-      "name": "ci-release",
-      "configurePreset": "ci-release",
-      "jobs": 4
+      "name": "base-build",
+      "hidden": true
     },
     {
       "name": "debug",
       "configurePreset": "debug",
-      "jobs": 0
+      "inherits": "base-build"
     },
     {
       "name": "debug-tests",
       "configurePreset": "debug-tests",
-      "jobs": 0
+      "inherits": "base-build"
     },
     {
       "name": "release",
       "configurePreset": "release",
-      "jobs": 0
+      "inherits": "base-build"
+    },
+    {
+      "name": "ci-release",
+      "configurePreset": "ci-release",
+      "inherits": "base-build",
+      "jobs": 4
     },
     {
       "$comment": "Will run benchmarks immediately afterwards",
       "name": "benchmark",
       "configurePreset": "benchmark",
-      "jobs": 0,
+      "inherits": "base-build",
+      "targets": [
+        "benchmarks"
+      ]
+    },
+    {
+      "name": "ci-benchmark",
+      "configurePreset": "ci-benchmark",
+      "inherits": "base-build",
+      "jobs": 4,
       "targets": [
         "benchmarks"
       ]
@@ -134,10 +135,9 @@
     {
       "name": "coverage",
       "configurePreset": "coverage",
-      "jobs": 0
+      "inherits": "base-build"
     }
   ],
-
   "testPresets": [
     {
       "name": "debug-tests",
@@ -150,21 +150,19 @@
       "name": "coverage",
       "configurePreset": "coverage",
       "environment": {
-        "LLVM_PROFILE_FILE": "${sourceDir}/_build-coverage/coverage-%p.profraw"
+        "LLVM_PROFILE_FILE": "${sourceDir}/_build/coverage/coverage-%p.profraw"
       },
       "output": {
         "outputOnFailure": true
       }
     }
   ],
-
   "packagePresets": [
     {
       "name": "ci-release",
       "configurePreset": "ci-release"
     }
   ],
-
   "workflowPresets": [
     {
       "name": "coverage",
