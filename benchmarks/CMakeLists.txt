@@ -37,6 +37,7 @@ target_link_libraries(solverbenchmark PRIVATE
   fmt::fmt
   loader_library
   nanobench
+  spdlog::spdlog
 
   # target
   ${SOLVER_TARGETS}
