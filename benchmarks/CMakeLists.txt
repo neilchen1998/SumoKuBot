@@ -16,24 +16,30 @@ set(MATH_TARGETS
   boost_math_library
 )
 set(SOLVER_TARGETS
+  killer_sudoku::solver
   sudoku::solver
   sumoku::solver
-  killer_sudoku::solver
 )
 
 # Link required libraries
 # NOTE: ankerl::nanobench::templates::csv() requires fmt library
 target_link_libraries(mathbenchmark PRIVATE
-  nanobench
-  fmt::fmt
   board_library
+  fmt::fmt
+  nanobench
+
+  # target
   ${MATH_TARGETS}
 )
 target_link_libraries(mathbenchmark PRIVATE project_options)
+
 target_link_libraries(solverbenchmark PRIVATE
   fmt::fmt
   loader_library
   nanobench
+  spdlog::spdlog
+
+  # target
   ${SOLVER_TARGETS}
 )
 target_link_libraries(solverbenchmark PRIVATE project_options)

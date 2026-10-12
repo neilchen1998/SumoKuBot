@@ -1,43 +1,56 @@
-find_package(Boost 1.67 QUIET)
+include(FetchContent)
 
-if(Boost_FOUND)
-  message(STATUS "Found Boost version: ${Boost_VERSION}")
-else()
-  message(STATUS "Boost not found or version is too old, downloading via FetchContent...")
-  FetchContent_Declare(
-    boost_assert
-    GIT_REPOSITORY https://github.com/boostorg/assert.git
-    GIT_TAG        boost-1.67.0
-  )
-  FetchContent_Declare(
-    boost_config
-    GIT_REPOSITORY https://github.com/boostorg/config.git
-    GIT_TAG        boost-1.67.0
-  )
-  FetchContent_Declare(
-    boost_core
-    GIT_REPOSITORY https://github.com/boostorg/core.git
-    GIT_TAG        boost-1.67.0
-  )
-  FetchContent_Declare(
-    boost_hash
-    GIT_REPOSITORY https://github.com/boostorg/container_hash.git
-    GIT_TAG        boost-1.67.0
-  )
-
-  FetchContent_MakeAvailable(boost_assert boost_config boost_core boost_hash)
-
-  # Create an interface target so your code treats it like a system library
-  add_library(Boost::boost INTERFACE IMPORTED)
-  target_include_directories(Boost::boost INTERFACE
-    ${boost_assert_SOURCE_DIR}/include
-    ${boost_config_SOURCE_DIR}/include
-    ${boost_core_SOURCE_DIR}/include
-    ${boost_hash_SOURCE_DIR}/include
-  )
-endif()
+option(USE_FETCHED_BOOST "Fetch Boost instead of using system Boost" OFF)
 
 add_library(boost_math_library INTERFACE)
+
+if(NOT USE_FETCHED_BOOST)
+  find_package(Boost 1.78 QUIET)
+endif()
+
+if(Boost_FOUND AND NOT USE_FETCHED_BOOST)
+  message(STATUS "Using system Boost ${Boost_VERSION}")
+
+  if(TARGET Boost::headers)
+    target_link_libraries(boost_math_library INTERFACE Boost::headers)
+  elseif(TARGET Boost::boost)
+    target_link_libraries(boost_math_library INTERFACE Boost::boost)
+  else()
+    target_include_directories(boost_math_library SYSTEM INTERFACE
+      ${Boost_INCLUDE_DIRS}
+    )
+  endif()
+
+  # Link the component target if the installed package provides it.
+  if(TARGET Boost::container_hash)
+    target_link_libraries(boost_math_library INTERFACE
+      Boost::container_hash
+    )
+  endif()
+
+else()
+  message(STATUS "Fetching Boost 1.84.0")
+
+  set(BOOST_INCLUDE_LIBRARIES container_hash)
+  set(BOOST_ENABLE_CMAKE ON)
+
+  FetchContent_Declare(
+    Boost
+    URL "https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz"
+    URL_HASH MD5=893b5203b862eb9bbd08553e24ff146a
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  )
+
+  FetchContent_MakeAvailable(Boost)
+
+  if(NOT TARGET Boost::container_hash)
+    message(FATAL_ERROR "Boost.ContainerHash target is missing")
+  endif()
+
+  target_link_libraries(boost_math_library INTERFACE
+    Boost::container_hash
+  )
+endif()
 
 target_include_directories(boost_math_library INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
@@ -45,6 +58,5 @@ target_include_directories(boost_math_library INTERFACE
 )
 
 target_link_libraries(boost_math_library INTERFACE
-  Boost::boost
   board_library
 )
