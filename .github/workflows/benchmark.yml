@@ -32,4 +32,4 @@ jobs:
           cmake --preset release-benchmarks
 
       - name: Build
-        run: cmake --build --preset release-benchmarks
+        run: cmake --build --preset ci-benchmarks
