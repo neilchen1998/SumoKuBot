@@ -109,37 +109,37 @@ ctest --preset debug-tests
 To run the solver with the default example puzzle:
 
 ```zsh
-./_build-release/apps/app
+./_build/release/apps/app
 ```
 
 To run the solver with custom file:
 
 ```zsh
-./_build-release/apps/app -f <file_path>
+./_build/release/apps/app -f <file_path>
 ```
 
 To run the solver with custom directory (will solve all puzzles under the given directory):
 
 ```zsh
-./_build-release/apps/app -d <directory>
+./_build/release/apps/app -d <directory>
 ```
 
 Run a specific tag:
 
 ```zsh
-./_build-release/tests/solvertestlib "[<tag>]"
+./_build/release/tests/solvertestlib "[<tag>]"
 ```
 
-To build docs (requires Doxygen, output in `_build-release/docs/html`):
+To build docs (requires Doxygen, output in `_build/release/docs/html`):
 
 ```zsh
-cmake --build _build-release --target docs
+cmake --build _build/release --target docs
 ```
 
 Run benchmarks:
 
 ```zsh
-cmake --build _build-benchmark --target benchmarks
+cmake --build _build/benchmark --target benchmarks
 ```
 
 To run clang-tidy:
@@ -151,7 +151,7 @@ run-clang-tidy -p build/ '.*/(apps|benchmarks|tests)/.*'
 To package the binary file into a compressed tarball:
 
 ```zsh
-cmake --build _build-release --target package
+cmake --build _build/release --target package
 ```
 
 To test if there is memory leak on Mac:
@@ -163,7 +163,7 @@ leaks --atExit -- <test_binary>
 Create a symbolic link such that C++ servers like **clangd** can know the code:
 
 ```zsh
-ln -sf _build-release/compile_commands.json compile_commands.json
+ln -sf _build/release/compile_commands.json compile_commands.json
 ```
 
 To configure this repo with CI:
@@ -227,7 +227,7 @@ cmake --build --preset coverage
 Set **LLVM_PROFILE_FILE** so each test process writes its own profile:
 
 ```zsh
-LLVM_PROFILE_FILE="$PWD/_build-coverage/coverage-%p.profraw" \
+LLVM_PROFILE_FILE="$PWD/_build/coverage/coverage-%p.profraw" \
   ctest --preset coverage
 ```
 
@@ -241,33 +241,33 @@ Merge all profiles into one report:
 
 ```zsh
 /opt/homebrew/opt/llvm/bin/llvm-profdata merge -sparse \
-  $(find _build-coverage -name '*.profraw') \
-  -o _build-coverage/coverage.profdata
+  $(find _build/coverage -name '*.profraw') \
+  -o _build/coverage/coverage.profdata
 ```
 
 Generate a coverage report:
 
 ```zsh
 /opt/homebrew/opt/llvm/bin/llvm-cov report \
-  _build-coverage/tests/solvertestlib \
-  -object _build-coverage/tests/mathtestlib \
-  -object _build-coverage/tests/boardtestlib \
-  -instr-profile=_build-coverage/coverage.profdata \
+  _build/coverage/tests/solvertestlib \
+  -object _build/coverage/tests/mathtestlib \
+  -object _build/coverage/tests/boardtestlib \
+  -instr-profile=_build/coverage/coverage.profdata \
   -ignore-filename-regex='(^|/)tests/'
 ```
 
 Generate an HTML report:
 
 ```zsh
-rm -rf _build-coverage/html
+rm -rf _build/coverage/html
 
 /opt/homebrew/opt/llvm/bin/llvm-cov show \
-  _build-coverage/tests/solvertestlib \
-  -object _build-coverage/tests/mathtestlib \
-  -object _build-coverage/tests/boardtestlib \
-  -instr-profile=_build-coverage/coverage.profdata \
+  _build/coverage/tests/solvertestlib \
+  -object _build/coverage/tests/mathtestlib \
+  -object _build/coverage/tests/boardtestlib \
+  -instr-profile=_build/coverage/coverage.profdata \
   -format=html \
-  -output-dir=_build-coverage/html \
+  -output-dir=_build/coverage/html \
   -ignore-filename-regex='(^|/)tests/'
 ```
 
