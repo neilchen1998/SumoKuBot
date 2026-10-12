@@ -1,7 +1,7 @@
 name: Build and Benchmark
 
 on:
-  push:
+  pull_request:
 
 jobs:
   build:
