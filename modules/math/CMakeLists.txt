@@ -1,9 +1,11 @@
+include(FetchContent)
+
 option(USE_FETCHED_BOOST "Fetch Boost instead of using system Boost" OFF)
 
 add_library(boost_math_library INTERFACE)
 
 if(NOT USE_FETCHED_BOOST)
-  find_package(Boost 1.84 QUIET)
+  find_package(Boost 1.78 QUIET)
 endif()
 
 if(Boost_FOUND AND NOT USE_FETCHED_BOOST)
@@ -18,13 +20,19 @@ if(Boost_FOUND AND NOT USE_FETCHED_BOOST)
       ${Boost_INCLUDE_DIRS}
     )
   endif()
+
+  # Link the component target if the installed package provides it.
+  if(TARGET Boost::container_hash)
+    target_link_libraries(boost_math_library INTERFACE
+      Boost::container_hash
+    )
+  endif()
+
 else()
   message(STATUS "Fetching Boost 1.84.0")
 
-  include(FetchContent)
-
-  # Avoid accidentally resolving the dependency to a system Boost package.
-  set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE NEVER)
+  set(BOOST_INCLUDE_LIBRARIES container_hash)
+  set(BOOST_ENABLE_CMAKE ON)
 
   FetchContent_Declare(
     Boost
@@ -35,13 +43,13 @@ else()
 
   FetchContent_MakeAvailable(Boost)
 
-  if(TARGET Boost::headers)
-    target_link_libraries(boost_math_library INTERFACE Boost::headers)
-  elseif(TARGET Boost::boost)
-    target_link_libraries(boost_math_library INTERFACE Boost::boost)
-  else()
-    message(FATAL_ERROR "Fetched Boost has no headers target")
+  if(NOT TARGET Boost::container_hash)
+    message(FATAL_ERROR "Boost.ContainerHash target is missing")
   endif()
+
+  target_link_libraries(boost_math_library INTERFACE
+    Boost::container_hash
+  )
 endif()
 
 target_include_directories(boost_math_library INTERFACE
