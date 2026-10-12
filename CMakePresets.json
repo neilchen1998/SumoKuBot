@@ -57,13 +57,25 @@
     },
     {
       "name": "release-benchmarks",
-      "displayName": "Release + Benchmarks",
+      "displayName": "Benchmarks",
       "inherits": "release",
       "cacheVariables": {
         "PROJECT_BUILD_APPS": "OFF",
         "PROJECT_BUILD_TESTS": "OFF",
         "PROJECT_BUILD_BENCHMARKS": "ON",
         "PROJECT_NATIVE_OPTIMIZATION": "ON"
+      }
+    },
+    {
+      "name": "ci-benchmarks",
+      "displayName": "CI Benchmarks",
+      "inherits": "release",
+      "cacheVariables": {
+        "PROJECT_BUILD_APPS": "OFF",
+        "PROJECT_BUILD_TESTS": "OFF",
+        "PROJECT_BUILD_BENCHMARKS": "ON",
+        "PROJECT_NATIVE_OPTIMIZATION": "ON",
+        "USE_FETCHED_BOOST": "ON"
       }
     },
     {
@@ -82,6 +94,14 @@
   ],
 
   "buildPresets": [
+    {
+      "name": "ci-benchmarks",
+      "configurePreset": "release-benchmarks",
+      "jobs": 4,
+      "targets": [
+        "benchmarks"
+      ]
+    },
     {
       "name": "ci-release",
       "configurePreset": "ci-release",

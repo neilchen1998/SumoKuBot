@@ -1,38 +1,54 @@
-find_package(Boost 1.67 QUIET)
+option(USE_FETCHED_BOOST "Fetch Boost instead of using system Boost" OFF)
 
-if(Boost_FOUND)
-  message(STATUS "Found Boost version: ${Boost_VERSION}")
+add_library(boost_math_library INTERFACE)
+
+if(NOT USE_FETCHED_BOOST)
+  find_package(Boost 1.84 QUIET)
+endif()
+
+if(Boost_FOUND AND NOT USE_FETCHED_BOOST)
+  message(STATUS "Using system Boost ${Boost_VERSION}")
+
+  if(TARGET Boost::headers)
+    target_link_libraries(boost_math_library INTERFACE Boost::headers)
+  elseif(TARGET Boost::boost)
+    target_link_libraries(boost_math_library INTERFACE Boost::boost)
+  else()
+    target_include_directories(boost_math_library SYSTEM INTERFACE
+      ${Boost_INCLUDE_DIRS}
+    )
+  endif()
 else()
-  message(STATUS "Boost not found or version is too old, downloading via FetchContent...")
+  message(STATUS "Fetching Boost 1.84.0")
+
+  include(FetchContent)
+
+  # Avoid accidentally resolving the dependency to a system Boost package.
+  set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE NEVER)
 
   FetchContent_Declare(
-    boost
-    URL "https://archives.boost.io/release/1.84.0/source/boost_1_84_0.tar.gz"
+    Boost
+    URL "https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz"
+    URL_HASH MD5=893b5203b862eb9bbd08553e24ff146a
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
   )
 
-  FetchContent_MakeAvailable(boost)
-endif()
+  FetchContent_MakeAvailable(Boost)
 
-add_library(boost_math_library INTERFACE)
+  if(TARGET Boost::headers)
+    target_link_libraries(boost_math_library INTERFACE Boost::headers)
+  elseif(TARGET Boost::boost)
+    target_link_libraries(boost_math_library INTERFACE Boost::boost)
+  else()
+    message(FATAL_ERROR "Fetched Boost has no headers target")
+  endif()
+endif()
 
 target_include_directories(boost_math_library INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
   $<INSTALL_INTERFACE:include>
 )
 
-# Set _boost_target based on how Boost is installed
-if(TARGET Boost::boost)
-  set(_boost_target Boost::boost)
-elseif(TARGET Boost::headers)
-  set(_boost_target Boost::headers)
-elseif(TARGET boost_headers)
-  set(_boost_target boost_headers)
-else()
-  message(FATAL_ERROR "No suitable Boost headers target was found")
-endif()
-
 target_link_libraries(boost_math_library INTERFACE
-  ${_boost_target}
   board_library
 )
