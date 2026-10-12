@@ -57,7 +57,7 @@
     },
     {
       "name": "benchmark",
-      "displayName": "Benchmarks",
+      "displayName": "Benchmark",
       "inherits": "release",
       "cacheVariables": {
         "PROJECT_BUILD_APPS": "OFF",
@@ -67,8 +67,8 @@
       }
     },
     {
-      "name": "ci-benchmarks",
-      "displayName": "CI Benchmarks",
+      "name": "ci-benchmark",
+      "displayName": "CI Benchmark",
       "inherits": "release",
       "cacheVariables": {
         "PROJECT_BUILD_APPS": "OFF",
@@ -95,7 +95,7 @@
 
   "buildPresets": [
     {
-      "name": "ci-benchmarks",
+      "name": "ci-benchmark",
       "configurePreset": "benchmark",
       "jobs": 4,
       "targets": [

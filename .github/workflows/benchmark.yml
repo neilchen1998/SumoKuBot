@@ -41,7 +41,7 @@ jobs:
         run: |
           CC=clang-19 \
           CXX="clang++-19 -stdlib=libc++" \
-          cmake --preset release-benchmarks
+          cmake --preset ci-benchmark
 
       - name: Build
-        run: cmake --build --preset ci-benchmarks
+        run: cmake --build --preset ci-benchmark
