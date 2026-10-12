@@ -75,7 +75,7 @@ cmake --preset debug-tests
 To generate the build system with benchmarks enabled (**benchmarks** subdirectory):
 
 ```zsh
-cmake --preset release-benchmarks
+cmake --preset benchmark
 ```
 
 For 64-bit Linux systems:
@@ -139,7 +139,7 @@ cmake --build _build-release --target docs
 Run benchmarks:
 
 ```zsh
-cmake --build _build-release-benchmarks --target benchmarks
+cmake --build _build-benchmark --target benchmarks
 ```
 
 To run clang-tidy:

@@ -56,7 +56,7 @@
       }
     },
     {
-      "name": "release-benchmarks",
+      "name": "benchmark",
       "displayName": "Benchmarks",
       "inherits": "release",
       "cacheVariables": {
@@ -96,7 +96,7 @@
   "buildPresets": [
     {
       "name": "ci-benchmarks",
-      "configurePreset": "release-benchmarks",
+      "configurePreset": "benchmark",
       "jobs": 4,
       "targets": [
         "benchmarks"
@@ -124,8 +124,8 @@
     },
     {
       "$comment": "Will run benchmarks immediately afterwards",
-      "name": "release-benchmarks",
-      "configurePreset": "release-benchmarks",
+      "name": "benchmark",
+      "configurePreset": "benchmark",
       "jobs": 0,
       "targets": [
         "benchmarks"
