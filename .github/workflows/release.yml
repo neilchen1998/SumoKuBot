@@ -40,7 +40,7 @@ jobs:
 
       - name: Check Application Number
         run: |
-          ./_build-ci-release/apps/app -v
+          ./_build/ci-release/apps/app -v
 
       - name: Create Package (CPack)
         run: cpack --preset ci-release
@@ -49,6 +49,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            _build-ci-release/*.tar.gz
-            _build-ci-release/*.tar.gz.sha256
+            _build/ci-release/*.tar.gz
+            _build/ci-release/*.tar.gz.sha256
           generate_release_notes: true
