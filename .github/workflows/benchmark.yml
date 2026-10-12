@@ -19,6 +19,18 @@ jobs:
               libc++-19-dev \
               libc++abi-19-dev
 
+      - name: Install pyperf
+        run: |
+            sudo apt-get update
+            sudo apt install -y python3-pip linux-tools-common linux-tools-generic
+            python3 -m pip install pyperf
+
+      - name: Check & Enable pyperf
+        run: |
+          python3 -m pyperf --help
+          python3 -m pyperf system show
+          sudo python3 -m pyperf system tune
+
       - name: Check Compiler
         run: |
           clang++-19 --version
