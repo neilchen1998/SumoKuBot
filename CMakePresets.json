@@ -96,7 +96,7 @@
   "buildPresets": [
     {
       "name": "ci-benchmark",
-      "configurePreset": "benchmark",
+      "configurePreset": "ci-benchmark",
       "jobs": 4,
       "targets": [
         "benchmarks"
