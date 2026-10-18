@@ -729,6 +729,23 @@ And for the *requires* part, we need to add *&&* there since it represents the A
 
 `(std::same_as<Args1, int> && std::same_as<Args2, int> && std::same_as<Args3, int>)`.
 
+
+### C++20 Concepts
+
+We use C++20 concepts to define compile-time requirements for puzzle solvers.
+The *PuzzleSolver* concept verifies that a solver provides the required *Solve()* and *GetSolution()* operations, helping catch incompatible implementations at compile time.
+
+We ensure that *GetSolution()* returns exactly **std::optional<SudokuBoard>** to make solver interfaces clearer and more consistent by specifying the function's return type after *->*.
+
+```cpp
+template <typename T>
+concept PuzzleSolver = requires(T& solver)
+{
+    solver.Solve();
+    { solver.GetSolution() } -> std::same_as<std::optional<SudokuBoard>>;
+};
+```
+
 ### Module
 
 *%* is a very computationally expensive operator as it can take up to multiple CPU cycles.

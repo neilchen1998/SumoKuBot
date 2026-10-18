@@ -119,10 +119,11 @@ bool SolvePuzzle(T& solver, const SumokuPuzzleData& puzzle, bool benchmark)
 /// @tparam T The type to test as a puzzle solver.
 /// @concept PuzzleSolver
 /// @details A type satisfies this concept if it supports both Solve and GetSolution functions.
+/// GetSolution must return the same type as std::optional<SudokuBoard>
 template <typename T>
 concept PuzzleSolver = requires(T solver) {
-    solver.Solve();
-    solver.GetSolution();
+    { solver.Solve() };
+    { solver.GetSolution() } -> std::same_as<std::optional<SudokuBoard>>;
 };
 
 /// @brief Defines the types supported as Sumoku solvers.
@@ -139,7 +140,6 @@ concept SumokuSolver =
 /// @param benchmark Whether to print the solve duration.
 /// @return True if the puzzle was solved, otherwise false.
 template <SumokuSolver T>
-requires SumokuSolver<T>
 bool SolveWith(const SumokuPuzzleData& p, bool benchmark)
 {
     T solver {p.N, p.boxes, p.sums};
