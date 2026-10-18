@@ -105,10 +105,11 @@ bool SolvePuzzle(T& solver, const SumokuPuzzleData& puzzle, bool benchmark)
         return false;
     }
 
+    spdlog::debug("Solved in: {:.3f} ms\n", elapsed.count());
+
     if (benchmark)
     {
         fmt::println("Solved in: {:.3f} ms", elapsed.count());
-        fmt::println("");
     }
 
     return true;
@@ -196,7 +197,7 @@ int main(int argc, char* argv[])
 
         if (filePath.empty() && dirPath.empty())
         {
-            filePath = fs::path {GetTestDataPath()} / "puzzle_p4.json";
+            filePath = fs::path {GetTestDataPath()} / "sumoku" / "solvable" / "puzzle_p4.json";
 
             spdlog::debug("No puzzle source specified; using default puzzle: '{}'", filePath.string());
         }
@@ -284,6 +285,8 @@ int main(int argc, char* argv[])
     for (const auto& p : puzzles)
     {
         spdlog::debug("Solving puzzle with N = {}", p.N);
+
+        //
         const auto solved = [&] {
             switch (solverType)
             {
