@@ -257,7 +257,7 @@ int main(int argc, char* argv[])
     {
         spdlog::debug("Loading puzzle from '{}'", filePath.string());
 
-        if (auto puzzle = LoadPuzzle<SumokuPuzzleData>(filePath.string()); puzzle)
+        if (auto puzzle = LoadPuzzle<SumokuPuzzleData>(filePath); puzzle)
         {
             puzzles.push_back(std::move(*puzzle));
 

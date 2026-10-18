@@ -51,7 +51,8 @@ std::string GetTestDataPath();
 /// @brief A base trait for puzzle data
 /// @tparam T The type of the puzzle data
 /// @tparam ValidationFn The validation function for the puzzle
-template <typename T, auto ValidationFn> struct PuzzleTraitsBase
+template <typename T, auto ValidationFn>
+struct PuzzleTraitsBase
 {
     static std::expected<void, std::string> validate(const T& p)
     {
@@ -65,15 +66,18 @@ template <typename T, auto ValidationFn> struct PuzzleTraitsBase
 };
 
 /// @brief Puzzle trait
-template <typename T> struct PuzzleTraits;
+template <typename T>
+struct PuzzleTraits;
 
 /// @brief The explicit specialization of PuzzleTraits for SudokuPuzzleData
-template <> struct PuzzleTraits<SudokuPuzzleData> : PuzzleTraitsBase<SudokuPuzzleData, ValidateSudokuPuzzle>
+template <>
+struct PuzzleTraits<SudokuPuzzleData> : PuzzleTraitsBase<SudokuPuzzleData, ValidateSudokuPuzzle>
 {
 };
 
 /// @brief The explicit specialization of PuzzleTraits for SumokuPuzzleData
-template <> struct PuzzleTraits<SumokuPuzzleData> : PuzzleTraitsBase<SumokuPuzzleData, ValidateSumokuPuzzle>
+template <>
+struct PuzzleTraits<SumokuPuzzleData> : PuzzleTraitsBase<SumokuPuzzleData, ValidateSumokuPuzzle>
 {
 };
 
@@ -83,22 +87,21 @@ template <> struct PuzzleTraits<SumokuPuzzleData> : PuzzleTraitsBase<SumokuPuzzl
 /// and validates the resulting object using PuzzleTraits<T>::validate().
 ///
 /// @tparam T The trait of the puzzle.
-/// @param dir The directory of the puzzle.
+/// @param filePath The directory of the puzzle.
 /// @return The loaded and validated puzzle on success, or std::nullopt on failure.
-template <typename T> std::optional<T> LoadPuzzle(std::string_view path)
+template <typename T>
+std::optional<T> LoadPuzzle(const fs::path& filePath)
 {
-    const fs::path filePath {path};
-
     if (!fs::exists(filePath))
     {
-        fmt::println(stderr, "Error: {} does not exist.", path);
+        fmt::println(stderr, "Error: {} does not exist.", filePath.string());
         return std::nullopt;
     }
 
     std::ifstream ifstrm(filePath);
     if (!ifstrm)
     {
-        fmt::println(stderr, "Error: Could not open file at {}.", path);
+        fmt::println(stderr, "Error: Could not open file at {}.", filePath.string());
         return std::nullopt;
     }
 
@@ -128,19 +131,20 @@ template <typename T> std::optional<T> LoadPuzzle(std::string_view path)
 /// @tparam T The trait of the puzzle
 /// @param dir The directory of the puzzles
 /// @return A vector of T
-template <typename T> std::vector<T> LoadAllPuzzles(std::string_view dir)
+template <typename T>
+std::vector<T> LoadAllPuzzles(const fs::path& dir)
 {
     // Check if the given directory exists
     if (!fs::exists(dir))
     {
-        fmt::print(stderr, "Error: '{}' does not exist.\n", dir);
+        fmt::print(stderr, "Error: '{}' does not exist.\n", dir.string());
         return {};
     }
 
     // Check if the given argument is a directory
     if (!fs::is_directory(dir))
     {
-        fmt::print(stderr, "Error: '{}' is not a directory.\n", dir);
+        fmt::print(stderr, "Error: '{}' is not a directory.\n", dir.string());
         return {};
     }
 
@@ -151,7 +155,7 @@ template <typename T> std::vector<T> LoadAllPuzzles(std::string_view dir)
     {
         if (entry.path().extension() == ".json" || entry.path().extension() == ".JSON")
         {
-            if (auto puzzle = LoadPuzzle<T>(entry.path().string()); puzzle)
+            if (auto puzzle = LoadPuzzle<T>(entry.path()); puzzle)
             {
                 puzzles.push_back(std::move(*puzzle));
             }
