@@ -49,6 +49,6 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            _build-ci-release/*.tar.gz
-            _build-ci-release/*.tar.gz.sha256
+            _build/ci-release/*.tar.gz
+            _build/ci-release/*.tar.gz.sha256
           generate_release_notes: true
