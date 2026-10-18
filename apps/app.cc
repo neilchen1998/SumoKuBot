@@ -11,6 +11,7 @@
 #include <spdlog/spdlog.h> // spdlog::set_level, spdlog::info
 #include <string>          // std::string
 #include <string_view>     // std::string_view
+#include <utility>         // std::move
 #include <vector>          // std::vector
 
 #include "board/boardlib.hpp"                             // PrintBoard
@@ -211,15 +212,19 @@ int main(int argc, char* argv[])
 
             if (ec)
             {
-                fmt::println(stderr, "Unable to determine file size: {}", ec.message());
+                fmt::println(stderr, "Unable to determine file size for '{}' : {}", filePath.string(), ec.message());
+                spdlog::warn("Unable to determine file size for '{}': {}", filePath.string(), ec.message());
             }
-
-            spdlog::debug("File size: {} bytes.", size);
-
-            if (verbose && !ec)
+            else
             {
-                fmt::println("Loading puzzle from: '{}'.", filePath);
-                fmt::println("File size: {} bytes.", size);
+                spdlog::debug("File size: {} bytes.", size);
+
+                if (verbose)
+                {
+
+                    fmt::println("Loading puzzle from: '{}'.", filePath);
+                    fmt::println("File size: {} bytes.", size);
+                }
             }
         }
         else
@@ -254,7 +259,7 @@ int main(int argc, char* argv[])
 
         if (auto puzzle = LoadPuzzle<SumokuPuzzleData>(filePath.string()); puzzle)
         {
-            puzzles.push_back(*puzzle);
+            puzzles.push_back(std::move(*puzzle));
 
             spdlog::debug("Successfully loaded puzzle");
         }
@@ -304,6 +309,11 @@ int main(int argc, char* argv[])
             {
                 spdlog::debug("Using SumokuOrdering");
                 return SolveWith<sumoku::SumokuOrderingSolver>(p, benchmark);
+            }
+            default:
+            {
+                spdlog::error("Invalid solver type");
+                return false;
             }
             }
         }(); // "()" invokes lambda
