@@ -286,7 +286,7 @@ int main(int argc, char* argv[])
     {
         spdlog::debug("Solving puzzle with N = {}", p.N);
 
-        //
+        // A lambda function that solves given puzzles
         const auto solved = [&] {
             switch (solverType)
             {
