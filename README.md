@@ -160,12 +160,6 @@ To test if there is memory leak on Mac:
 leaks --atExit -- <test_binary>
 ```
 
-Create a symbolic link such that C++ servers like **clangd** can know the code:
-
-```zsh
-ln -sf _build/release/compile_commands.json compile_commands.json
-```
-
 To configure this repo with CI:
 
 ```zsh
@@ -1175,6 +1169,36 @@ and we can simply use:
 
 ```cmake
 target_link_libraries(loadertestlib PRIVATE Catch2::Catch2WithMain nlohmann_json::nlohmann_json loader_library)
+```
+
+### Compile Commands
+
+We want to export compile commands so that the language server (such as **clangd**) can help you trace functions by know the compiler flags, macros, include paths, etc.
+
+We need to first set this up in the top level *CMakeLists.txt*:
+
+```cmake
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+```
+
+, and you can find *compile_commands.json* generated under the build directory.
+
+If you are using **Zed**, then you need to let Zed's language server know where to find *compile_commands.json*.
+
+One can simply put this under *.zed* directory and name it *settings.json*:
+
+```json
+{
+  "lsp": {
+    "clangd": {
+      "binary": {
+        "arguments": [
+          "--compile-commands-dir=_build/debug"
+        ]
+      }
+    }
+  }
+}
 ```
 
 ## Reference
