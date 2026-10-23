@@ -1,22 +1,10 @@
 #ifndef APPS_CLI_ARGUMENTS_HPP
 #define APPS_CLI_ARGUMENTS_HPP
 
-#include <CLI/CLI.hpp>     // CLI::App, CLI::ParseError
 #include <array>           // std::array
-#include <chrono>          // std::chrono::steady_clock
-#include <concepts>        // concept
 #include <cstdint>         // std::uint8_t
-#include <cstdlib>         // EXIT_SUCCESS, EXIT_FAILURE
-#include <filesystem>      // std::filesystem
-#include <fmt/core.h>      // fmt::print
-#include <fmt/ostream.h>   // fmt::streamed
-#include <fmt/std.h>       // fmt::println for filesystem
-#include <spdlog/spdlog.h> // spdlog::set_level, spdlog::info
 #include <sstream>         // std::ostringstream
 #include <string>          // std::string
-#include <string_view>     // std::string_view
-#include <utility>         // std::move
-#include <vector>          // std::vector
 
 /// @brief The solver type
 enum class SolverType : std::uint8_t // packs this enum inside a single byte type

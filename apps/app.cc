@@ -1,121 +1,24 @@
 #include <CLI/CLI.hpp>     // CLI::App, CLI::ParseError
 #include <array>           // std::array
-#include <chrono>          // std::chrono::steady_clock
-#include <concepts>        // concept
-#include <cstdint>         // std::uint8_t
 #include <cstdlib>         // EXIT_SUCCESS, EXIT_FAILURE
 #include <filesystem>      // std::filesystem
 #include <fmt/core.h>      // fmt::print
 #include <fmt/ostream.h>   // fmt::streamed
 #include <fmt/std.h>       // fmt::println for filesystem
 #include <spdlog/spdlog.h> // spdlog::set_level, spdlog::info
-#include <sstream>         // std::ostringstream
 #include <string>          // std::string
-#include <string_view>     // std::string_view
 #include <utility>         // std::move
 #include <vector>          // std::vector
 
-#include "board/boardlib.hpp" // PrintBoard
-#include "cli/arguments.hpp"
+#include "cli/arguments.hpp"                              // GetSolverOptionsText, SolverType, solverMap
 #include "loader/loaderlib.hpp"                           // LoadAllPuzzles, LoadPuzzle
 #include "solvers/sumoku/sumokubacktrackingsolver.hpp"    // sumoku::SumokuBacktracking
 #include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
 #include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuBacktracking
+#include "solvers/sumoku/sumokurunner.hpp"                // SolveWith, SolvePuzzle, PrintSolution, etc.
 #include "version.h"                                      // build_info::project_name, build_info::version, etc.
 
 namespace fs = std::filesystem;
-
-/// @brief Solves a puzzle and times it.
-/// @tparam Solver The solver type.
-/// @param solver The solver instance.
-/// @return The elapsed duration.
-template <typename T>
-std::chrono::duration<double, std::milli> RunSolver(T& solver)
-{
-    auto start = std::chrono::steady_clock::now();
-    solver.Solve();
-    auto end = std::chrono::steady_clock::now();
-
-    return (end - start);
-}
-
-/// @brief Prints the solution for a puzzle.
-/// @tparam T The solver type.
-/// @param solver The solver instance.
-/// @param puzzle The puzzle data.
-/// @return True if a solution was found, otherwise false.
-template <typename T>
-bool PrintSolution(T& solver, const SumokuPuzzleData& puzzle)
-{
-    if (auto board = solver.GetSolution())
-    {
-        fmt::println("*** Result of Puzzle #{} ***", puzzle.label);
-        fmt::println("");
-        PrintBoard(*board);
-        fmt::println("");
-        return true;
-    }
-
-    fmt::println("Failed to solve!");
-    return false;
-}
-
-/// @brief Solves a puzzle and optionally prints the elapsed time.
-/// @tparam T The solver type.
-/// @param solver The solver instance.
-/// @param puzzle The puzzle data.
-/// @param benchmark Whether to print the solve duration.
-/// @return True if the puzzle was solved, otherwise false.
-template <typename T>
-bool SolvePuzzle(T& solver, const SumokuPuzzleData& puzzle, bool benchmark)
-{
-    const std::chrono::duration<double, std::milli> elapsed = RunSolver(solver);
-
-    if (!PrintSolution(solver, puzzle))
-    {
-        return false;
-    }
-
-    spdlog::debug("Solved in: {:.3f} ms\n", elapsed.count());
-
-    if (benchmark)
-    {
-        fmt::println("Solved in: {:.3f} ms", elapsed.count());
-    }
-
-    return true;
-}
-
-/// @brief Defines the types supported as puzzle solvers.
-/// @tparam T The type to test as a puzzle solver.
-/// @concept PuzzleSolver
-/// @details A type satisfies this concept if it supports both Solve and GetSolution functions.
-/// GetSolution must return the same type as std::optional<SudokuBoard>
-template <typename T>
-concept PuzzleSolver = requires(T solver) {
-    { solver.Solve() };
-    { solver.GetSolution() } -> std::same_as<std::optional<SudokuBoard>>;
-};
-
-/// @brief Defines the types supported as Sumoku solvers.
-/// @tparam T The type to test as a Sumoku solver.
-/// @concept SumokuSolver
-/// @details A type satisfies this concept if it is one of the supported Sumoku solver implementations.
-template <typename T>
-concept SumokuSolver =
-    std::same_as<T, sumoku::SumokuBacktrackingSolver> || std::same_as<T, sumoku::SumokuMRVSolver> || std::same_as<T, sumoku::SumokuOrderingSolver>;
-
-/// @brief Constructs a solver and solves a puzzle.
-/// @tparam T The solver type.
-/// @param puzzle The puzzle data.
-/// @param benchmark Whether to print the solve duration.
-/// @return True if the puzzle was solved, otherwise false.
-template <SumokuSolver T>
-bool SolveWith(const SumokuPuzzleData& p, bool benchmark)
-{
-    T solver {p.N, p.boxes, p.sums};
-    return SolvePuzzle(solver, p, benchmark);
-}
 
 int main(int argc, char* argv[])
 {
