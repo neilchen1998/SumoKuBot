@@ -9,6 +9,7 @@
 #include <fmt/ostream.h>   // fmt::streamed
 #include <fmt/std.h>       // fmt::println for filesystem
 #include <spdlog/spdlog.h> // spdlog::set_level, spdlog::info
+#include <sstream>         // std::ostringstream
 #include <string>          // std::string
 #include <string_view>     // std::string_view
 #include <utility>         // std::move
@@ -38,21 +39,55 @@ constexpr std::array<std::pair<std::string_view, SolverType>, 3> solverMap {{
     {"SumokuOrdering", SolverType::SumokuOrdering},
 }};
 
+/// @brief Generates the CLI11 option text string dynamically from the solver map at compile time.
+///
+/// @return A formatted string listing all available solver options.
+constexpr std::string GetSolverOptionsText()
+{
+    std::ostringstream oss;
+    bool first = true;
+
+    oss << "{";
+    for (const auto& [name, _] : solverMap)
+    {
+        if (!first)
+        {
+            oss << ", ";
+        }
+        oss << name;
+        first = false;
+    }
+
+    oss << "}";
+
+    return oss.str();
+}
+
 /// @brief Overloads the stream insertion operator to convert Solvers enum value to string
 /// @param os The output stream
 /// @param s The solver type enum value
 /// @return A reference to the output stream
 std::ostream& operator<<(std::ostream& os, const SolverType& s)
 {
-    for (const auto& [name, solver] : solverMap)
+    switch (s)
     {
-        if (solver == s)
-        {
-            return os << name;
-        }
+    case SolverType::SumokuSolver:
+    {
+        return os << "Basic";
     }
-
-    return os << "Unknown";
+    case SolverType::SumokuMRV:
+    {
+        return os << "SumokuMRV";
+    }
+    case SolverType::SumokuOrdering:
+    {
+        return os << "SumokuOrdering";
+    }
+    default:
+    {
+        return os << "Unknown";
+    }
+    }
 }
 
 /// @brief Solves a puzzle and times it.
@@ -169,7 +204,7 @@ int main(int argc, char* argv[])
     // The solver
     app.add_option("-s,--solver", solverType, "The solver type")
         ->transform(CLI::CheckedTransformer(solverMap))
-        ->option_text("{Basic, SumokuMRV, SumokuOrdering}")
+        ->option_text(GetSolverOptionsText())
         ->capture_default_str();
 
     // Souce of the puzzle (directory or file)
