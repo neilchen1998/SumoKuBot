@@ -15,7 +15,8 @@
 #include <utility>         // std::move
 #include <vector>          // std::vector
 
-#include "board/boardlib.hpp"                             // PrintBoard
+#include "board/boardlib.hpp" // PrintBoard
+#include "cli/arguments.hpp"
 #include "loader/loaderlib.hpp"                           // LoadAllPuzzles, LoadPuzzle
 #include "solvers/sumoku/sumokubacktrackingsolver.hpp"    // sumoku::SumokuBacktracking
 #include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
@@ -23,72 +24,6 @@
 #include "version.h"                                      // build_info::project_name, build_info::version, etc.
 
 namespace fs = std::filesystem;
-
-/// @brief The solver type
-enum class SolverType : std::uint8_t // packs this enum inside a single byte type
-{
-    SumokuSolver,
-    SumokuMRV,
-    SumokuOrdering
-};
-
-/// @brief A map for all the solver types
-constexpr std::array<std::pair<std::string_view, SolverType>, 3> solverMap {{
-    {"Basic", SolverType::SumokuSolver},
-    {"SumokuMRV", SolverType::SumokuMRV},
-    {"SumokuOrdering", SolverType::SumokuOrdering},
-}};
-
-/// @brief Generates the CLI11 option text string dynamically from the solver map at compile time.
-///
-/// @return A formatted string listing all available solver options.
-constexpr std::string GetSolverOptionsText()
-{
-    std::ostringstream oss;
-    bool first = true;
-
-    oss << "{";
-    for (const auto& [name, _] : solverMap)
-    {
-        if (!first)
-        {
-            oss << ", ";
-        }
-        oss << name;
-        first = false;
-    }
-
-    oss << "}";
-
-    return oss.str();
-}
-
-/// @brief Overloads the stream insertion operator to convert Solvers enum value to string
-/// @param os The output stream
-/// @param s The solver type enum value
-/// @return A reference to the output stream
-std::ostream& operator<<(std::ostream& os, const SolverType& s)
-{
-    switch (s)
-    {
-    case SolverType::SumokuSolver:
-    {
-        return os << "Basic";
-    }
-    case SolverType::SumokuMRV:
-    {
-        return os << "SumokuMRV";
-    }
-    case SolverType::SumokuOrdering:
-    {
-        return os << "SumokuOrdering";
-    }
-    default:
-    {
-        return os << "Unknown";
-    }
-    }
-}
 
 /// @brief Solves a puzzle and times it.
 /// @tparam Solver The solver type.
