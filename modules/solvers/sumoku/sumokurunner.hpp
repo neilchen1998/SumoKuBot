@@ -1,12 +1,9 @@
 #ifndef MODULES_SOLVERS_SUMOKU_SUMOKURUNNER_HPP
 #define MODULES_SOLVERS_SUMOKU_SUMOKURUNNER_HPP
 
-#include <CLI/CLI.hpp>     // CLI::App, CLI::ParseError
 #include <chrono>          // std::chrono::steady_clock
 #include <concepts>        // concept
 #include <fmt/core.h>      // fmt::print
-#include <fmt/ostream.h>   // fmt::streamed
-#include <fmt/std.h>       // fmt::println for filesystem
 #include <spdlog/spdlog.h> // spdlog::set_level, spdlog::info
 
 #include "board/boardlib.hpp"                             // PrintBoard
