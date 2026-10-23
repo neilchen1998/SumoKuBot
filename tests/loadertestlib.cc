@@ -322,7 +322,7 @@ TEST_CASE("LoadPuzzle returns nullopt for a nonexistent file", "[LoadPuzzle]")
         const auto path = temp.path_ / "valid.json";
         WriteJson(path, expected);
 
-        const auto actual = LoadPuzzle<SudokuPuzzleData>(path.string());
+        const auto actual = LoadPuzzle<SudokuPuzzleData>(path);
 
         REQUIRE(actual.has_value());
         REQUIRE(actual->label == expected.label);
@@ -336,7 +336,7 @@ TEST_CASE("LoadPuzzle returns nullopt for a nonexistent file", "[LoadPuzzle]")
         const auto path = temp.path_ / "valid.json";
         WriteJson(path, expected);
 
-        const auto actual = LoadPuzzle<SumokuPuzzleData>(path.string());
+        const auto actual = LoadPuzzle<SumokuPuzzleData>(path);
 
         REQUIRE(actual.has_value());
         REQUIRE(actual->label == expected.label);
@@ -350,7 +350,7 @@ TEST_CASE("LoadPuzzle returns nullopt for a nonexistent file", "[LoadPuzzle]")
         const fs::path path = temp.path_ / "invalid.json";
         WriteJson(path, sudoku);
 
-        const auto result = LoadPuzzle<SudokuPuzzleData>(path.string());
+        const auto result = LoadPuzzle<SudokuPuzzleData>(path);
 
         REQUIRE_FALSE(result.has_value());
     }
@@ -363,7 +363,7 @@ TEST_CASE("LoadPuzzle returns nullopt for a nonexistent file", "[LoadPuzzle]")
         const fs::path path = temp.path_ / "invalid.json";
         WriteJson(path, sumoku);
 
-        const auto result = LoadPuzzle<SumokuPuzzleData>(path.string());
+        const auto result = LoadPuzzle<SumokuPuzzleData>(path);
 
         REQUIRE_FALSE(result.has_value());
     }
@@ -379,7 +379,7 @@ TEST_CASE("LoadPuzzle returns nullopt for a nonexistent file", "[LoadPuzzle]")
             file << "{ this is not valid JSON";
         }
 
-        const auto result = LoadPuzzle<SudokuPuzzleData>(path.string());
+        const auto result = LoadPuzzle<SudokuPuzzleData>(path);
 
         REQUIRE_FALSE(result.has_value());
     }
@@ -397,7 +397,7 @@ TEST_CASE("LoadPuzzle returns nullopt for a nonexistent file", "[LoadPuzzle]")
             })";
         }
 
-        const auto result = LoadPuzzle<SudokuPuzzleData>(path.string());
+        const auto result = LoadPuzzle<SudokuPuzzleData>(path);
 
         REQUIRE_FALSE(result.has_value());
     }
