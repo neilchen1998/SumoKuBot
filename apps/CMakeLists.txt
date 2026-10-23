@@ -14,14 +14,13 @@ endif()
 
 add_library(cli cli/arguments.cc)
 
-target_link_libraries(cli PRIVATE CLI11::CLI11 fmt::fmt)
-target_link_libraries(cli INTERFACE project_options)
-
 add_executable(app app.cc)
 
 target_include_directories(app PRIVATE "${CMAKE_BINARY_DIR}/generated")
 
 # Link required libraries
+target_link_libraries(cli INTERFACE project_options)
+
 target_link_libraries(app PRIVATE
   board_library
   CLI11::CLI11
