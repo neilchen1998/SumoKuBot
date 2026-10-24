@@ -145,7 +145,13 @@ cmake --build _build/benchmark --target benchmarks
 To run clang-tidy:
 
 ```zsh
-run-clang-tidy -p build/ '.*/(apps|benchmarks|tests)/.*'
+SDK_PATH="$(xcrun --show-sdk-path)"
+
+run-clang-tidy \
+  -p _build/debug/ \
+  -extra-arg=-isysroot \
+  -extra-arg="$SDK_PATH" \
+  '.*/(apps|benchmarks|tests|modules)/.*'
 ```
 
 To package the binary file into a compressed tarball:
