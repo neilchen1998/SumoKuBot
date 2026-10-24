@@ -12,11 +12,15 @@ else()
     FetchContent_MakeAvailable(CLI11)
 endif()
 
+add_library(cli cli/arguments.cc)
+
 add_executable(app app.cc)
 
 target_include_directories(app PRIVATE "${CMAKE_BINARY_DIR}/generated")
 
 # Link required libraries
+target_link_libraries(cli INTERFACE project_options)
+
 target_link_libraries(app PRIVATE
   board_library
   CLI11::CLI11
@@ -26,6 +30,7 @@ target_link_libraries(app PRIVATE
 
   # targets
   sumoku::solver
+  cli
 )
 
 target_link_libraries(app PRIVATE project_options)
