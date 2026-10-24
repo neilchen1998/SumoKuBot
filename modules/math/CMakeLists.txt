@@ -1,62 +1,11 @@
-include(FetchContent)
+# Create a CMake library target
+add_library(math_library INTERFACE)
 
-option(USE_FETCHED_BOOST "Fetch Boost instead of using system Boost" OFF)
-
-add_library(boost_math_library INTERFACE)
-
-if(NOT USE_FETCHED_BOOST)
-  find_package(Boost 1.78 QUIET)
-endif()
-
-if(Boost_FOUND AND NOT USE_FETCHED_BOOST)
-  message(STATUS "Using system Boost ${Boost_VERSION}")
-
-  if(TARGET Boost::headers)
-    target_link_libraries(boost_math_library INTERFACE Boost::headers)
-  elseif(TARGET Boost::boost)
-    target_link_libraries(boost_math_library INTERFACE Boost::boost)
-  else()
-    target_include_directories(boost_math_library SYSTEM INTERFACE
-      ${Boost_INCLUDE_DIRS}
-    )
-  endif()
-
-  # Link the component target if the installed package provides it.
-  if(TARGET Boost::container_hash)
-    target_link_libraries(boost_math_library INTERFACE
-      Boost::container_hash
-    )
-  endif()
-
-else()
-  message(STATUS "Fetching Boost 1.84.0")
-
-  set(BOOST_INCLUDE_LIBRARIES container_hash)
-  set(BOOST_ENABLE_CMAKE ON)
-
-  FetchContent_Declare(
-    Boost
-    URL "https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.xz"
-    URL_HASH MD5=893b5203b862eb9bbd08553e24ff146a
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-  )
-
-  FetchContent_MakeAvailable(Boost)
-
-  if(NOT TARGET Boost::container_hash)
-    message(FATAL_ERROR "Boost.ContainerHash target is missing")
-  endif()
-
-  target_link_libraries(boost_math_library INTERFACE
-    Boost::container_hash
-  )
-endif()
-
-target_include_directories(boost_math_library INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
-  $<INSTALL_INTERFACE:include>
+# Expose the 'modules' directory to targets that link against this library
+target_include_directories(math_library INTERFACE
+  ${PROJECT_SOURCE_DIR}/modules
 )
 
-target_link_libraries(boost_math_library INTERFACE
-  board_library
-)
+# Link all the libraries & flags that are required
+target_link_libraries(math_library INTERFACE board_library)
+target_link_libraries(math_library INTERFACE project_options)

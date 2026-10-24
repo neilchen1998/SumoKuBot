@@ -169,6 +169,7 @@ if(PROJECT_IS_TOP_LEVEL AND (PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS))
   # The benchmarking subdirectory
   if(PROJECT_BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
+    add_subdirectory(modules/math/boost)
   endif()
 endif()
 
