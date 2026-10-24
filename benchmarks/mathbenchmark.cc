@@ -3,9 +3,9 @@
 #include <nanobench.h> // ankerl::nanobench::Bench
 #include <random>      // std::mt19937_64
 
-#include "board/boardlib.hpp"    // Point
-#include "math/boostmathlib.hpp" // BoostPointHasher
-#include "math/mathlib.hpp"      // PointHasher
+#include "board/boardlib.hpp"          // Point
+#include "math/boost/boostmathlib.hpp" // BoostPointHasher
+#include "math/mathlib.hpp"            // PointHasher
 
 int main()
 {
@@ -16,7 +16,7 @@ int main()
     PointHasher hasher {};
     BoostPointHasher boostHasher {};
 
-    std::array<Point, 1024> points;    // 1024 is a power of 2
+    std::array<Point, 1024> points; // 1024 is a power of 2
     std::mt19937_64 rng(42);
 
     // Produce random values [1, 9]
@@ -29,18 +29,15 @@ int main()
     }
 
     size_t i = 0;
-    bench.title("Hashing")
-        .run("PointerHasher", [&]
-    {
-        auto& p = points[i++ & 1023];   // equivalent to (i++) % 1024
+    bench.title("Hashing").run("PointerHasher", [&] {
+        auto& p = points[i++ & 1023]; // equivalent to (i++) % 1024
         auto h = hasher(p);
         ankerl::nanobench::doNotOptimizeAway(h);
     });
 
     i = 0;
-    bench.run("PointHasher w/ boost", [&]
-    {
-        auto& p = points[i++ & 1023];   // equivalent to (i++) % 1024
+    bench.run("PointHasher w/ boost", [&] {
+        auto& p = points[i++ & 1023]; // equivalent to (i++) % 1024
         auto h = boostHasher(p);
         ankerl::nanobench::doNotOptimizeAway(h);
     });

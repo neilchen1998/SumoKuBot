@@ -160,6 +160,9 @@ endif()
 # Optional modules
 if(PROJECT_IS_TOP_LEVEL AND (PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS))
 
+  # Boost subdirectory
+  add_subdirectory(modules/math/boost)
+
   # The unit test subdirectory
   if(PROJECT_BUILD_TESTS)
     enable_testing()
