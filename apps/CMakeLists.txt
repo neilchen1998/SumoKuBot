@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 find_package(CLI11 CONFIG 2.4.1 QUIET)
 
 if (CLI11_FOUND)
@@ -36,7 +38,9 @@ target_link_libraries(app PRIVATE
 target_link_libraries(app PRIVATE project_options)
 
 # Install the binary into the 'bin' directory
-install(TARGETS app DESTINATION bin)
+install(TARGETS app
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 # Show the binary size after it is built
 add_custom_command(
