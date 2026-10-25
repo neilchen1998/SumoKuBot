@@ -6,11 +6,11 @@
 #include <fmt/core.h>      // fmt::print
 #include <spdlog/spdlog.h> // spdlog::set_level, spdlog::info
 
-#include "board/boardlib.hpp"                             // PrintBoard
-#include "loader/loaderlib.hpp"                           // LoadAllPuzzles, LoadPuzzle
-#include "solvers/sumoku/sumokubacktrackingsolver.hpp"    // sumoku::SumokuBacktracking
-#include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
-#include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuBacktracking
+#include "board/boardlib.hpp"                          // PrintBoard
+#include "loader/loaderlib.hpp"                        // LoadAllPuzzles, LoadPuzzle
+#include "solvers/sumoku/sumokubacktrackingsolver.hpp" // sumoku::SumokuBacktrackingSolver
+#include "solvers/sumoku/sumokumrvsolver.hpp"          // sumoku::SumokuMRVSolver
+#include "solvers/sumoku/sumokuorderingsolver.hpp"     // sumoku::SumokuOrderingSolver
 
 /// @brief Solves a puzzle and times it.
 /// @tparam Solver The solver type.
