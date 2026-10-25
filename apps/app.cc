@@ -40,9 +40,15 @@ int main(int argc, char* argv[])
     bool benchmark = false;
 
     // The solver
+    const auto result = GetSolverOptionsText();
+
+    const auto& buffer = std::get<0>(result);
+    const auto length = std::get<1>(result);
+
+
     app.add_option("-s,--solver", solverType, "The solver type")
         ->transform(CLI::CheckedTransformer(solverMap))
-        ->option_text(GetSolverOptionsText())
+        ->option_text(std::string(buffer.data(), length))
         ->capture_default_str();
 
     // Souce of the puzzle (directory or file)
