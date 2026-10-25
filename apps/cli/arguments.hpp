@@ -21,19 +21,19 @@ constexpr std::array<std::pair<std::string_view, SolverType>, 3> solverMap {{
     {"SumokuOrdering", SolverType::SumokuOrdering},
 }};
 
-/// @brief Generates the CLI11 option text string dynamically from the solver map at compile time.
-/// @return A formatted string listing all available solver options.
+/// @brief Generates a comma-separated list of available solver names enclosed in braces during compile time.
+/// @return A null-terminated character array containing the formatted solver options.
 consteval auto GetSolverOptionsText()
 {
-    constexpr std::size_t maxSize = 128;
+    constexpr std::size_t maxSize = 48; // adjust this if needed
     std::array<char, maxSize> buffer {};
-
     std::size_t pos = 0;
+
     buffer[pos++] = '{';
 
-    bool first = true;
-    for (const auto& [name, _] : solverMap)
+    for (bool first = true; const auto& [name, _] : solverMap)
     {
+        // Append the comma seperator when there is more than one solver
         if (!first)
         {
             buffer[pos++] = ',';
@@ -49,8 +49,9 @@ consteval auto GetSolverOptionsText()
     }
 
     buffer[pos++] = '}';
+    buffer[pos] = '\0';
 
-    return std::pair {buffer, pos};
+    return buffer;
 }
 
 /// @brief Overloads the stream insertion operator to convert Solvers enum value to string

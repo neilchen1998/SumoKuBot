@@ -39,16 +39,12 @@ int main(int argc, char* argv[])
     bool verbose = false;
     bool benchmark = false;
 
-    // The solver
-    const auto result = GetSolverOptionsText();
-
-    const auto& buffer = std::get<0>(result);
-    const auto length = std::get<1>(result);
-
+    // Get the description of all available solvers
+    const auto solverOptionsTxt = GetSolverOptionsText();
 
     app.add_option("-s,--solver", solverType, "The solver type")
         ->transform(CLI::CheckedTransformer(solverMap))
-        ->option_text(std::string(buffer.data(), length))
+        ->option_text(std::string(solverOptionsTxt.data()))
         ->capture_default_str();
 
     // Souce of the puzzle (directory or file)
