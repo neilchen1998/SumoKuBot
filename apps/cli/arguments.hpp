@@ -1,10 +1,10 @@
 #ifndef APPS_CLI_ARGUMENTS_HPP
 #define APPS_CLI_ARGUMENTS_HPP
 
-#include <array>           // std::array
-#include <cstdint>         // std::uint8_t
-#include <sstream>         // std::ostringstream
-#include <string>          // std::string
+#include <array>       // std::array
+#include <cstdint>     // std::uint8_t
+#include <string_view> // std::string_view
+#include <utility>     // std::pair
 
 /// @brief The solver type
 enum class SolverType : std::uint8_t // packs this enum inside a single byte type
@@ -21,27 +21,37 @@ constexpr std::array<std::pair<std::string_view, SolverType>, 3> solverMap {{
     {"SumokuOrdering", SolverType::SumokuOrdering},
 }};
 
-/// @brief Generates the CLI11 option text string dynamically from the solver map at compile time.
-/// @return A formatted string listing all available solver options.
-constexpr std::string GetSolverOptionsText()
+/// @brief Generates a comma-separated list of available solver names enclosed in braces during compile time.
+/// @return A null-terminated character array containing the formatted solver options.
+consteval auto GetSolverOptionsText()
 {
-    std::ostringstream oss;
-    bool first = true;
+    constexpr std::size_t maxSize = 48; // adjust this if needed
+    std::array<char, maxSize> buffer {};
+    std::size_t pos = 0;
 
-    oss << "{";
-    for (const auto& [name, _] : solverMap)
+    buffer[pos++] = '{';
+
+    for (bool first = true; const auto& [name, _] : solverMap)
     {
+        // Append the comma seperator when there is more than one solver
         if (!first)
         {
-            oss << ", ";
+            buffer[pos++] = ',';
+            buffer[pos++] = ' ';
         }
-        oss << name;
+
+        for (char c : name)
+        {
+            buffer[pos++] = c;
+        }
+
         first = false;
     }
 
-    oss << "}";
+    buffer[pos++] = '}';
+    buffer[pos] = '\0';
 
-    return oss.str();
+    return buffer;
 }
 
 /// @brief Overloads the stream insertion operator to convert Solvers enum value to string

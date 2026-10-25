@@ -1201,6 +1201,78 @@ One can simply put this under *.zed* directory and name it *settings.json*:
 }
 ```
 
+### Compile-Time Constant Expression (**consteval**)
+
+**consteval** keyword that makes a function to be an immediate function, meaning that the return value of the function should be determined at compile time.
+This is beneficial for run-time performance since we can avoid calculating at run time.
+
+In this repo, we try to make the description of all solvers at compile-time.
+
+We first need to make our **solverMap** a **constexpr** since the descriptions are needed later when we try to generate a list of all descriptions.
+This is easy as we can simply put **constexpr** in the front of the variable.
+
+```cpp
+constexpr std::array<std::pair<std::string_view, SolverType>, 3> solverMap {{
+    {"Basic", SolverType::SumokuSolver},
+    {"SumokuMRV", SolverType::SumokuMRV},
+    {"SumokuOrdering", SolverType::SumokuOrdering},
+}};
+```
+
+We then need to force the compiler to construct the list of all descriptions of all available solvers.
+Here, I am using an **std::array** as the underlying container.
+The reason behind this choice is that we cannot declare **constexpr std::string** until **C++26**.
+And **constexpr std::string_view** is meant for viewing a string instead of construction.
+
+```cpp
+consteval auto GetSolverOptionsText()
+{
+    constexpr std::size_t maxSize = 48; // adjust this if needed
+    std::array<char, maxSize> buffer {};
+    std::size_t pos = 0;
+
+    buffer[pos++] = '{';
+
+    for (bool first = true; const auto& [name, _] : solverMap)
+    {
+        // Append the comma seperator when there is more than one solver
+        if (!first)
+        {
+            buffer[pos++] = ',';
+            buffer[pos++] = ' ';
+        }
+
+        for (char c : name)
+        {
+            buffer[pos++] = c;
+        }
+
+        first = false;
+    }
+
+    buffer[pos++] = '}';
+    buffer[pos] = '\0';
+
+    return buffer;
+}
+```
+
+We need to use **auto** as the return type here since the size of the array can be changed by modifying the value of **maxSize**.
+If we were to not use **auto**, then we need to change the signature in every place and that would be  tedious.
+Note that we need to make **maxSize** a **constexpr** variable as well since the compiler needs to determine the value of the array at compile time.
+
+As the client side, we can simply convert the return value from *GetSolverOptionsText* and convert it by calling *std::string()**.
+One final note here is that we need to pass the data of **solverOptionsTxt** since it is the underlying data that we care about.
+
+```cpp
+const auto solverOptionsTxt = GetSolverOptionsText();
+
+app.add_option("-s,--solver", solverType, "The solver type")
+    ->transform(CLI::CheckedTransformer(solverMap))
+    ->option_text(std::string(solverOptionsTxt.data()))
+    ->capture_default_str();
+```
+
 ## Reference
 
 - [CMake Target Commands](https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-command-scope)
