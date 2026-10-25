@@ -172,6 +172,18 @@ To build this repo with CI:
 cmake --build --preset ci-release
 ```
 
+To install the executable under **/usr/local/bin/app**:
+
+``zsh
+sudo cmake --install _build/release
+```
+
+or do so under **~/.local/bin/app**:
+
+```
+cmake --install _build/release --prefix "$HOME/.local"
+```
+
 ## Benchmark
 
 The following table shows the latest iteration of the MRV method versus the traditional method (the very first iteration).
