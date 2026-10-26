@@ -10,15 +10,15 @@
 #include <numeric>                                    // std::iota
 #include <vector>                                     // std::vector
 
-#include "board/boardlib.hpp"                             // BoardType
-#include "loader/loaderlib.hpp"                           // GetTestDataPath
-#include "solvers/sudoku/killersudokumrvsolver.hpp"       // killer_sudoku::KillerSudokuMRVSolver
-#include "solvers/sudoku/sudokubacktracking.hpp"          // sudoku::SudokuBacktracking
-#include "solvers/sudoku/sudokudlx.hpp"                   // sudoku::SudokuDLXSolver
-#include "solvers/sumoku/sumokubacktrackingsolver.hpp"    // sumoku::SudokuBacktrackingSolver
-#include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
-#include "solvers/sumoku/sumokubitmasksolver.hpp"         // sumoku::SumokuBacktracking
-#include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuBacktracking
+#include "board/boardlib.hpp"                          // BoardType
+#include "loader/loaderlib.hpp"                        // GetTestDataPath
+#include "solvers/sudoku/killersudokumrvsolver.hpp"    // killer_sudoku::KillerSudokuMRVSolver
+#include "solvers/sudoku/sudokubacktracking.hpp"       // sudoku::SudokuBacktracking
+#include "solvers/sudoku/sudokudlx.hpp"                // sudoku::SudokuDLXSolver
+#include "solvers/sumoku/sumokubacktrackingsolver.hpp" // sumoku::SudokuBacktrackingSolver
+#include "solvers/sumoku/sumokubitmasksolver.hpp"      // sumoku::SumokuBitMaskSolver
+#include "solvers/sumoku/sumokumrvsolver.hpp"          // sumoku::SumokuMRVSolver
+#include "solvers/sumoku/sumokuorderingsolver.hpp"     // sumoku::SumokuOrderingSolver
 
 /// @brief Converts a character digit or integer to an int
 /// @tparam T Must be char or int
@@ -48,12 +48,9 @@ void validate_boad_is_square(const std::vector<std::vector<T>>& board)
 
     const size_t N = board.size();
 
-    const bool isSquare = std::ranges::all_of(board, [N](const auto& row)
-    {
-        return row.size() == N;
-    });
+    const bool isSquare = std::ranges::all_of(board, [N](const auto& row) { return row.size() == N; });
 
-    REQUIRE (isSquare);
+    REQUIRE(isSquare);
 }
 
 /// @brief Validates a given Sudoku satisfies both the row and column constraints
@@ -101,7 +98,7 @@ void validate_sumoku_constraints(const std::vector<std::vector<T>>& board, const
             curSum += board[p.x][p.y];
         }
 
-        REQUIRE (curSum == sums[i]);
+        REQUIRE(curSum == sums[i]);
     }
 }
 
@@ -143,7 +140,8 @@ void validate_sukodu_row_column_box_constraints(const std::vector<std::vector<T>
 /// @tparam T The trait of the puzzle.
 /// @param dir The directory of the puzzle.
 /// @return The loaded and validated puzzle on success, or std::nullopt on failure.
-template <typename T> std::optional<T> LoadUnsolvablePuzzle(std::string_view path)
+template <typename T>
+std::optional<T> LoadUnsolvablePuzzle(std::string_view path)
 {
     const fs::path filePath {path};
 
@@ -176,7 +174,7 @@ template <typename T> std::optional<T> LoadUnsolvablePuzzle(std::string_view pat
     }
 }
 
-TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", sudoku::SudokuDLXSolver, sudoku::SudokuBacktracking )
+TEMPLATE_TEST_CASE("Sudoku Solvers", "[solver]", sudoku::SudokuDLXSolver, sudoku::SudokuBacktracking)
 {
     SECTION("Solvable puzzles", "[main]")
     {
@@ -197,11 +195,11 @@ TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", sudoku::SudokuDLXSolver, sudok
             s.Solve();
 
             auto ret = s.GetSolution();
-            REQUIRE (ret);
+            REQUIRE(ret);
 
             SudokuBoard solution = *ret;
 
-            REQUIRE (solution.size() == puzzle.N);
+            REQUIRE(solution.size() == puzzle.N);
             validate_boad_is_square(solution);
             validate_sukodu_row_column_box_constraints(solution);
         }
@@ -226,12 +224,12 @@ TEMPLATE_TEST_CASE( "Sudoku Solvers", "[solver]", sudoku::SudokuDLXSolver, sudok
             s.Solve();
 
             auto ret = s.GetSolution();
-            REQUIRE_FALSE (ret);
+            REQUIRE_FALSE(ret);
         }
     }
 }
 
-TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
+TEST_CASE("Sumoku (SumokuOrdering)", "[main]")
 {
     SECTION("Puzzle 0", "[2 x 2]")
     {
@@ -244,11 +242,11 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -264,11 +262,11 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -276,7 +274,8 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
     SECTION("Puzzle 2", "[4 x 4]")
     {
         constexpr size_t N = 4;
-        const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}}, {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}}, {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
+        const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}},         {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}},
+                                                     {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
         const std::vector<int> sums {6, 4, 5, 5, 1, 8, 6, 5};
 
         sumoku::SumokuOrderingSolver s {N, boxes, sums};
@@ -284,11 +283,11 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -297,38 +296,25 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
     {
         constexpr size_t N = 9;
         const std::vector<std::vector<Point>> boxes {
-            {{0, 0}, {0, 1}}, {{0, 2}, {1, 2}}, {{0 ,3}, {0, 4}}, {{0, 5}, {1, 5}}, {{0, 6}, {0, 7}}, {{0, 8}, {1, 8}},
-            {{1, 0}, {1, 1}}, {{1, 3}, {1, 4}}, {{1, 6}, {1, 7}},
-            {{2, 0}, {3, 0}}, {{2, 1}, {3, 1}}, {{2, 2}, {3, 2}}, {{2, 3}, {3, 3}}, {{2, 4}, {3, 4}}, {{2, 5}, {2, 6}}, {{2, 7}, {3, 7}}, {{2, 8}, {3, 8}},
-            {{3, 5}, {3, 6}},
-            {{4, 0}, {4, 1}}, {{4, 2}, {4, 3}}, {{4, 4}, {4, 5}}, {{4, 6}, {5, 6}}, {{4, 7}, {4, 8}},
-            {{5, 0}, {5, 1}}, {{5, 2}, {5, 3}}, {{5, 4}, {5, 5}}, {{5, 7}, {5, 8}},
-            {{6, 0}, {6, 1}}, {{6, 2}, {6, 3}}, {{6, 4}, {6, 5}}, {{6, 6}, {7, 6}}, {{6, 7}, {6, 8}},
-            {{7, 0}, {8, 0}}, {{7, 1}, {7, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {7, 5}}, {{7, 7}, {8, 7}}, {{7, 8}, {8, 8}},
-            {{8, 1}, {8, 2}}, {{8, 4}, {8, 5}, {8, 6}}
-        };
-        const std::vector<int> sums {
-            15, 13, 10, 5, 8, 8,
-            12, 6, 13,
-            15, 6, 4, 5, 13, 12, 11, 13,
-            11,
-            9, 11, 13, 3, 10,
-            7, 13, 17, 7,
-            10, 7, 10, 12, 11,
-            9, 11, 14, 11, 10, 8,
-            9, 13
-        };
+            {{0, 0}, {0, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {0, 4}}, {{0, 5}, {1, 5}}, {{0, 6}, {0, 7}},        {{0, 8}, {1, 8}}, {{1, 0}, {1, 1}},
+            {{1, 3}, {1, 4}}, {{1, 6}, {1, 7}}, {{2, 0}, {3, 0}}, {{2, 1}, {3, 1}}, {{2, 2}, {3, 2}},        {{2, 3}, {3, 3}}, {{2, 4}, {3, 4}},
+            {{2, 5}, {2, 6}}, {{2, 7}, {3, 7}}, {{2, 8}, {3, 8}}, {{3, 5}, {3, 6}}, {{4, 0}, {4, 1}},        {{4, 2}, {4, 3}}, {{4, 4}, {4, 5}},
+            {{4, 6}, {5, 6}}, {{4, 7}, {4, 8}}, {{5, 0}, {5, 1}}, {{5, 2}, {5, 3}}, {{5, 4}, {5, 5}},        {{5, 7}, {5, 8}}, {{6, 0}, {6, 1}},
+            {{6, 2}, {6, 3}}, {{6, 4}, {6, 5}}, {{6, 6}, {7, 6}}, {{6, 7}, {6, 8}}, {{7, 0}, {8, 0}},        {{7, 1}, {7, 2}}, {{7, 3}, {8, 3}},
+            {{7, 4}, {7, 5}}, {{7, 7}, {8, 7}}, {{7, 8}, {8, 8}}, {{8, 1}, {8, 2}}, {{8, 4}, {8, 5}, {8, 6}}};
+        const std::vector<int> sums {15, 13, 10, 5, 8,  8,  12, 6,  13, 15, 6,  4,  5, 13, 12, 11, 13, 11, 9, 11,
+                                     13, 3,  10, 7, 13, 17, 7,  10, 7,  10, 12, 11, 9, 11, 14, 11, 10, 8,  9, 13};
 
         sumoku::SumokuOrderingSolver s {N, boxes, sums};
 
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -337,44 +323,32 @@ TEST_CASE( "Sumoku (SumokuOrdering)", "[main]" )
     {
         constexpr size_t N = 9;
         const std::vector<std::vector<Point>> boxes {
-            {{0, 0}, {1, 0}, {2, 0}}, {{0, 1}, {1, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {1, 3}}, {{0, 4}, {1, 4}}, {{0, 5}, {0, 6}}, {{0, 7}, {0, 8}},
-            {{1, 5}, {2, 5}}, {{1, 6}, {2, 6}}, {{1, 7}, {1, 8}},
-            {{2, 1}, {2, 2}}, {{2, 3}, {2, 4}}, {{2, 7}, {3, 7}, {4, 7}}, {{2, 8}, {3, 8}},
-            {{3, 0}, {3, 1}}, {{3, 2}, {3, 3}}, {{3, 4}, {3, 5}}, {{3, 6}, {4, 6}},
+            {{0, 0}, {1, 0}, {2, 0}}, {{0, 1}, {1, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {1, 3}}, {{0, 4}, {1, 4}}, {{0, 5}, {0, 6}},
+            {{0, 7}, {0, 8}},         {{1, 5}, {2, 5}}, {{1, 6}, {2, 6}}, {{1, 7}, {1, 8}}, {{2, 1}, {2, 2}}, {{2, 3}, {2, 4}},
+            {{2, 7}, {3, 7}, {4, 7}}, {{2, 8}, {3, 8}}, {{3, 0}, {3, 1}}, {{3, 2}, {3, 3}}, {{3, 4}, {3, 5}}, {{3, 6}, {4, 6}},
             {{4, 0}, {5, 0}, {6, 0}}, {{4, 1}, {5, 1}}, {{4, 2}, {5, 2}}, {{4, 3}, {4, 4}}, {{4, 5}, {5, 5}}, {{4, 8}, {5, 8}},
-            {{5, 3}, {5, 4}}, {{5, 6}, {5, 7}},
-            {{6, 1}, {6, 2}}, {{6, 3}, {6, 4}}, {{6, 5}, {6, 6}}, {{6, 7}, {7, 7}}, {{6, 8}, {7, 8}},
-            {{7, 0}, {7, 1}}, {{7, 2}, {8, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {8, 4}}, {{7, 5}, {7, 6}},
-            {{8, 0}, {8, 1}}, {{8, 5}, {8, 6}}, {{8, 7}, {8, 8}}
-        };
-        const std::vector<int> sums {
-            18, 4, 8, 10, 13, 13, 17,
-            5, 11, 7,
-            5, 15, 17, 11,
-            10, 6, 10, 17,
-            11, 12, 12, 11, 5, 8,
-            12, 5,
-            13, 9, 11, 11, 11,
-            17, 10, 6, 11, 8,
-            10, 11, 4
-        };
+            {{5, 3}, {5, 4}},         {{5, 6}, {5, 7}}, {{6, 1}, {6, 2}}, {{6, 3}, {6, 4}}, {{6, 5}, {6, 6}}, {{6, 7}, {7, 7}},
+            {{6, 8}, {7, 8}},         {{7, 0}, {7, 1}}, {{7, 2}, {8, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {8, 4}}, {{7, 5}, {7, 6}},
+            {{8, 0}, {8, 1}},         {{8, 5}, {8, 6}}, {{8, 7}, {8, 8}}};
+        const std::vector<int> sums {18, 4,  8, 10, 13, 13, 17, 5, 11, 7,  5,  15, 17, 11, 10, 6, 10, 17, 11, 12,
+                                     12, 11, 5, 8,  12, 5,  13, 9, 11, 11, 11, 17, 10, 6,  11, 8, 10, 11, 4};
 
         sumoku::SumokuOrderingSolver s {N, boxes, sums};
 
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
 }
 
-TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
+TEST_CASE("Sumoku (SumokuOrderingWithBitMask)", "[main]")
 {
     SECTION("Puzzle 0", "[2 x 2]")
     {
@@ -387,11 +361,11 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -407,11 +381,11 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -419,7 +393,8 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
     SECTION("Puzzle 2", "[4 x 4]")
     {
         constexpr size_t N = 4;
-        const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}}, {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}}, {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
+        const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}},         {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}},
+                                                     {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
         const std::vector<int> sums {6, 4, 5, 5, 1, 8, 6, 5};
 
         sumoku::SumokuBitMaskSolver s {N, boxes, sums};
@@ -427,11 +402,11 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -440,38 +415,25 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
     {
         constexpr size_t N = 9;
         const std::vector<std::vector<Point>> boxes {
-            {{0, 0}, {0, 1}}, {{0, 2}, {1, 2}}, {{0 ,3}, {0, 4}}, {{0, 5}, {1, 5}}, {{0, 6}, {0, 7}}, {{0, 8}, {1, 8}},
-            {{1, 0}, {1, 1}}, {{1, 3}, {1, 4}}, {{1, 6}, {1, 7}},
-            {{2, 0}, {3, 0}}, {{2, 1}, {3, 1}}, {{2, 2}, {3, 2}}, {{2, 3}, {3, 3}}, {{2, 4}, {3, 4}}, {{2, 5}, {2, 6}}, {{2, 7}, {3, 7}}, {{2, 8}, {3, 8}},
-            {{3, 5}, {3, 6}},
-            {{4, 0}, {4, 1}}, {{4, 2}, {4, 3}}, {{4, 4}, {4, 5}}, {{4, 6}, {5, 6}}, {{4, 7}, {4, 8}},
-            {{5, 0}, {5, 1}}, {{5, 2}, {5, 3}}, {{5, 4}, {5, 5}}, {{5, 7}, {5, 8}},
-            {{6, 0}, {6, 1}}, {{6, 2}, {6, 3}}, {{6, 4}, {6, 5}}, {{6, 6}, {7, 6}}, {{6, 7}, {6, 8}},
-            {{7, 0}, {8, 0}}, {{7, 1}, {7, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {7, 5}}, {{7, 7}, {8, 7}}, {{7, 8}, {8, 8}},
-            {{8, 1}, {8, 2}}, {{8, 4}, {8, 5}, {8, 6}}
-        };
-        const std::vector<int> sums {
-            15, 13, 10, 5, 8, 8,
-            12, 6, 13,
-            15, 6, 4, 5, 13, 12, 11, 13,
-            11,
-            9, 11, 13, 3, 10,
-            7, 13, 17, 7,
-            10, 7, 10, 12, 11,
-            9, 11, 14, 11, 10, 8,
-            9, 13
-        };
+            {{0, 0}, {0, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {0, 4}}, {{0, 5}, {1, 5}}, {{0, 6}, {0, 7}},        {{0, 8}, {1, 8}}, {{1, 0}, {1, 1}},
+            {{1, 3}, {1, 4}}, {{1, 6}, {1, 7}}, {{2, 0}, {3, 0}}, {{2, 1}, {3, 1}}, {{2, 2}, {3, 2}},        {{2, 3}, {3, 3}}, {{2, 4}, {3, 4}},
+            {{2, 5}, {2, 6}}, {{2, 7}, {3, 7}}, {{2, 8}, {3, 8}}, {{3, 5}, {3, 6}}, {{4, 0}, {4, 1}},        {{4, 2}, {4, 3}}, {{4, 4}, {4, 5}},
+            {{4, 6}, {5, 6}}, {{4, 7}, {4, 8}}, {{5, 0}, {5, 1}}, {{5, 2}, {5, 3}}, {{5, 4}, {5, 5}},        {{5, 7}, {5, 8}}, {{6, 0}, {6, 1}},
+            {{6, 2}, {6, 3}}, {{6, 4}, {6, 5}}, {{6, 6}, {7, 6}}, {{6, 7}, {6, 8}}, {{7, 0}, {8, 0}},        {{7, 1}, {7, 2}}, {{7, 3}, {8, 3}},
+            {{7, 4}, {7, 5}}, {{7, 7}, {8, 7}}, {{7, 8}, {8, 8}}, {{8, 1}, {8, 2}}, {{8, 4}, {8, 5}, {8, 6}}};
+        const std::vector<int> sums {15, 13, 10, 5, 8,  8,  12, 6,  13, 15, 6,  4,  5, 13, 12, 11, 13, 11, 9, 11,
+                                     13, 3,  10, 7, 13, 17, 7,  10, 7,  10, 12, 11, 9, 11, 14, 11, 10, 8,  9, 13};
 
         sumoku::SumokuBitMaskSolver s {N, boxes, sums};
 
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -480,44 +442,32 @@ TEST_CASE( "Sumoku (SumokuOrderingWithBitMask)", "[main]" )
     {
         constexpr size_t N = 9;
         const std::vector<std::vector<Point>> boxes {
-            {{0, 0}, {1, 0}, {2, 0}}, {{0, 1}, {1, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {1, 3}}, {{0, 4}, {1, 4}}, {{0, 5}, {0, 6}}, {{0, 7}, {0, 8}},
-            {{1, 5}, {2, 5}}, {{1, 6}, {2, 6}}, {{1, 7}, {1, 8}},
-            {{2, 1}, {2, 2}}, {{2, 3}, {2, 4}}, {{2, 7}, {3, 7}, {4, 7}}, {{2, 8}, {3, 8}},
-            {{3, 0}, {3, 1}}, {{3, 2}, {3, 3}}, {{3, 4}, {3, 5}}, {{3, 6}, {4, 6}},
+            {{0, 0}, {1, 0}, {2, 0}}, {{0, 1}, {1, 1}}, {{0, 2}, {1, 2}}, {{0, 3}, {1, 3}}, {{0, 4}, {1, 4}}, {{0, 5}, {0, 6}},
+            {{0, 7}, {0, 8}},         {{1, 5}, {2, 5}}, {{1, 6}, {2, 6}}, {{1, 7}, {1, 8}}, {{2, 1}, {2, 2}}, {{2, 3}, {2, 4}},
+            {{2, 7}, {3, 7}, {4, 7}}, {{2, 8}, {3, 8}}, {{3, 0}, {3, 1}}, {{3, 2}, {3, 3}}, {{3, 4}, {3, 5}}, {{3, 6}, {4, 6}},
             {{4, 0}, {5, 0}, {6, 0}}, {{4, 1}, {5, 1}}, {{4, 2}, {5, 2}}, {{4, 3}, {4, 4}}, {{4, 5}, {5, 5}}, {{4, 8}, {5, 8}},
-            {{5, 3}, {5, 4}}, {{5, 6}, {5, 7}},
-            {{6, 1}, {6, 2}}, {{6, 3}, {6, 4}}, {{6, 5}, {6, 6}}, {{6, 7}, {7, 7}}, {{6, 8}, {7, 8}},
-            {{7, 0}, {7, 1}}, {{7, 2}, {8, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {8, 4}}, {{7, 5}, {7, 6}},
-            {{8, 0}, {8, 1}}, {{8, 5}, {8, 6}}, {{8, 7}, {8, 8}}
-        };
-        const std::vector<int> sums {
-            18, 4, 8, 10, 13, 13, 17,
-            5, 11, 7,
-            5, 15, 17, 11,
-            10, 6, 10, 17,
-            11, 12, 12, 11, 5, 8,
-            12, 5,
-            13, 9, 11, 11, 11,
-            17, 10, 6, 11, 8,
-            10, 11, 4
-        };
+            {{5, 3}, {5, 4}},         {{5, 6}, {5, 7}}, {{6, 1}, {6, 2}}, {{6, 3}, {6, 4}}, {{6, 5}, {6, 6}}, {{6, 7}, {7, 7}},
+            {{6, 8}, {7, 8}},         {{7, 0}, {7, 1}}, {{7, 2}, {8, 2}}, {{7, 3}, {8, 3}}, {{7, 4}, {8, 4}}, {{7, 5}, {7, 6}},
+            {{8, 0}, {8, 1}},         {{8, 5}, {8, 6}}, {{8, 7}, {8, 8}}};
+        const std::vector<int> sums {18, 4,  8, 10, 13, 13, 17, 5, 11, 7,  5,  15, 17, 11, 10, 6, 10, 17, 11, 12,
+                                     12, 11, 5, 8,  12, 5,  13, 9, 11, 11, 11, 17, 10, 6,  11, 8, 10, 11, 4};
 
         sumoku::SumokuBitMaskSolver s {N, boxes, sums};
 
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
 }
 
-TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
+TEST_CASE("Sumoku (SumokuMRV)", "[main]")
 {
     SECTION("Puzzle 0", "[2 x 2]")
     {
@@ -530,11 +480,11 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -550,11 +500,11 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -562,7 +512,8 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
     SECTION("Puzzle 2", "[4 x 4]")
     {
         constexpr size_t N = 4;
-        const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}}, {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}}, {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
+        const std::vector<std::vector<Point>> boxes {{{0, 0}, {1, 0}, {2, 0}}, {{0, 1}},         {{0, 2}, {0, 3}}, {{1, 1}, {2, 1}}, {{1, 2}},
+                                                     {{1, 3}, {2, 3}, {3, 3}}, {{2, 2}, {3, 2}}, {{3, 0}, {3, 1}}};
         const std::vector<int> sums {6, 4, 5, 5, 1, 8, 6, 5};
 
         sumoku::SumokuMRVSolver s {N, boxes, sums};
@@ -570,11 +521,11 @@ TEST_CASE( "Sumoku (SumokuMRV)", "[main]" )
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == N);
+        REQUIRE(solution.size() == N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
     }
@@ -600,11 +551,11 @@ TEST_CASE("Sumoku Solver: Naive", "[Sumoku]")
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == data.N);
+        REQUIRE(solution.size() == data.N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
         validate_sumoku_constraints(solution, data.boxes, data.sums);
@@ -631,11 +582,11 @@ TEST_CASE("Sumoku Solver: SumokuMRV", "[SumokuMRV]")
         s.Solve();
 
         auto ret = s.GetSolution();
-        REQUIRE (ret != std::nullopt);
+        REQUIRE(ret != std::nullopt);
 
         std::vector<std::vector<size_t>> solution = *ret;
 
-        REQUIRE (solution.size() == data.N);
+        REQUIRE(solution.size() == data.N);
         validate_boad_is_square(solution);
         validate_sukodu_row_column_constraints(solution);
         validate_sumoku_constraints(solution, data.boxes, data.sums);
@@ -664,11 +615,11 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
             solver.Solve();
 
             auto ret = solver.GetSolution();
-            REQUIRE (ret != std::nullopt);
+            REQUIRE(ret != std::nullopt);
 
             std::vector<std::vector<size_t>> solution = *ret;
 
-            REQUIRE (solution.size() == data.N);
+            REQUIRE(solution.size() == data.N);
             validate_boad_is_square(solution);
             validate_sukodu_row_column_box_constraints(solution);
             validate_sumoku_constraints(solution, data.boxes, data.sums);
@@ -688,6 +639,6 @@ TEST_CASE("Killer Sudoku Solver: MRV", "[KillerSudokuMRV]")
         solver.Solve();
 
         auto ret = solver.GetSolution();
-        REQUIRE_FALSE (ret);
+        REQUIRE_FALSE(ret);
     }
 }

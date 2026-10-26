@@ -10,9 +10,10 @@
 
 #include "loader/loaderlib.hpp"                           // GetTestDataPath, LoadAllPuzzles<>
 #include "solvers/sudoku/killersudokumrvsolver.hpp"       // killer_sudoku::KillerSudokuMRVSolver
-#include "solvers/sumoku/sumokubacktrackingsolver.hpp"    // sumoku::SumokuBacktracking
-#include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBacktracking
-#include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuBacktracking
+#include "solvers/sumoku/sumokubacktrackingsolver.hpp"    // sumoku::SumokuBacktrackingSolver
+#include "solvers/sumoku/sumokubitmaskorderingsolver.hpp" // sumoku::SumokuBitMaskOrderingSolver
+#include "solvers/sumoku/sumokumrvsolver.hpp"             // sumoku::SumokuMRVSolver
+#include "solvers/sumoku/sumokuorderingsolver.hpp"        // sumoku::SumokuOrderingSolver
 
 namespace fs = std::filesystem;
 
