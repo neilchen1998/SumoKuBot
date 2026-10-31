@@ -1,10 +1,11 @@
 #ifndef APPS_CLI_ARGUMENTS_HPP
 #define APPS_CLI_ARGUMENTS_HPP
 
-#include <array>       // std::array
-#include <cstdint>     // std::uint8_t
-#include <string_view> // std::string_view
-#include <utility>     // std::pair
+#include <array>                     // std::array
+#include <cstdint>                   // std::uint8_t
+#include <magic_enum/magic_enum.hpp> // magic_enum::enum_names
+#include <string_view>               // std::string_view
+#include <utility>                   // std::pair
 
 /// @brief The solver type
 enum class SolverType : std::uint8_t // packs this enum inside a single byte type
@@ -25,13 +26,15 @@ constexpr std::array<std::pair<std::string_view, SolverType>, 3> solverMap {{
 /// @return A null-terminated character array containing the formatted solver options.
 consteval auto GetSolverOptionsText()
 {
+    constexpr auto solverNames = magic_enum::enum_names<SolverType>();
+
     constexpr std::size_t maxSize = 48; // adjust this if needed
     std::array<char, maxSize> buffer {};
     std::size_t pos = 0;
 
     buffer[pos++] = '{';
 
-    for (bool first = true; const auto& [name, _] : solverMap)
+    for (bool first = true; const auto name : solverNames)
     {
         // Append the comma seperator when there is more than one solver
         if (!first)
