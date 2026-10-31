@@ -1,7 +1,8 @@
 #ifndef APPS_CLI_ARGUMENTS_HPP
 #define APPS_CLI_ARGUMENTS_HPP
 
-#include <array>                     // std::array
+#include <array> // std::array
+#include <cstddef>
 #include <cstdint>                   // std::uint8_t
 #include <magic_enum/magic_enum.hpp> // magic_enum::enum_names
 #include <string_view>               // std::string_view
@@ -16,16 +17,25 @@ enum class SolverType : std::uint8_t // packs this enum inside a single byte typ
 };
 
 /// @brief A map for all the solver types
-constexpr std::array<std::pair<std::string_view, SolverType>, 3> solverMap {{
-    {"Basic", SolverType::SumokuSolver},
-    {"SumokuMRV", SolverType::SumokuMRV},
-    {"SumokuOrdering", SolverType::SumokuOrdering},
-}};
+constexpr auto solverMap = [] {
+    std::array<std::pair<std::string_view, SolverType>, magic_enum::enum_count<SolverType>()> ret {};
+
+    constexpr auto values = magic_enum::enum_values<SolverType>();
+    constexpr auto names = magic_enum::enum_names<SolverType>();
+
+    for (std::size_t i = 0; i < values.size(); ++i)
+    {
+        ret[i] = {names[i], values[i]};
+    }
+
+    return ret;
+}();
 
 /// @brief Generates a comma-separated list of available solver names enclosed in braces during compile time.
 /// @return A null-terminated character array containing the formatted solver options.
 consteval auto GetSolverOptionsText()
 {
+    //
     constexpr auto solverNames = magic_enum::enum_names<SolverType>();
 
     constexpr std::size_t maxSize = 48; // adjust this if needed

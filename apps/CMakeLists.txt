@@ -36,7 +36,7 @@ add_executable(app app.cc)
 target_include_directories(app PRIVATE "${CMAKE_BINARY_DIR}/generated")
 
 # Link required libraries
-target_link_libraries(cli PRIVATE magic_enum::magic_enum)
+target_link_libraries(cli PUBLIC magic_enum::magic_enum)
 
 target_link_libraries(cli INTERFACE project_options)
 
