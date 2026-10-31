@@ -6,7 +6,7 @@
 #include <cstdint>                   // std::uint8_t
 #include <magic_enum/magic_enum.hpp> // magic_enum::enum_names
 #include <string_view>               // std::string_view
-#include <utility>                   // std::pair
+#include <utility>                   // std::pair, std::index_sequence
 
 /// @brief The solver type
 enum class SolverType : std::uint8_t // packs this enum inside a single byte type
@@ -17,19 +17,12 @@ enum class SolverType : std::uint8_t // packs this enum inside a single byte typ
 };
 
 /// @brief A map for all the solver types
-constexpr auto solverMap = [] {
-    std::array<std::pair<std::string_view, SolverType>, magic_enum::enum_count<SolverType>()> ret {};
-
+constexpr auto solverMap = []<std::size_t... I>(std::index_sequence<I...>) {
     constexpr auto values = magic_enum::enum_values<SolverType>();
     constexpr auto names = magic_enum::enum_names<SolverType>();
 
-    for (std::size_t i = 0; i < values.size(); ++i)
-    {
-        ret[i] = {names[i], values[i]};
-    }
-
-    return ret;
-}();
+    return std::array {std::pair<std::string_view, SolverType> {names[I], values[I]}...};
+}(std::make_index_sequence<magic_enum::enum_count<SolverType>()> {});
 
 /// @brief Generates a comma-separated list of available solver names enclosed in braces during compile time.
 /// @return A null-terminated character array containing the formatted solver options.
