@@ -1285,6 +1285,71 @@ app.add_option("-s,--solver", solverType, "The solver type")
     ->capture_default_str();
 ```
 
+### std::integer_sequence
+
+```std::integer_sequence``` represents a compile-time sequence of integers.
+You can use them in pack expansion for ```std::tuple```, ```std::array```, etc.
+
+By writing:
+
+```cpp
+std::make_index_sequence<5>
+```
+
+C++ generates ```std::index_sequence<0, 1, 2, 3, 4>``` at compile-time.
+
+As for pack expansion, consider this template:
+
+```cpp
+template <std::size_t... I>
+void PrintIndices(std::index_sequence<I...>)
+{
+    ((std::cout << I << '\n'), ...);
+}
+```
+
+and calling ```PrintIndices(std::make_index_sequence<4>{});``` is the same as writing:
+
+```cpp
+void printIndices(std::index_sequence<0, 1, 2, 3>)
+{
+    ((std::cout << I << '\n'), ...);
+}
+```
+
+and C++ will generate:
+
+```cpp
+std::cout << 0 << '\n';
+std::cout << 1 << '\n';
+std::cout << 2 << '\n';
+std::cout << 3 << '\n';
+```
+
+Back to our implementation:
+
+```cpp
+template <typename Enum, std::size_t... I>
+constexpr auto CompileEnumMap(std::index_sequence<I...>)
+{
+    constexpr auto values = magic_enum::enum_values<Enum>();
+    constexpr auto names = magic_enum::enum_names<Enum>();
+
+    return std::array {std::pair<std::string_view, Enum> {names[I], values[I]}...};
+}
+```
+
+is essentially:
+
+```cpp
+result[0] = {names[0], values[0]};
+result[1] = {names[1], values[1]};
+result[2] = {names[2], values[2]};
+...
+```
+
+Therefore, we can simply pass in the enum and the its size, this function will generate a map for it.
+
 ## Reference
 
 - [CMake Target Commands](https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-command-scope)
