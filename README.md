@@ -43,6 +43,7 @@ The requirements are:
 - [fmt](https://github.com/fmtlib/fmt) 12.0 or higher (will automatically install if not present)
 - [Git](https://git-scm.com/)
 - [json](https://github.com/nlohmann/json.git) 3.0 or higher (will automatically install if not present)
+- [magic_enum](https://github.com/Neargye/magic_enum.git) 0.9.8 or higher (will automatically install if not present)
 - [nanobench](https://github.com/martinus/nanobench.git) 4.3 or higher (will automatically install if not present)
 - [spdlog](https://github.com/gabime/spdlog.git) 1.16 or higher (will automatically install if not present)
 
@@ -174,13 +175,13 @@ cmake --build --preset ci-release
 
 To install the executable under **/usr/local/bin/app**:
 
-``zsh
+```zsh
 sudo cmake --install _build/release
 ```
 
 or do so under **~/.local/bin/app**:
 
-```
+```zsh
 cmake --install _build/release --prefix "$HOME/.local"
 ```
 
@@ -309,7 +310,7 @@ Backtracking is a technique that finds solutions for constraint satisfaction pro
 
 ### Pruning
 
-### Replace checking with bitmasks
+### Replace Checking with Bitmasks
 
 Traversing rows and columns to verify that a number is unique is a *O(N)* operation.
 In our 9-by-9 grid, it is still manageable but we can reduce it from *O(N)* to *O(1)* by using a bitmask.
@@ -346,7 +347,7 @@ The chart below shows the improvement from using bitmasks. We can see at least a
 |              404.15 |                2.47 |    0.1% |      4.45 | `ordering`
 |              334.99 |                2.99 |    0.2% |      3.68 | `ordering w/ bitmasks`
 
-### Minimum remaining value (MRV) heuristic
+### Minimum Remaining Value (MRV) Heuristic
 
 Minimum remaining value (MRV) heuristic is a way prioritize the selection of elements in a search algorithm.
 We mentioned earlier that backtracking is essentially a depth-first search (DFS) algorithm, and that it searches through all potential solution spaces.
@@ -428,11 +429,11 @@ The drawback is that this algorithm is required to loop through all remaining el
 |              334.99 |                2.99 |    0.2% |      3.68 | `ordering w/ bitmasks`
 |               17.10 |               58.48 |    0.4% |      0.19 | `MRV`
 
-### __builtin_popcount
+### Count Set Bits
 
-*__builtin_popcount* is a GCC special function that returns the number of 1's (set bits) in a given unsigned int.
+```__builtin_popcount``` is a GCC special function that returns the number of 1's (set bits) in a given unsigned int.
 It leverages hardware instructions if possible, which is significantly faster than software implementation.
-In C++20, one can use *std::popcount* if the compiler is not GCC compatible.
+In C++20, one can use ```std::popcount``` if the compiler is not GCC compatible.
 We use a preprocessor to check if the compiler is GCC and call different function accordingly.
 
 ```cpp
@@ -443,14 +444,14 @@ int curNumOfCandidates = std::popcount(candidates);
 #endif
 ```
 
-### __builtin_ctz
+### Count Trailing Zeros
 
-*__builtin_ctz* (count trailing zeros) is a GCC special function that returns the number of consecutive 0's from the right (least significant bit).
+```__builtin_ctz``` (count trailing zeros) is a GCC special function that returns the number of consecutive 0's from the right (least significant bit).
 It leverages hardware instructions if possible, which is significantly faster than software implementation.
-In C++20, one can use *std::countr_zero* if the compiler is not GCC compatible.
+In C++20, one can use ```std::countr_zero``` if the compiler is not GCC compatible.
 If the input is 41 (**0b101001**) then the return value will be 0 and if the input is 48 (**0b110000**), then the return value will be 4.
 
-### Pre-calculate candidates
+### Pre-calculate Candidates
 
 We know that there can be at most 9 elements in a box and the maximum sum is 45 ($\sum_{i=1}^{9} i$).
 Therefore, we can pre-calculate all the candidates for a given box in the compile-time.
@@ -565,7 +566,7 @@ for (uint16_t i = 0U; i < (1U << MAX_COUNT); ++i)
 
 This new version of finding all candidates that can sum up to a target is easier and more straight-forward compared to the dynamic programming that we will cover later.
 
-### Dynamic programming
+### Dynamic Programming
 
 Dynamic programming is a very powerful algorithm that breaks down complex problems into smaller sub-problems.
 There are multiple variations of dynamic programming, e.g., recursion, linear, or 2D.
@@ -672,7 +673,7 @@ struct PossibleNumbersTable
 };
 ```
 
-### Compiler flags
+### Compiler Flags
 
 *target_compile_options* is available in modern **CMake**.
 We create an interface library that only contains compiler flags and linker flags.
@@ -946,7 +947,7 @@ Assignment is used with an equal sign (*=*) before the new value.
 
 We can assign a vector to anothe vector like this:
 
-```
+```cpp
 std::vector<int> a, b;
 a = b;
 ```
@@ -957,7 +958,7 @@ Constructor is used with a pair of parentheses *()* that can construct the objec
 
 We can construct a vector like this:
 
-```
+```cpp
 std::vector<int> vec({1, 2, 3, 4});
 ```
 
@@ -965,7 +966,7 @@ List-initialization is used with a pair of braces (*{}*) with the elements insid
 
 We can construct a vector like this:
 
-```
+```cpp
 std::vector<int> vec{1, 2, 3, 4};
 ```
 
@@ -1143,7 +1144,7 @@ set(CPACK_PACKAGE_CHECKSUM "SHA256")
 
 ### Target Commands (PUBLIC vs PRIVATE vs INTERFACE)
 
-#### PRIVATE
+##### PRIVATE
 
 ```cmake
 target_link_libraries(A PRIVATE B)
@@ -1151,7 +1152,7 @@ target_link_libraries(A PRIVATE B)
 
 This means that A needs B internally, but users of A does NOT need to know B.
 
-### PUBLIC
+##### PUBLIC
 
 ```cmake
 target_link_libraries(A PUBLIC B)
