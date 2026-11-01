@@ -1286,7 +1286,7 @@ app.add_option("-s,--solver", solverType, "The solver type")
     ->capture_default_str();
 ```
 
-### std::integer_sequence
+### Integer Sequence
 
 ```std::integer_sequence``` represents a compile-time sequence of integers.
 You can use them in pack expansion for ```std::tuple```, ```std::array```, etc.
