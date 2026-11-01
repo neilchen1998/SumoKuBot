@@ -11,6 +11,7 @@ else()
     CLI11
     GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
     GIT_TAG        v2.4.1
+    GIT_SHALLOW    TRUE
     )
     FetchContent_MakeAvailable(CLI11)
 endif()
@@ -25,6 +26,7 @@ else()
         magic_enum
         GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
         GIT_TAG        v0.9.8
+        GIT_SHALLOW    TRUE
     )
     FetchContent_MakeAvailable(magic_enum)
 endif()
