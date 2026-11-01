@@ -2,6 +2,8 @@ name: Build and Test
 
 on:
   pull_request:
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   build:
@@ -13,11 +15,11 @@ jobs:
 
       - name: Install Clang and libc++
         run: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              clang-19 \
-              libc++-19-dev \
-              libc++abi-19-dev
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang-19 \
+            libc++-19-dev \
+            libc++abi-19-dev
 
       - name: Check Compiler
         run: |
