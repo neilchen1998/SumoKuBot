@@ -3,6 +3,8 @@ if(PROJECT_IS_TOP_LEVEL)
   # The name of the package <PROJECT_NAME>-<PROJECT_VERSION>.tar.gz
   set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
   set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+  set(CPACK_PACKAGE_VENDOR "Neil")
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A fast C++ CLI that solves Sumoku (Killer Sudoku) puzzles")
 
   # The location of LICENSE
   set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")

@@ -43,8 +43,7 @@ if(PROJECT_IS_TOP_LEVEL)
     $<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>:-Wpedantic>
 
     # Debug builds
-    $<$<CONFIG:Debug>:-fsanitize=address,undefined>
-    $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>>:-fno-omit-frame-pointer>
+    $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANG_AND_ID:CXX,GNU,Clang,AppleClang>>:-fsanitize=address,undefined;-fno-omit-frame-pointer>
   )
 
   # Optional flags
@@ -93,6 +92,7 @@ FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
   GIT_TAG        11.2.0
+  GIT_SHALLOW    TRUE
   FIND_PACKAGE_ARGS CONFIG 11.0...<13.0
 )
 FetchContent_MakeAvailable(fmt)
@@ -115,6 +115,7 @@ else()
     json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
     GIT_TAG        v3.12.0
+    GIT_SHALLOW    TRUE
   )
   FetchContent_MakeAvailable(json)
 endif()
@@ -140,8 +141,8 @@ set(PROJECT_BUILD_NUMBER 0 CACHE STRING "CI build number")
 
 # Configure the SW version file
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/modules/project/version.h.in"
-  "${CMAKE_BINARY_DIR}/generated/version.h"
+  "${PROJECT_SOURCE_DIR}/modules/project/version.h.in"
+  "${PROJECT_BINARY_DIR}/generated/version.h"
   @ONLY
 )
 
@@ -176,4 +177,6 @@ if(PROJECT_IS_TOP_LEVEL AND (PROJECT_BUILD_TESTS OR PROJECT_BUILD_BENCHMARKS))
 endif()
 
 # Include custom cmake
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPackConfig.cmake")
+if(PROJECT_IS_TOP_LEVEL)
+  include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CPackConfig.cmake")
+endif()
