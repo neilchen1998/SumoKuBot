@@ -1,7 +1,10 @@
 #ifndef MODULES_SOLVERS_SUDOKU_SUDOKUDLX_HPP
 #define MODULES_SOLVERS_SUDOKU_SUDOKUDLX_HPP
 
+#include <array>    // std::array
 #include <cstddef>  // size_t
+#include <cstdint>  // uint8_t
+#include <limits>   // std::numeric_limits
 #include <memory>   // std::make_unique, std::unique_ptr
 #include <optional> // std::optional
 #include <vector>   // std::vector
@@ -47,13 +50,13 @@ class SudokuDLXSolver
         ColumnHeader* header = nullptr;
 
         /// @brief Row index
-        int r = -1;
+        uint8_t r = std::numeric_limits<uint8_t>::max();
 
         /// @brief Column index
-        int c = -1;
+        uint8_t c = std::numeric_limits<uint8_t>::max();
 
         /// @brief Digit
-        int d = -1;
+        uint8_t d = std::numeric_limits<uint8_t>::max();
 
         Node() = default;
 
@@ -61,7 +64,7 @@ class SudokuDLXSolver
         {
         }
 
-        virtual ~Node() = default;
+        ~Node() = default;
 
         // Delete copying & move semantics
         Node(const Node&) = delete;
@@ -71,15 +74,15 @@ class SudokuDLXSolver
     };
 
     /// @brief Column header node
-    struct ColumnHeader : public Node
+    struct ColumnHeader final : public Node
     {
         /// @brief The id
-        unsigned int id = -1;
+        uint16_t _id = std::numeric_limits<uint16_t>::max();
 
         /// @brief The number of nodes under the column
-        size_t size = 0;
+        size_t _size = 0;
 
-        ColumnHeader(int id) : id(id)
+        explicit ColumnHeader(uint16_t id) : _id(id)
         {
             header = this;
         }
@@ -133,7 +136,7 @@ class SudokuDLXSolver
     std::vector<std::unique_ptr<Node>> _nodes;
 
     /// @brief True if the puzzle is solved
-    bool isSolved_ = false;
+    bool _isSolved = false;
 };
 
 } // namespace sudoku

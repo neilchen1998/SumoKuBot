@@ -1,6 +1,8 @@
 #include "sudokudlx.hpp"
 
 #include <cstddef> // size_t
+#include <cstdint> // uint16_t
+#include <limits>  // std::numeric_limits
 #include <memory>  // std::make_unique, std::unique_ptr
 #include <utility> // std::move
 
@@ -9,18 +11,18 @@
 namespace sudoku
 {
 SudokuDLXSolver::SudokuDLXSolver(SudokuBoard board)
-    : _board(std::move(board)), _root(std::make_unique<ColumnHeader>(-1)), _columns(TOTAL_NUM_OF_CONSTRAINTS)
+    : _board(std::move(board)), _root(std::make_unique<ColumnHeader>(std::numeric_limits<uint16_t>::max())), _columns(TOTAL_NUM_OF_CONSTRAINTS)
 {
     _root->left = _root.get();
     _root->right = _root.get();
 
-    for (size_t i = 0; i < TOTAL_NUM_OF_CONSTRAINTS; ++i)
+    for (uint16_t i = 0; i < TOTAL_NUM_OF_CONSTRAINTS; ++i)
     {
-        _columns[i] = std::make_unique<ColumnHeader>(static_cast<int>(i));
+        _columns[i] = std::make_unique<ColumnHeader>(i);
 
         ColumnHeader* column = _columns[i].get();
 
-        // Insert the column immediately before the root.
+        // Insert the column immediately before the root
         column->left = _root->left;
         column->right = _root.get();
 
@@ -29,9 +31,9 @@ SudokuDLXSolver::SudokuDLXSolver(SudokuBoard board)
     }
 
     // Generate the constraint matrix
-    for (int r = 0; r < 9; ++r)
+    for (size_t r = 0; r < SUDOKU_SZ; ++r)
     {
-        for (int c = 0; c < 9; ++c)
+        for (size_t c = 0; c < SUDOKU_SZ; ++c)
         {
             const int cellDigit = _board[r][c];
 
@@ -61,11 +63,11 @@ void SudokuDLXSolver::Solve()
             _board[ptr->r][ptr->c] = ptr->d;
         }
 
-        isSolved_ = true;
+        _isSolved = true;
     }
     else
     {
-        isSolved_ = false;
+        _isSolved = false;
     }
 }
 
@@ -73,7 +75,7 @@ void SudokuDLXSolver::Solve()
 /// @return The solved Sudoku board
 [[nodiscard]] std::optional<SudokuBoard> SudokuDLXSolver::GetSolution() const
 {
-    return isSolved_ ? std::optional<SudokuBoard> {_board} : std::nullopt;
+    return _isSolved ? std::optional<SudokuBoard> {_board} : std::nullopt;
 }
 
 /// @brief Search the solution using MRV heuristic
@@ -87,18 +89,18 @@ bool SudokuDLXSolver::Search()
     }
 
     // Loop through all columns and find the one that has the least number of nodes
-    ColumnHeader* col = dynamic_cast<ColumnHeader*>(_root->right);
+    ColumnHeader* col = static_cast<ColumnHeader*>(_root->right);
     for (Node* cur = _root->right; cur != _root.get(); cur = cur->right)
     {
-        ColumnHeader* colHeader = dynamic_cast<ColumnHeader*>(cur);
-        if (colHeader->size < col->size)
+        ColumnHeader* colHeader = static_cast<ColumnHeader*>(cur);
+        if (colHeader->_size < col->_size)
         {
             col = colHeader;
         }
     }
 
     // Dead end
-    if (col->size == 0)
+    if (col->_size == 0)
     {
         return false;
     }
@@ -162,7 +164,7 @@ void SudokuDLXSolver::AddRow(int r, int c, int d, const SudokuConstraints& col_i
         node->up = col->up;
         col->up->down = node;
         col->up = node;
-        ++col->size;
+        ++col->_size;
 
         // Link the newly created node to the end of the row (horizontally)
         if (!firstNode)
@@ -195,7 +197,7 @@ void SudokuDLXSolver::Cover(ColumnHeader* col)
         {
             node->down->up = node->up;
             node->up->down = node->down;
-            --node->header->size;
+            --node->header->_size;
         }
     }
 }
@@ -212,7 +214,7 @@ void SudokuDLXSolver::Uncover(ColumnHeader* col)
         {
             node->down->up = node;
             node->up->down = node;
-            ++node->header->size;
+            ++node->header->_size;
         }
     }
 
